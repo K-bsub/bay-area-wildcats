@@ -1,0 +1,53 @@
+# ---- Data (never committed; see data/README.md for acquisition steps) -------
+data/raw/*
+data/interim/*
+data/processed/*
+!data/**/.gitkeep
+!data/README.md
+
+# ---- Restricted / sensitive data (Felidae, precise puma locations) ---------
+# Nothing in this directory may EVER be committed. See docs/sensitive-data-policy.md
+data/restricted/**
+!data/restricted/.gitkeep
+
+# ---- Large outputs ---------------------------------------------------------
+outputs/rasters/*
+outputs/models/*
+!outputs/**/.gitkeep
+*.tif
+*.tiff
+*.gpkg
+*.gdb/
+*.rds
+*.qs
+
+# Allow small, publication-ready web layers
+!site/data/*.geojson
+!site/data/*.json
+
+# ---- R ---------------------------------------------------------------------
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+renv/library/
+renv/local/
+renv/cellar/
+renv/staging/
+renv/python/
+
+# ---- targets ---------------------------------------------------------------
+_targets/
+
+# ---- Quarto / site build ---------------------------------------------------
+_site/
+site/_site/
+site/.quarto/
+*.html
+!site/**/*.html
+
+# ---- OS / editor -----------------------------------------------------------
+.DS_Store
+Thumbs.db
+.vscode/
+*.swp

@@ -1,0 +1,123 @@
+# Project Plan
+
+**Project:** Wild Cats at the Urban Edge
+**Author:** Kiran Balasubramanian
+**Start date:** July 23, 2026
+**Target:** 10 weeks
+**Last updated:** July 26, 2026
+
+---
+
+## Scope
+
+**Phase 1 (this repository)**
+- Characterise open space across the ten-county Bay Area
+- Map puma and bobcat distribution from open occurrence data
+- Model bobcat occupancy; model puma connectivity
+- Analyse road mortality as the primary threat layer
+- Publish a reproducible story site
+
+**Deliberately out of scope for Phase 1**
+- Population size or trend estimation (no data supports it)
+- Genetic / inbreeding analysis
+- Prey base modelling
+
+**Future phases**
+- Phase 2: circuit-theory connectivity, crossing-structure prioritisation
+- Phase 3: partner data integration, formal multi-species occupancy
+- Phase 4: individual open-space case studies
+
+---
+
+## Timeline
+
+| Week | Milestone | Key deliverables | Status |
+|---|---|---|---|
+| **1** | Repository and environment setup | Repo scaffold, docs, renv, R toolchain verified | 🟢 In progress |
+| **2** | Data acquisition | All open datasets downloaded and documented | ⚪ Not started |
+| **3** | Boundary and study-area preparation | Open-space units defined and filtered; analysis grid built | ⚪ Not started |
+| **4** | Occurrence processing | Cleaned, deduplicated, CRS-aligned occurrence layers for both species | ⚪ Not started |
+| **5** | Covariate preparation | Land cover, terrain, roads, housing summarised to grid and unit | ⚪ Not started |
+| **6** | Descriptive spatial analysis | KDE and Gi* for both species; unit-level statistics | ⚪ Not started |
+| **7** | Occupancy modelling | Bobcat occupancy fitted and validated; puma feasibility assessed | ⚪ Not started |
+| **8** | Connectivity analysis | Resistance surface, least-cost paths, core-patch linkages | ⚪ Not started |
+| **9** | Story site build | Quarto site, maps, charts, narrative | ⚪ Not started |
+| **10** | Review and publication | QA, accessibility check, GitHub Pages deployment, docs finalised | ⚪ Not started |
+
+**Status legend:** 🟢 In progress · 🟡 At risk · 🔴 Blocked · ✅ Complete · ⚪ Not started
+
+---
+
+## Week 1 tasks
+
+- [x] Create GitHub repository
+- [x] Establish directory structure
+- [x] Write `docs/sensitive-data-policy.md`
+- [x] Write `docs/naming-conventions.md`
+- [x] Establish CRS decision (EPSG:3310)
+- [x] Install R spatial toolchain and verify GDAL/GEOS/PROJ
+- [x] `renv::init()` and commit `renv.lock`
+- [x] Confirm study area definition — ten-county (Decision 2)
+- [ ] Draft `docs/proposal.md` research questions
+- [ ] Verify GitHub Pages deployment path (gh-pages branch, not /docs)
+
+---
+
+## Risks
+
+| # | Risk | Level | Mitigation |
+|---|---|---|---|
+| 1 | **Occupancy modelling not feasible from opportunistic data** — `unmarked` needs detection histories from repeated visits; GBIF/iNat records are not survey data | 🔴 High | Assess in Week 4 before committing. Fallbacks: (a) spatial-replication design with documented assumptions; (b) request Felidae detection histories (Phase-3 partner data, not used in Phase 1); (c) drop to species distribution modelling (MaxEnt / `maxnet`) and reframe the narrative |
+| 2 | **Puma records too sparse for any surface** — obscured and few | 🟡 Medium | Puma track leans on connectivity modelling and CROS mortality, which do not require dense occurrence data |
+| 3 | **CROS data-use terms restrict republication** | 🟡 Medium | Confirm terms in Week 2, before analysis is built on it. Fallback: aggregate to road segment and cite |
+| 4 | **R spatial toolchain / learning curve** — new stack after ArcGIS | 🟡 Medium | Week 1 buffer for setup; keep scripts small and numbered; `targets` deferred until pipeline is stable |
+| 5 | **CPAD includes non-habitat parcels** | 🟢 Low | Define and document filtering criteria (minimum area, land cover, access class) as a numbered decision |
+| 6 | **Sensitive data disclosure** | 🔴 High | `docs/sensitive-data-policy.md` enforced from Week 1; `data/restricted/**` gitignored before any data is acquired. No restricted data is held in Phase 1 (Felidae deferred, Decision 7); the policy stands for any future partner data |
+
+---
+
+## Progress log
+
+### Week 1 — July 23, 2026
+- **Progress:** 🟢 In progress
+- **Completed:** repository scaffold, documentation skeleton, sensitive data
+  policy, naming conventions, CRS decision
+- **Blockers:** none
+- **Next:** R environment setup and data acquisition
+- **Notes:** Scope reframed away from the tiger project's population-recovery
+  arc. No regional census time series exists for either species, so the
+  narrative is distribution, connectivity and coexistence. Risk 1 (occupancy
+  feasibility) is the item to resolve earliest — it determines whether Week 7
+  is occupancy modelling or species distribution modelling.
+
+### Felidae Wildpod stations — July 25, 2026
+- **Received:** 218-station Wildpod CSV (`ID`, `Park`, `Station`, `Area`,
+  coords, elevation). Held as **T3 restricted** in `data/restricted/`.
+- **Scoping:** `Los Angeles` sub-region (13 stations) is out of study area —
+  excluded (Decision 4). ~205 candidates before the ten-county clip.
+- **Association:** `Park` labels untrusted and many stations are on
+  private/suburban land → staged point-in-polygon / nearest-unit method, **not**
+  a 10–20 mi buffer (Decision 5). Open item: nearest-unit tolerance.
+- **Provenance:** written-agreement status unconfirmed — Decision 6. Blocks any
+  published Felidae-derived output until resolved.
+- **Reminder:** these are station *locations*, not detection histories; Risk 1
+  is not yet resolved by this data.
+- **Superseded 2026-07-26:** Felidae deferred to a future phase; the study
+  scope is now the full ten-county open-space frame and no Felidae CSV is
+  committed (Decision 7).
+
+### Week 1 environment — July 26, 2026
+- **Progress:** environment setup complete.
+- **Completed:** R spatial toolchain installed and verified — R 4.5.2, sf 1.1.1,
+  terra 1.9.27, GDAL 3.12.1, GEOS 3.14.1, PROJ 9.7.1, s2 enabled. Both vector
+  and raster reprojection to EPSG:3310 pass. `renv::init()` run and `renv.lock`
+  committed. Study area confirmed ten-county (Decision 2).
+- **Fixed:** a PostgreSQL/PostGIS `proj.db` was hijacking terra via
+  `PROJ_LIB`/`PROJ_DATA` (`[rast] empty srs`); `.Rprofile` now clears those
+  vars before spatial packages load. Kept above renv's activate line.
+- **Scope change:** Felidae dataset dropped from Phase 1 in favour of the full
+  ten-county open-data study (Decision 7).
+- **Blockers:** none.
+- **Next:** finish remaining Week 1 items (proposal research questions, verify
+  gh-pages path), then Week 2 data acquisition (CPAD/CCED, GBIF, iNaturalist,
+  CROS, covariates).

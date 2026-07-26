@@ -1,0 +1,24 @@
+project:
+  type: website
+  output-dir: ../_site
+
+website:
+  title: "Wild Cats at the Urban Edge"
+  description: "Pumas and bobcats in San Francisco Bay Area open spaces"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Story
+      - href: methods.qmd
+        text: Methods
+      - href: data.qmd
+        text: Data
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    css: styles.css
+
+execute:
+  freeze: auto

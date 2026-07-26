@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+title: >-
+  Wild Cats at the Urban Edge: Distribution and Connectivity of Pumas and
+  Bobcats in San Francisco Bay Area Open Spaces
+message: If you use this work, please cite it as below.
+type: dataset
+authors:
+  - family-names: Balasubramanian
+    given-names: Kiran
+repository-code: "https://github.com/K-bsub/bay-area-wildcats"
+abstract: >-
+  An open, reproducible spatial analysis of Puma concolor and Lynx rufus
+  occurrence, occupancy and habitat connectivity across protected open space
+  in the ten-county San Francisco Bay Area, built entirely in R from
+  publicly available data.
+keywords:
+  - puma
+  - bobcat
+  - connectivity
+  - occupancy modelling
+  - San Francisco Bay Area
+  - open space
+license: MIT
+date-released: "2026-07-23"
