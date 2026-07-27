@@ -35,6 +35,7 @@ Examples:
 
 ```
 openspace_cpad_bayarea_3310.gpkg
+boundary_baycounties_3310.gpkg
 occ_puma_gbif_clean_3310.gpkg
 occ_bobc_inat_research_3310.gpkg
 cov_landcover_nlcd2021_3310.tif
@@ -49,11 +50,15 @@ stats_felidae_station_unit_3310.gpkg  # unit-level summary; publishable after §
 **Restricted layers** keep the same naming rules but live under
 `data/restricted/` and are never committed (see `docs/sensitive-data-policy.md`).
 Naming does not make a layer safe to publish — placement and the §3 review do.
+The two Felidae examples above illustrate the restricted / derived naming
+pattern; Felidae itself is deferred to a future phase (Decision 7) and no such
+layer exists in Phase 1.
 
 **Theme prefixes:**
 
 | Prefix | Contents |
 |---|---|
+| `boundary_` | Study-area and administrative boundaries (clip frame) |
 | `openspace_` | Protected area / open space boundaries |
 | `occ_` | Occurrence and detection records |
 | `cov_` | Environmental and anthropogenic covariates |

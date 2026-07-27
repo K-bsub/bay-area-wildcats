@@ -3,7 +3,7 @@
 **Project:** Wild Cats at the Urban Edge — Pumas and Bobcats in SF Bay Area Open Spaces
 **Author:** Kiran Balasubramanian
 **Repository:** https://github.com/K-bsub/bay-area-wildcats
-**Last updated:** July 26, 2026
+**Last updated:** July 27, 2026
 
 > Living document. Every processing step, parameter value and analytical
 > decision is recorded here as it happens, matching the convention established
@@ -128,7 +128,77 @@ This line must stay **above** renv's `activate.R` line in `.Rprofile`.
 > each filter stage, and known issues.
 
 ### 4.1 Open space boundaries (CPAD/CCED)
-*Status: not started*
+*Status: downloaded and inspected — July 27, 2026. Clip to study area and level
+choice deferred to Week 3.*
+
+**Input:** `data/raw/cpad/cpad_2026a_release.zip` (unzipped in place) — CPAD 2026a
+statewide; see `docs/data-sources.md` §1.1 and Decision 8.
+**Output:** none yet. The analysis-ready open-space layer
+(`openspace_cpad_bayarea_3310.gpkg`) is built in Week 3 after level choice, clip
+and non-habitat filtering.
+
+**Levels present (feature counts, statewide):**
+
+| Layer | Features | CRS | `COUNTY` field |
+|---|---|---|---|
+| `CPAD_2026a_Holdings.shp` | 162,773 | EPSG:3310 | Yes |
+| `CPAD_2026a_Units.shp` | 17,930 | EPSG:3310 | Yes |
+| `CPAD_2026a_SuperUnits.shp` | 17,169 | EPSG:3310 | **No** |
+
+- **CRS is already EPSG:3310** (NAD83 / California Albers) on all three — no
+  reprojection needed for this layer.
+- **Join keys / hierarchy:** Holdings → Units via `UNIT_ID`; Units → SuperUnits
+  via `SUID_NMA` (present on all three). Name fields: `UNIT_NAME` (Units),
+  `PARK_NAME` (SuperUnits), `SITE_NAME` (Holdings).
+- **Fields useful for Week-3 filtering:** `ACCESS_TYP` (Open / Restricted / No
+  Public Access), `ACRES` (size filter), `LAYER` (agency classification),
+  `MNG_AGNCY` / `MNG_AG_LEV` (managing agency), `GAP1..4_acres` (GAP status —
+  GAP 1/2 = managed for biodiversity); Holdings additionally has `LAND_WATER`
+  and `SPEC_USE`.
+
+**Notes carried to Week 3:**
+- **Clip method:** SuperUnits has **no `COUNTY` field**, so if SuperUnits is the
+  chosen level, the ten-county selection must be a **spatial clip** to the
+  TIGER/Line boundary, not an attribute filter. A spatial clip is the safer
+  choice at any level anyway (the `COUNTY` attribute can be blank or span
+  multiple counties).
+- **Level choice** (Units vs SuperUnits vs Holdings) and **non-habitat filtering**
+  (pocket parks; ownership ≠ habitat; Risk 5) are Week-3 decisions.
+- CPAD is an *ownership* inventory — inclusion does not imply conservation
+  management.
+
+**CCED 2026a (easements) — downloaded and inspected July 27, 2026:**
+- Input: `data/raw/cced/cced_2026a_release.zip` → `CCED_2026a_Release.shp`.
+- **23,645 easement polygons; EPSG:3310** (no reprojection). Single layer — no
+  Holdings/Units/SuperUnits hierarchy.
+- Key fields: `esmthldr` (easement holder), `eholdtyp`, `e_type`, `pubaccess`,
+  `duration`/`term`, `county`, `gis_acres`, `GAP1..4_acres`, `iucncat`,
+  `nced_uid` (link to the national NCED record).
+- **Coverage gap — quantified, largely closed (Decision 9):** in 2026a,
+  California Rangeland Trust is the 2nd-largest holder (1,865) and CDFW the 4th
+  (988), so the standing "incomplete" disclaimer is largely historical. Not
+  supplemented. NCED can't fill it (CCED is its CA feed). Attribute caveat:
+  ~27% (6,363) have an "Unknown" holder — geometry present, still counts as
+  easement land; only matters for by-holder analysis.
+- **CPAD ↔ CCED integration is a Week-3 decision:** different schemas (CCED has
+  no Units/SuperUnits and different fields). Options — keep easements as a
+  separate overlay, or union CPAD+CCED into one protected-lands layer with a
+  `protection_type` field (fee vs easement). The connectivity track likely wants
+  the union; the open-space-unit/occupancy track may want CPAD only.
+
+**Study-area boundary (TIGER/Line via `tigris`) — built July 27, 2026:**
+- `tigris::counties("CA", cb = TRUE, year = 2024)`, filtered to the ten
+  `STUDY_COUNTIES`, reprojected to EPSG:3310.
+- QC: exactly 10 counties matched; dissolved land area **19,623 km²** —
+  consistent with the ten-county land extent (a water-inflated `cb = FALSE`
+  boundary would be ~28,000 km²), confirming the shoreline-clipped cartographic
+  boundary.
+- Outputs (`data/interim`, gitignored): `boundary_baycounties_3310.gpkg`
+  (10 polygons: `county`, `geoid`) and `boundary_baydissolved_3310.gpkg`
+  (clip mask).
+- This is the clip frame for the Week-3 statewide-CPAD → ten-county clip and for
+  every downstream layer. `cb = TRUE` (land) chosen over `cb = FALSE` (full legal
+  extent incl. bay/ocean) so the study area is terrestrial.
 
 ### 4.2 Occurrence records — GBIF
 *Status: not started*
@@ -304,6 +374,38 @@ dependency from the Phase-1 critical path.
 to deferred status. Felidae remains a Phase-3 enhancement handled under
 `docs/sensitive-data-policy.md` §4.
 
+**Decision 8: Open-space source — statewide CPAD 2026a, not BPAD**
+*Date:* July 27, 2026
+*Decision:* Use statewide **CPAD 2026a** (Holdings / Units / SuperUnits) as the
+open-space boundary source, clipped to the ten counties in Week 3. Easements come
+separately from CCED (data-sources §1.2). BPAD is not used.
+*Justification:* BPAD is GreenInfo's Bay-Area edition covering exactly the ten
+counties (nine bay counties + Santa Cruz, the CLN definition) and it bundles
+CCED, but its latest release is the 2025 edition — ~1 year staler than CPAD
+2026a. CPAD 2026a is the freshest authoritative release, has a scriptable direct
+download, arrives already in EPSG:3310, and keeps the documented CPAD/CCED split.
+Clipping with the project's own TIGER/Line ten-county boundary is more
+transparent and reproducible than relying on BPAD's county assignment.
+*Impact:* One extra step (CCED merged separately; statewide clip in Week 3) in
+exchange for freshness and transparency. BPAD remains a viable swap if
+bundled-easement convenience later outweighs freshness.
+
+**Decision 9: CCED used as-is — coverage gap quantified, not supplemented**
+*Date:* July 27, 2026
+*Decision:* Use CCED 2026a as the sole easement source for Phase 1; do not
+supplement it to fill the historical CDFW / Rangeland Trust gap.
+*Justification:* Quantified by `esmthldr` in the 2026a statewide data — California
+Rangeland Trust is the 2nd-largest holder (1,865 easements) and CDFW the 4th
+(988), so both are well-represented and the standing "incomplete" disclaimer is
+largely historical. NCED cannot supplement (CCED is its California feed) and
+remaining gaps are partly privacy-withheld, so unrecoverable from public data.
+The real residual issue is attribute-level: ~27% of easements (6,363) have an
+"Unknown" holder — geometry present and valid as easement extent, so no effect on
+extent-based use.
+*Impact:* No easement supplement in Phase 1; easement absence documented as "not
+necessarily unprotected." If a specific Week-8 corridor later demands it, a
+targeted CDFW/BIOS pull is the only clean option.
+
 ---
 
 ## 7. Known limitations
@@ -351,3 +453,8 @@ is not redistributable.
 | 2026-07-26 | 3 | Environment verified (R 4.5.2, sf 1.1.1, terra 1.9.27, GDAL 3.12.1, GEOS 3.14.1, PROJ 9.7.1); PostGIS proj.db conflict documented + fixed in .Rprofile |
 | 2026-07-26 | 6 | Decision 2 resolved — ten-county study area (locked in R/00_config.R) |
 | 2026-07-26 | 6 | Decision 7 — Felidae deferred to a future phase; §4.8/§5.7 retired; Decisions 4–6 deferred |
+| 2026-07-27 | 4.1 | CPAD 2026a downloaded + inspected (Holdings 162,773 / Units 17,930 / SuperUnits 17,169; all EPSG:3310) |
+| 2026-07-27 | 6 | Decision 8 — open-space source: statewide CPAD 2026a, not BPAD |
+| 2026-07-27 | 4.1 | CCED 2026a downloaded + inspected (23,645 easements, EPSG:3310); coverage-gap handling noted |
+| 2026-07-27 | 6 | Decision 9 — CCED used as-is; gap quantified (Rangeland Trust 2nd-largest holder, 1,865; CDFW 988), not supplemented |
+| 2026-07-27 | 4.1 | Study-area boundary built (tigris TIGER/Line 2024, cb=TRUE, 10 counties, EPSG:3310, 19,623 km²) |

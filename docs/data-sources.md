@@ -1,7 +1,7 @@
 # Data Sources
 
 **Project:** Wild Cats at the Urban Edge
-**Last updated:** July 26, 2026
+**Last updated:** July 27, 2026
 
 > Skeleton. Each entry is completed at download time with: access date, exact
 > version, file path, record count, CRS, licence and known issues — matching the
@@ -17,13 +17,32 @@ Primary boundary layer. The authoritative inventory of parks and open space in
 California, maintained by GreenInfo Network and published twice yearly. BPAD is
 the Bay Area edition, which also incorporates conservation easements from CCED.
 
-- **Access:** https://www.calands.org/ (also data.ca.gov and data.cnra.ca.gov)
-- **Bay Area edition:** https://www.bayarealands.org/maps-data/
-- **Version to use:** 2026a (or latest at download)
+- **Chosen source:** statewide **CPAD 2026a** (not the BPAD Bay-Area edition — see note below). Ten-county clip deferred to Week 3.
+- **Access (canonical):** https://www.calands.org/ — also listed on data.ca.gov and data.cnra.ca.gov
+- **Direct download (2026a zip):** https://data.cnra.ca.gov/dataset/0ae3cd9f-0612-4572-8862-9e9a1c41e659/resource/cadf9163-aa38-44ae-851a-86b35d4c6c0c/download/cpad_2026a_release.zip
+  - Note: the *data.cnra.ca.gov* dataset page still lists **2025b** as its resource; the 2026a zip above (linked from data.ca.gov) is current.
+- **Version:** CPAD 2026a (statewide release, June 2026)
 - **Account required:** No
-- **Licence:** Open, attribution required
-- **Downloaded:** *(pending)*
-- **File:** `data/raw/cpad/`
+- **Licence:** Creative Commons Attribution (CC-BY); data.ca.gov states "no restrictions on public use." Attribution required.
+- **Downloaded:** July 27, 2026
+- **File:** `data/raw/cpad/cpad_2026a_release.zip` (unzipped in place) — gitignored
+- **Format / geometry levels:** Esri shapefiles — **Holdings**, **Units**, **SuperUnits** (all three present)
+- **Native CRS:** California Albers (EPSG:3310) — confirm on load; matches the analysis CRS, so no reprojection needed
+- **Feature counts:** _(fill after running the inspection)_ Holdings _n_ · Units _n_ · SuperUnits _n_
+
+**Geometry levels (which one is used is decided in Week 3):**
+- **Holdings** — parcel-level ownership; most detailed attributes
+- **Units** — the parks/preserves that Holdings roll up into
+- **SuperUnits** — higher aggregation of Units
+
+**CPAD vs BPAD (source decision):** BPAD is GreenInfo's Bay-Area edition covering
+exactly the ten counties (nine bay counties + Santa Cruz, the CLN definition)
+and it bundles CCED easements — but the latest BPAD is the **2025 edition**,
+~1 year staler than CPAD 2026a. Statewide CPAD 2026a was chosen for freshness,
+authoritative status and a scriptable download; easements come from CCED (§1.2)
+and the ten-county clip is done transparently in Week 3 with the project's own
+TIGER/Line boundary. BPAD remains a viable swap if bundled-easement, exact-frame
+convenience outweighs freshness.
 
 **Known issues to verify on download:**
 - CPAD is an *ownership* inventory, not a habitat or biodiversity inventory —
@@ -35,6 +54,52 @@ the Bay Area edition, which also incorporates conservation easements from CCED.
 ### 1.2 CCED — California Conservation Easement Database
 Parallel dataset covering easement-protected land, which CPAD excludes.
 Relevant because much Bay Area connectivity land is easement-held ranchland.
+
+- **Access (canonical):** https://www.calands.org/cced/ — also on data.ca.gov / data.cnra.ca.gov
+- **Direct download (2026a zip):** https://data.cnra.ca.gov/dataset/31b65732-941d-4af0-9d8c-279fac441fd6/resource/2f0b8636-3901-458d-88e0-3a422e3235e8/download/cced_2026a_release.zip
+- **Version:** CCED 2026a (June 2026) — matches CPAD 2026a. Note: the data.cnra.ca.gov / lab.data.ca.gov pages still list 2025b; the 2026a zip above (linked from data.ca.gov) is current.
+- **Account required:** No
+- **Licence:** Creative Commons Attribution (CC-BY); data.ca.gov states "no restrictions on public use." Attribution required.
+- **Downloaded:** July 27, 2026
+- **File:** `data/raw/cced/cced_2026a_release.zip` (unzipped in place) — gitignored
+- **Format:** single Esri shapefile (easement polygons) + CCED Database Manual — one layer, no Holdings/Units/SuperUnits hierarchy
+- **Native CRS:** California Albers (EPSG:3310) — confirm on load; matches analysis CRS
+- **Feature count:** 23,645 easement polygons (statewide, 2026a)
+
+**Known issues:**
+- **"Incomplete" disclaimer is largely historical (quantified — Decision 9).**
+  In 2026a, California Rangeland Trust is the 2nd-largest holder (1,865 easements)
+  and CDFW the 4th (988) — both well-represented. CCED is used as-is, not
+  supplemented: NCED can't fill it (CCED is its California feed) and remaining
+  gaps are partly privacy-withheld. Treat easement absence as "not necessarily
+  unprotected." Attribute caveat: ~27% of easements (6,363) have an "Unknown"
+  holder — geometry present, still valid as easement extent; only matters for
+  by-holder analysis.
+- **Planning/assessment use only** — not a basis for regulatory or legal action;
+  county recorder records are authoritative for individual easements.
+- Easements sit mostly on private land; apply the same publication care as other
+  layers and honour the GreenInfo data disclaimer.
+
+### 1.3 Study-area boundary — TIGER/Line counties (via `tigris`)
+The ten-county clip frame for every other layer — it defines the study extent
+(Decision 2), not a substantive dataset.
+
+- **Source:** US Census Bureau TIGER/Line, pulled with
+  `tigris::counties("CA", cb = TRUE)`
+- **Vintage:** 2024 — pinned in `scripts/01_download_open_data.R` (`tigris_year`)
+  for reproducibility; bump deliberately
+- **Boundary type:** cartographic (`cb = TRUE`) — generalized, clipped to
+  shoreline (land study area). `cb = FALSE` gives full legal boundaries including
+  bay/ocean water.
+- **Licence:** public domain (US Census)
+- **CRS:** reprojected to EPSG:3310 on import
+- **Output (gitignored):** `data/interim/boundary_baycounties_3310.gpkg`
+  (10 county polygons: `county`, `geoid`) and
+  `data/interim/boundary_baydissolved_3310.gpkg` (single study-area outline /
+  clip mask)
+- **Counties (10):** Alameda, Contra Costa, Marin, Napa, San Francisco,
+  San Mateo, Santa Clara, Santa Cruz, Solano, Sonoma
+- **Downloaded:** July 27, 2026
 
 ---
 
