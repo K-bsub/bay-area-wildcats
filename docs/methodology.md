@@ -201,10 +201,95 @@ and non-habitat filtering.
   extent incl. bay/ocean) so the study area is terrestrial.
 
 ### 4.2 Occurrence records — GBIF
-*Status: not started*
+*Status: downloaded and inspected — July 27, 2026. Cleaning/filtering deferred to
+Week 4.*
+
+**Download:** `rgbif::occ_download()`, both species + study-area bbox +
+`hasCoordinate = TRUE` / `hasGeospatialIssue = FALSE` (data-sources §2.1).
+**DOI:** https://doi.org/10.15468/dl.87ne3u — GBIF.org, accessed 2026-07-27
+(key `0013933-260721160103020`); saved to `data/raw/gbif/gbif_download_doi.txt`.
+**Output:** raw only (`data/raw/gbif/<key>.zip`, gitignored). Cleaned/split
+`occ_puma_gbif_*` / `occ_bobc_gbif_*` layers built in Week 4.
+
+**Records (pre-filter, study-area bbox):**
+
+| Species | n | HUMAN_OBS | PRESERVED_SPEC | MACHINE_OBS |
+|---|---|---|---|---|
+| Bobcat | 5,164 | 4,962 | 201 | 1 |
+| Puma | 1,843 | 1,826 | 17 | — |
+
+**Coordinate uncertainty (the headline finding):**
+
+| Species | median | p90 | NA |
+|---|---|---|---|
+| Bobcat | 480 m | 28,447 m | 621 |
+| Puma | 28,240 m | 28,447 m | 111 |
+
+- **Puma occurrence data is dominated by coordinate obscuring.** Median ~28.2 km
+  — the iNaturalist sensitive-species obscuring signature (both species' p90 pins
+  to the same ~28,447 m obscuring-cell value; for puma it's the bulk, for bobcat
+  only the top decile). This confirms puma cannot support density / occupancy /
+  precise-habitat work and must lean on connectivity + coarse distribution
+  (Decision 3, Risk 2) — the data validates the parallel-species architecture.
+- **Bobcat is usable** (median 480 m) with a coarse tail (top ~10% at the
+  obscuring value, plus 621 NA) to trim in Week 4.
+- **HUMAN_OBSERVATION dominates** (bobcat 96%, puma 99%) — mostly iNaturalist, so
+  the GBIF↔iNaturalist overlap (§4.3) is large; dedupe, don't sum.
+- **Deep temporal range** (bobcat 1870–2026, puma 1896–2026) from museum
+  specimens — a recent-year window is needed for a "current distribution" read.
+
+**Week-4 filtering decisions (not prejudged here):** coordinate-uncertainty
+threshold, recent-year window, `basisOfRecord` keep/drop, GBIF↔iNat dedupe, and
+the precise clip from bbox to the ten-county polygon.
 
 ### 4.3 Occurrence records — iNaturalist
-*Status: not started*
+*Status: downloaded and inspected — July 27, 2026. Dedupe/filtering deferred to
+Week 4.*
+
+**Download:** `rinat::get_inat_obs()`, research grade + study-area bbox, captive
+dropped, obscuring fields preserved (data-sources §2.2).
+**Output:** `data/raw/inaturalist/inat_research_bayarea.rds` (gitignored). Cleaned
+`occ_*_inat_*` layers built in Week 4.
+
+**Records (post captive drop):**
+
+| Species | n | obscured | % obscured |
+|---|---|---|---|
+| Puma | 2,102 | 1,045 | 50% |
+| Bobcat | 6,295 | 1,950 | 31% |
+
+**Positional accuracy of the *non-obscured* records (`positional_accuracy`, m):**
+
+| Species | n (open) | median | p90 | NA |
+|---|---|---|---|---|
+| Puma | 1,057 | 26 | 376 | 120 |
+| Bobcat | 4,345 | 31 | 1,082 | 766 |
+
+- **Obscuring is observer-driven for both species (decomposed July 27).**
+  Bobcat: 1,949 user-set + 1 taxon (so ~entirely user privacy — residential-yard
+  sightings). Puma: **1,045 user-set + 0 taxon.** So **iNaturalist does *not*
+  taxon-obscure *Puma concolor* in California** — the ~50% obscuring is individual
+  observers choosing geoprivacy, not iNat conservation policy. This overturns the
+  inherited assumption (carried from the tiger project, where tigers *are*
+  taxon-obscured); the "auto-obscured" framing was wrong for puma.
+- **Consequence — the project holds ~1,057 genuinely precise puma locations.**
+  This *raises* the sensitivity stakes rather than lowering them: a precise puma
+  surface built from the open half would expose real hotspots, including near
+  spots that obscuring observers deliberately hid. The sensitive-data-policy
+  ≥1 km / unit-level coarsening is therefore **load-bearing** — see the flagged
+  policy correction (policy §1 rationale currently mis-states iNat auto-obscuring
+  as the reason).
+- **The non-obscured puma pool is precise, not just open:** ~1,057 records,
+  median positional accuracy **26 m** (p90 376 m; 120 NA) — the "not-obscured ≠
+  precise" caveat mostly doesn't bite. This upgrades puma from connectivity-only
+  to a plausible **coarse distribution** layer. Asterisks: counts are pre-dedupe
+  (heavy GBIF overlap) and pre-clip, so the *unique* precise count settles in
+  Week 4; bobcat's open pool is similar (median 31 m, p90 ~1 km).
+- **iNat exceeds GBIF** (puma 2,102 vs 1,843; bobcat 6,295 vs 5,164): iNat-direct
+  is fresher/less filtered, so not a pure subset — it holds a recent tail GBIF
+  hasn't ingested. Still dedupe (GBIF primary); iNat adds that tail + the flags.
+- Reconciles with §4.2: ~half+ of puma obscured explains the GBIF puma median
+  sitting at the ~28 km obscuring value.
 
 ### 4.4 Road mortality — CROS
 *Status: not started*
@@ -406,6 +491,22 @@ extent-based use.
 necessarily unprotected." If a specific Week-8 corridor later demands it, a
 targeted CDFW/BIOS pull is the only clean option.
 
+**Decision 10: Puma obscuring is observer-driven; precise puma data is held**
+*Date:* July 27, 2026
+*Decision:* Treat the sensitive-data-policy coarsening rules (≥1 km / unit-level
+for puma outputs) as load-bearing, and correct the policy rationale accordingly.
+*Justification:* Decomposing the iNaturalist geoprivacy fields (§4.3) shows
+*Puma concolor* is **not** taxon-obscured in California — 0 of 2,102 records are
+taxon-obscured, and 1,057 carry open, precise coordinates. The ~50% obscuring is
+individual observers' choice, not iNat conservation policy. The project therefore
+holds real precise puma locations; a precise puma surface would expose hotspots,
+including near sites observers deliberately hid. This *strengthens* the policy
+rather than relaxing it, and corrects the inherited (tiger-project) assumption
+that iNaturalist auto-obscures the species.
+*Impact:* `docs/sensitive-data-policy.md` §1 rationale corrected (the iNat
+auto-obscure claim removed); the ≥1 km puma output floor and `assert_publishable()`
+enforcement are retained and treated as essential, not precautionary.
+
 ---
 
 ## 7. Known limitations
@@ -458,3 +559,8 @@ is not redistributable.
 | 2026-07-27 | 4.1 | CCED 2026a downloaded + inspected (23,645 easements, EPSG:3310); coverage-gap handling noted |
 | 2026-07-27 | 6 | Decision 9 — CCED used as-is; gap quantified (Rangeland Trust 2nd-largest holder, 1,865; CDFW 988), not supplemented |
 | 2026-07-27 | 4.1 | Study-area boundary built (tigris TIGER/Line 2024, cb=TRUE, 10 counties, EPSG:3310, 19,623 km²) |
+| 2026-07-27 | 4.2 | GBIF downloaded (DOI 10.15468/dl.87ne3u); puma 1,843 / bobcat 5,164; puma coords dominated by ~28 km iNat obscuring |
+| 2026-07-27 | 4.3 | iNaturalist downloaded (rinat, research-grade); puma 2,102 (50% obscured) / bobcat 6,295 (31% obscured); precise-puma pool larger than feared |
+| 2026-07-27 | 4.3 | Obscuring decomposed: puma & bobcat obscuring both observer-set; *Puma concolor* NOT taxon-obscured in CA; ~1,057 precise puma points held — sensitive-data-policy rules load-bearing |
+| 2026-07-27 | 6 | Decision 10 — puma obscuring observer-driven not taxon policy; precise puma data held; policy §1 rationale corrected, coarsening rules load-bearing |
+| 2026-07-27 | 4.3 | iNat positional-accuracy spread logged (non-obscured: puma median 26 m / bobcat 31 m); puma precise pool confirmed |

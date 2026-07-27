@@ -106,20 +106,68 @@ The ten-county clip frame for every other layer — it defines the study extent
 ## 2. Occurrence records
 
 ### 2.1 GBIF
-- **Access:** https://www.gbif.org/ (via `rgbif`)
-- **Query:** `Puma concolor` / `Lynx rufus`, country US, state California,
-  bounded to study area
-- **Licence:** CC0 / CC BY, varies per record
-- **Known issues:** aggregates iNaturalist, museum specimens and survey data;
-  coordinate uncertainty varies by orders of magnitude; heavy observer bias.
+- **Access method:** `rgbif::occ_download()` — the citable path that returns a
+  **DOI** (`occ_search()` gives none and caps at 100k records). Requires a free
+  GBIF account; credentials in the **user** `.Renviron` (`GBIF_USER` /
+  `GBIF_PWD` / `GBIF_EMAIL`), never committed.
+- **Query:** taxonKeys for *Puma concolor* and *Lynx rufus* (resolved via
+  `name_backbone()`), intersected with the study-area **bbox** (WGS84, from
+  `boundary_baydissolved_3310.gpkg`), plus `hasCoordinate = TRUE` and
+  `hasGeospatialIssue = FALSE`. No other server-side filtering — basisOfRecord,
+  coordinate uncertainty and year are inspected/filtered in R afterward. Precise
+  clip from bbox to the ten-county polygon happens at processing (Week 4).
+- **Format:** `SIMPLE_CSV`.
+- **Licence:** CC0 / CC BY (varies per record).
+- **DOI:** https://doi.org/10.15468/dl.87ne3u — GBIF.org, accessed 2026-07-27
+  (key `0013933-260721160103020`); also saved to
+  `data/raw/gbif/gbif_download_doi.txt`
+- **File:** `data/raw/gbif/<key>.zip` — gitignored
+- **Downloaded:** July 27, 2026
+- **Record counts (pre-filter, study-area bbox):** puma 1,843 · bobcat 5,164
+
+**Known issues:**
+- **Overlaps iNaturalist (§2.2).** GBIF aggregates iNaturalist research-grade
+  records, so a GBIF + iNaturalist pull double-counts those observations — dedupe
+  at processing (on `occurrenceID` / coordinates + date), don't sum the two.
+- **Puma coordinates may already be obscured.** iNaturalist obscures
+  sensitive-species coordinates and that offset propagates into GBIF for
+  iNat-sourced puma records — treat GBIF puma coordinates as coarse
+  (`docs/sensitive-data-policy.md`).
+- Coordinate uncertainty spans orders of magnitude; heavy observer bias toward
+  trailheads/roads (Q5 — a feature to explain, not an error).
+- Mixed `basisOfRecord` (human observation, preserved specimens, machine/camera)
+  — inspect the mix before deciding what to keep.
 
 ### 2.2 iNaturalist
-- **Access:** https://www.inaturalist.org/ (via `rinat` or export)
-- **Filters:** research grade, has photo, captive excluded
-- **Licence:** CC BY / CC BY-NC, varies per observer
-- **Known issues (critical):** coordinates for sensitive species are
-  automatically obscured. Puma records are affected. The `obscured` flag must be
-  carried through every downstream layer.
+- **Access method:** `rinat::get_inat_obs()` — `quality = "research"`, `geo = TRUE`,
+  bounded to the study-area bbox, `maxresults = 10000`. Research grade implies
+  media + community ID, so "has photo" is effectively satisfied; captive dropped
+  via `captive_cultivated`. No account needed.
+- **Obscuring fields preserved:** `coordinates_obscured` → **`obscured`** (the
+  naming-conventions flag), plus `taxon_geoprivacy` (the puma-driving one),
+  `geoprivacy`, and `public_positional_accuracy`.
+- **Licence:** CC BY / CC BY-NC (varies per observer).
+- **File:** `data/raw/inaturalist/inat_research_bayarea.rds` — gitignored
+- **Downloaded:** July 27, 2026
+- **Record counts:** puma 2,102 (50% obscured) · bobcat 6,295 (31% obscured).
+  Both exceed the GBIF pull (fresher, less filtered).
+
+**Role and known issues:**
+- **Heavy overlap with GBIF (§2.1) — not additive.** GBIF is ~96–99%
+  iNaturalist research-grade, so this pull mostly duplicates it. GBIF stays the
+  primary occurrence source; iNat is the **obscuring-flag source and overlap
+  cross-reference**, deduped (not summed) in Week 4 via iNat id ↔ GBIF
+  `catalogNumber`/`occurrenceID`.
+- **Sensitive-species obscuring (critical) — but observer-driven, not
+  automatic.** iNaturalist does **not** taxon-obscure *Puma concolor* in
+  California (0 taxon-obscured of 2,102; 1,057 open records exist). The ~50%
+  obscuring is individual observers setting geoprivacy. The project therefore
+  holds ~1,057 **precise** puma locations — treat as sensitive and never
+  republish at native precision (`docs/sensitive-data-policy.md`). The obscured
+  ones sit in a 0.2°×0.2° cell (~28 km — the GBIF uncertainty signature). The
+  `obscured` flag must ride through every downstream layer.
+- **10,000-record API cap** — a species at the cap means truncation; split by
+  year or `place_id` if hit.
 
 ---
 

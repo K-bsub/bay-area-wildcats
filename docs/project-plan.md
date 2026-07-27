@@ -66,14 +66,14 @@
 ## Week 2 tasks — data acquisition (open data only; Felidae deferred, Decision 7)
 
 *Boundaries*
-- [ ] Download CPAD/BPAD (v2026a or latest) → `data/raw/cpad/`; record edition and available geometry levels (Holdings / Units / SuperUnits). Level choice and non-habitat filtering deferred to Week 3.
-- [ ] Download CCED easements → `data/raw/cced/`
-- [ ] Pull the ten-county boundary via `tigris` (TIGER/Line) for clipping
+- [x] Download CPAD/BPAD (v2026a or latest) → `data/raw/cpad/`; record edition and available geometry levels (Holdings / Units / SuperUnits). Level choice and non-habitat filtering deferred to Week 3.
+- [x] Download CCED easements → `data/raw/cced/`
+- [x] Pull the ten-county boundary via `tigris` (TIGER/Line) for clipping
 
 *Occurrence records*
-- [ ] `rgbif`: download *Puma concolor* + *Lynx rufus*, California, study-area bbox; record the download DOI
-- [ ] `rinat`: download research-grade records; preserve the `obscured` flag (puma)
-- [ ] Log per-species raw counts and coordinate-uncertainty spread
+- [x] `rgbif`: download *Puma concolor* + *Lynx rufus*, California, study-area bbox; record the download DOI
+- [x] `rinat`: download research-grade records; preserve the `obscured` flag (puma)
+- [x] Log per-species raw counts and coordinate-uncertainty spread
 
 *Road mortality*
 - [ ] **Confirm CROS data-use / republication terms first** (Risk 3), then download puma + bobcat records → `data/raw/cros/`
@@ -100,11 +100,11 @@
 | # | Risk | Level | Mitigation |
 |---|---|---|---|
 | 1 | **Occupancy modelling not feasible from opportunistic data** — `unmarked` needs detection histories from repeated visits; GBIF/iNat records are not survey data | 🔴 High | Assess in Week 4 before committing. Fallbacks: (a) spatial-replication design with documented assumptions; (b) request Felidae detection histories (Phase-3 partner data, not used in Phase 1); (c) drop to species distribution modelling (MaxEnt / `maxnet`) and reframe the narrative |
-| 2 | **Puma records too sparse for any surface** — obscured and few | 🟡 Medium | Puma track leans on connectivity modelling and CROS mortality, which do not require dense occurrence data |
+| 2 | **Puma records too sparse for any surface** — obscured and few | 🟢 Low (revised) | Substantially resolved: *Puma concolor* is not taxon-obscured (Decision 10); ~1,057 precise puma points held (median 26 m accuracy). A coarse distribution layer is now plausible — pending Week-4 dedupe (heavy GBIF overlap) + clip to confirm the *unique* count. Connectivity + CROS remain the puma backbone regardless |
 | 3 | **CROS data-use terms restrict republication** | 🟡 Medium | Confirm terms in Week 2, before analysis is built on it. Fallback: aggregate to road segment and cite |
 | 4 | **R spatial toolchain / learning curve** — new stack after ArcGIS | 🟡 Medium | Week 1 buffer for setup; keep scripts small and numbered; `targets` deferred until pipeline is stable |
 | 5 | **CPAD includes non-habitat parcels** | 🟢 Low | Define and document filtering criteria (minimum area, land cover, access class) as a numbered decision |
-| 6 | **Sensitive data disclosure** | 🔴 High | `docs/sensitive-data-policy.md` enforced from Week 1; `data/restricted/**` gitignored before any data is acquired. No restricted data is held in Phase 1 (Felidae deferred, Decision 7); the policy stands for any future partner data |
+| 6 | **Sensitive data disclosure** | 🔴 High | `docs/sensitive-data-policy.md` enforced from Week 1; `data/restricted/**` gitignored. Felidae (restricted tier) deferred — none held. **But the project now holds ~1,057 precise puma coordinates** from open-geoprivacy iNat records (Decision 10): the ≥1 km publish floor + `assert_publishable()` are load-bearing, not precautionary. Never publish precise puma surfaces |
 
 ---
 
@@ -169,3 +169,26 @@
   renders without R.
 - **Blockers:** none.
 - **Next:** Week 2 data acquisition.
+
+### Week 2 — data acquisition — July 27, 2026
+- **Progress:** 🟢 In progress. Boundaries and occurrence downloads complete;
+  CROS + covariates + population context + acquisition docs remain.
+- **Boundaries:** CPAD 2026a (statewide; Holdings/Units/SuperUnits; EPSG:3310;
+  Decision 8 — CPAD over BPAD); CCED 2026a (23,645 easements; Decision 9 — gap
+  quantified, Rangeland Trust 2nd-largest holder, used as-is); ten-county
+  TIGER/Line boundary via `tigris` (19,623 km², `cb = TRUE` land).
+- **Occurrences:** GBIF via `occ_download` (DOI 10.15468/dl.87ne3u; puma 1,843 /
+  bobcat 5,164); iNaturalist via `rinat` research-grade (puma 2,102 / bobcat
+  6,295). Per-species counts + uncertainty/accuracy spreads logged (§4.2, §4.3).
+- **Key finding (Decision 10):** *Puma concolor* is **not** taxon-obscured in CA —
+  the ~50% obscuring is observer-set. The project holds ~1,057 *precise* puma
+  points (median 26 m accuracy). This (a) upgrades puma from connectivity-only
+  toward a plausible coarse distribution layer (Risk 2 → Low, pending Week-4
+  dedupe/clip), and (b) makes the sensitive-data-policy coarsening rules
+  load-bearing (policy §1 rationale corrected; Risk 6 updated).
+- **Reproducibility:** `01_download_open_data.R` holds the CPAD / CCED / boundary /
+  GBIF / iNat blocks (covariate blocks to follow); `renv.lock` updated with
+  `tigris` / `rgbif` / `rinat`.
+- **Blockers:** none.
+- **Next:** CROS road mortality — confirm UC Davis data-use / republication terms
+  **before** pulling or building on it (Risk 3).

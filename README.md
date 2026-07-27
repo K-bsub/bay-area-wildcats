@@ -14,7 +14,7 @@ Phase 1 of a multi-phase project. Sister project to
 | **Study area** | Ten-county San Francisco Bay Area |
 | **Analysis CRS** | EPSG:3310 — NAD83 / California Albers |
 | **Stack** | R (sf, terra, spatstat, sfdep, unmarked), Quarto, Leaflet |
-| **Story site** | *(to be published to GitHub Pages)* |
+| **Story site** | *Skeleton live at [k-bsub.github.io/bay-area-wildcats](https://k-bsub.github.io/bay-area-wildcats/); content in Week 9* |
 
 ---
 
@@ -36,7 +36,7 @@ situations are opposite:
 | | Puma | Bobcat |
 |---|---|---|
 | Occurrence records | Sparse | Abundant |
-| Location sensitivity | High (obscured / restricted) | Low |
+| Location sensitivity | High (precise points held; coarsen on publish) | Low |
 | Home range | Very large (100s km²) | Small (10s km²) |
 | Primary story | Isolation & connectivity | Occupancy & distribution |
 | Primary method | Least-cost / circuit connectivity | Occupancy models, KDE, Gi* |

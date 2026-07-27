@@ -8,9 +8,13 @@
 ## 1. Why this document exists
 
 Precise location data for pumas is a poaching, harassment and disturbance risk.
-This is not a hypothetical concern: it is the reason iNaturalist automatically
-obscures coordinates for the species, and the reason research organisations do
-not publish raw camera-trap coordinates.
+This is not hypothetical: many iNaturalist observers deliberately obscure their
+own puma sightings for the animals' safety, and research organisations do not
+publish raw camera-trap coordinates. **iNaturalist does not auto-obscure *Puma
+concolor* in California** (Decision 10) — so this project actually holds ~1,057
+precise, publicly-shared puma locations. Publishing precise puma outputs would
+expose real hotspots, including near sites that obscuring observers deliberately
+hid. The coarsening rules below are therefore load-bearing, not precautionary.
 
 This project is public. Anything committed to this repository or rendered to
 the story site is permanently public. Treat every commit as irreversible.
@@ -55,11 +59,9 @@ the story site is permanently public. Treat every commit as irreversible.
 
 ## 4. If partner data is used
 
-> **Status (July 25, 2026):** the Wildpod station CSV is already in hand and
-> held as T3 in `data/restricted/`. Provenance (written agreement vs. public
-> map) is **unconfirmed** — `docs/methodology.md` Decision 6. Analysis on the
-> restricted copy may proceed; **no Felidae-derived output is published until
-> the checklist below is satisfied.**
+> **Status (July 27, 2026):** Felidae is deferred to a future phase (Decision 7);
+> no Felidae / Wildpod data is held in this repository. This section applies if
+> and when any partner data is taken up in a future phase.
 
 Before any Felidae Conservation Fund data enters this project, a written
 agreement must exist covering, at minimum:
