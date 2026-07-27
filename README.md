@@ -9,7 +9,7 @@ Phase 1 of a multi-phase project. Sister project to
 | | |
 |---|---|
 | **Author** | Kiran Balasubramanian |
-| **Status** | Week 1 — environment verified |
+| **Status** | Week 2 — data acquisition |
 | **Focal species** | *Puma concolor* (puma / mountain lion), *Lynx rufus* (bobcat) |
 | **Study area** | Ten-county San Francisco Bay Area |
 | **Analysis CRS** | EPSG:3310 — NAD83 / California Albers |
@@ -106,4 +106,10 @@ source("scripts/02_prepare_boundaries.R")
 
 Documentation lives in `docs/`, which conflicts with GitHub Pages' "serve from
 /docs" option. The story site is therefore built from `site/` and deployed to a
-`gh-pages` branch via GitHub Actions. Do not switch Pages to serve from `/docs`.
+`gh-pages` branch by `.github/workflows/publish.yml`. Set GitHub Pages to serve
+from the **`gh-pages` branch / root** — do not switch Pages to serve from `/docs`.
+
+The site is rendered **locally** (`quarto render site`) and its computed output
+is frozen in `site/_freeze/`, which is committed. The Action therefore needs only
+Quarto, not the R spatial stack — re-render locally and commit `site/_freeze/`
+whenever a `.qmd`'s code changes.

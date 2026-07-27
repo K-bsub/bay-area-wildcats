@@ -4,7 +4,7 @@
 **Author:** Kiran Balasubramanian
 **Start date:** July 23, 2026
 **Target:** 10 weeks
-**Last updated:** July 26, 2026
+**Last updated:** July 27, 2026
 
 ---
 
@@ -33,8 +33,8 @@
 
 | Week | Milestone | Key deliverables | Status |
 |---|---|---|---|
-| **1** | Repository and environment setup | Repo scaffold, docs, renv, R toolchain verified | 🟢 In progress |
-| **2** | Data acquisition | All open datasets downloaded and documented | ⚪ Not started |
+| **1** | Repository and environment setup | Repo scaffold, docs, renv, R toolchain verified | ✅ Complete |
+| **2** | Data acquisition | All open datasets downloaded and documented | 🟢 In progress |
 | **3** | Boundary and study-area preparation | Open-space units defined and filtered; analysis grid built | ⚪ Not started |
 | **4** | Occurrence processing | Cleaned, deduplicated, CRS-aligned occurrence layers for both species | ⚪ Not started |
 | **5** | Covariate preparation | Land cover, terrain, roads, housing summarised to grid and unit | ⚪ Not started |
@@ -58,8 +58,40 @@
 - [x] Install R spatial toolchain and verify GDAL/GEOS/PROJ
 - [x] `renv::init()` and commit `renv.lock`
 - [x] Confirm study area definition — ten-county (Decision 2)
-- [ ] Draft `docs/proposal.md` research questions
-- [ ] Verify GitHub Pages deployment path (gh-pages branch, not /docs)
+- [x] Draft `docs/proposal.md` research questions
+- [x] Verify GitHub Pages deployment path (gh-pages branch, not /docs)
+
+---
+
+## Week 2 tasks — data acquisition (open data only; Felidae deferred, Decision 7)
+
+*Boundaries*
+- [ ] Download CPAD/BPAD (v2026a or latest) → `data/raw/cpad/`; record edition and available geometry levels (Holdings / Units / SuperUnits). Level choice and non-habitat filtering deferred to Week 3.
+- [ ] Download CCED easements → `data/raw/cced/`
+- [ ] Pull the ten-county boundary via `tigris` (TIGER/Line) for clipping
+
+*Occurrence records*
+- [ ] `rgbif`: download *Puma concolor* + *Lynx rufus*, California, study-area bbox; record the download DOI
+- [ ] `rinat`: download research-grade records; preserve the `obscured` flag (puma)
+- [ ] Log per-species raw counts and coordinate-uncertainty spread
+
+*Road mortality*
+- [ ] **Confirm CROS data-use / republication terms first** (Risk 3), then download puma + bobcat records → `data/raw/cros/`
+
+*Covariates*
+- [ ] Choose land-cover source (NLCD vs ESA WorldCover vs CAL FIRE FVEG) → record as a numbered decision, then download for the study area
+- [ ] `elevatr`: download 3DEP terrain (10 m; note 1 m lidar coverage)
+- [ ] Roads via `osmdata`/Geofabrik (`fclass`); Caltrans AADT traffic volumes
+- [ ] Housing / human footprint: Census TIGER/Line + block housing (or SILVIS); Global Human Modification Index
+
+*Population context (context only — no time series)*
+- [ ] Gather CA Mountain Lion Project abundance estimate + CDFW CESA status review as reference material (not a trend)
+
+*Documentation & reproducibility*
+- [ ] Write `scripts/01_download_open_data.R` (scripted downloads where possible: `rgbif`, `rinat`, `elevatr`, `tigris`, `osmdata`)
+- [ ] Create / complete `data/README.md` acquisition steps
+- [ ] Fill every `docs/data-sources.md` entry (access date, version, path, record count, CRS, licence, known issues); confirm `data/raw/**` is gitignored
+- [ ] Add cited reports / literature to `docs/references.md`
 
 ---
 
@@ -121,3 +153,19 @@
 - **Next:** finish remaining Week 1 items (proposal research questions, verify
   gh-pages path), then Week 2 data acquisition (CPAD/CCED, GBIF, iNaturalist,
   CROS, covariates).
+
+### Week 1 closeout — July 27, 2026
+- **Progress:** ✅ Week 1 complete.
+- **Completed:** proposal research questions finalised (five questions,
+  species-tagged; the bobcat question made method-agnostic to survive the
+  occupancy-vs-SDM fork). GitHub Pages publishing path configured — added
+  `.github/workflows/publish.yml` (the scaffold had none), fixed
+  `site/_quarto.yml` output-dir (`../_site` → `_site` to match `.gitignore`),
+  and added the `methods.qmd`, `data.qmd` and `styles.css` that the navbar/config
+  referenced but the scaffold never created. Local `quarto render site` passes.
+- **Carry-forward (first push):** confirm the Actions run is green, set Pages
+  Source to `gh-pages` / root (not main /`docs`), and load
+  https://k-bsub.github.io/bay-area-wildcats/. Commit `site/_freeze/` so CI
+  renders without R.
+- **Blockers:** none.
+- **Next:** Week 2 data acquisition.
