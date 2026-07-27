@@ -1,10 +1,11 @@
 project:
   type: website
-  output-dir: ../_site
+  output-dir: _site        # was ../_site; now inside site/ to match .gitignore
 
 website:
   title: "Wild Cats at the Urban Edge"
   description: "Pumas and bobcats in San Francisco Bay Area open spaces"
+  site-url: "https://k-bsub.github.io/bay-area-wildcats/"
   navbar:
     left:
       - href: index.qmd

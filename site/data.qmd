@@ -1,0 +1,9 @@
+---
+title: "Data"
+---
+
+*Placeholder. Built in Week 9.*
+
+Sources, licences and known issues are documented in
+[`docs/data-sources.md`](https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md).
+No sensitive location data is published on this site.

@@ -1,0 +1,38 @@
+name: Publish story site
+
+# Renders the Quarto project in site/ and pushes the rendered HTML to the
+# gh-pages branch. GitHub Pages must be set to serve from gh-pages / (root)
+# in Settings > Pages -- NOT from main /docs (which holds project documentation,
+# not the website).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - ".github/workflows/publish.yml"
+  workflow_dispatch:      # allows a manual run from the Actions tab
+
+permissions:
+  contents: write         # required so the action can push to gh-pages
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+
+      # No R in CI: the site renders from markdown, and any computed output is
+      # taken from the committed site/_freeze/ directory (freeze: auto). Render
+      # locally and commit _freeze/ whenever R code in a .qmd changes.
+      - name: Render and publish to gh-pages
+        uses: quarto-dev/quarto-actions/publish@v2
+        with:
+          target: gh-pages
+          path: site
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

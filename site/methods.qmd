@@ -1,0 +1,8 @@
+---
+title: "Methods"
+---
+
+*Placeholder. Built in Week 9.*
+
+A plain-language summary of the analysis. The full processing log, parameter
+values and decisions live in [`docs/methodology.md`](https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/methodology.md).
