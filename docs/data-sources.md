@@ -179,40 +179,256 @@ since 2009, with tens of thousands of observations. Explicitly identifies the
 Bay Area as one of the state's highest-roadkill regions and I-280 among the
 worst highways for wildlife-vehicle collisions.
 
-- **Access:** https://wildlifecrossing.net/california/
-- **Annual reports:** https://roadecology.ucdavis.edu/
-- **Licence / terms:** confirm data-use terms before publishing derived maps
-- **Known issues:** volunteer-reported, so reporting effort is uneven; absence
-  of records does not indicate absence of mortality.
+- **Access:** https://wildlifecrossing.net/california/ — **no open bulk
+  download.** Registered users can download only their *own* observations; the
+  full dataset is request-gated (below).
+- **Terms (confirmed July 27, 2026):** the public site publishes **no licence**
+  and no explicit republication grant — the "Note on Data to our Users" page
+  (`/california/data`) is a data-quality statement, not a licence. Bulk data must
+  be **requested from the UC Davis Road Ecology Center** (Contact page), and
+  republication terms for derived maps are set in that request, not published.
+  **Do not assume raw CROS points may be republished** on the public story site
+  without written confirmation (Decision 11).
+- **Published, citable outputs (fallback):** Road Ecology Center annual
+  "California Wildlife-Vehicle Collision Hotspots" reports and the CA Wildlife
+  Crash Map (https://roadecology.ucdavis.edu/hotspots/map) — publishable/citable
+  without a raw-data request.
+- **Quality:** published spatial accuracy ~13 m; species ID accuracy >97%;
+  majority of records from agency staff, academics, consultants and CHP.
+- **Known issues:** volunteer/effort-based, so reporting effort is uneven and
+  absence of records ≠ absence of mortality.
 
 ---
 
 ## 4. Covariates
 
-### 4.1 Land cover
-Candidates — choose one and record the decision:
-- **NLCD** (US National Land Cover Database, 30 m, US-specific classes)
-- **ESA WorldCover** (10 m, global; already used in tiger Phase 2)
-- **CAL FIRE FVEG** (California vegetation, finer thematic detail)
+### 4.1 Land cover — ESA WorldCover 2021 v200 (chosen; Decision 12, amended)
+- **Source:** ESA WorldCover 10 m 2021 v200 — 11 classes (10 tree, 20 shrub,
+  30 grass, 40 crop, 50 built-up, 60 bare, 70 snow, 80 water, 90 herbaceous
+  wetland, 95 mangrove, 100 moss/lichen). Replaces NLCD — see Decision 12 for the
+  full reason (NLCD access broke at every route).
+- **Access:** public AWS COGs, `s3://esa-worldcover` (eu-central-1, no auth):
+  `/vsicurl/https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/ESA_WorldCover_10m_2021_v200_<TILE>_Map.tif`.
+  Study area = tile **N36W123** (+ N36W126 for the Point Reyes sliver). Read +
+  crop in-script; no manual step.
+- **Licence:** CC-BY 4.0. Published-map attribution: "© ESA WorldCover project
+  2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA
+  WorldCover consortium." Citation: Zanaga et al. (2022), DOI 10.5281/zenodo.7254221.
+- **CRS:** native EPSG:4326 → reprojected to EPSG:3310 with **nearest-neighbour**.
+- **File:** `data/interim/cov_landcover_worldcover2021_3310.tif` — gitignored
+- **Downloaded:** Aug 2, 2026. Class distribution and the chaparral caveat are in
+  `docs/methodology.md` §4.5.
+- **Notes:** single "Built-up" class (no developed-intensity gradient — the urban
+  gradient comes from GHM + housing density, §4.4). Only 2020/2021 exist (no
+  annual updates); 2021 v200 used. **Under-maps California chaparral** (shrub
+  folded into tree/grassland) — FVEG is the targeted supplement if needed.
 
-### 4.2 Terrain — USGS 3DEP
-- **Access:** https://apps.nationalmap.gov/downloader/ (or `elevatr` in R)
-- **Resolution:** 10 m standard; 1 m lidar available for parts of the Bay Area
-- Upgrade over the 30 m SRTM used in tiger Phase 1, with no canopy-return
-  problem for the lidar-derived products.
+### 4.2 Terrain — AWS Terrain Tiles (via elevatr)
+Elevation, and derived slope and aspect, used as terrain covariates. Serves as
+the terrain input for both species' covariate stacks (aggregated to the puma
+1 km and bobcat 500 m grids in Week 5).
+
+**Full Citation:**
+> Mapzen, Amazon Web Services, and contributing agencies (USGS 3DEP, NASA SRTM,
+> and others). *AWS Terrain Tiles* [Dataset]. Registry of Open Data on AWS.
+> Accessed via the `elevatr` R package (Hollister, J. et al.).
+> https://registry.opendata.aws/terrain-tiles/
+
+- **Access URL:** https://registry.opendata.aws/terrain-tiles/
+- **Access Method:** `elevatr::get_elev_raster(locations = aoi, z = 12, src = "aws", clip = "bbox")`; scripted in `scripts/01_download_open_data.R`; no account required
+- **Accessed:** August 3, 2026
+- **Zoom level:** z = 12 (pinned for reproducibility)
+- **Source resolution:** ~30 m effective at 37.7°N (Web-Mercator Terrarium tiles; `156543 × cos(φ) / 2^z`)
+- **Delivered grid:** 15.1 m cells after reprojection to EPSG:3310 (bilinear resample — grid is finer than the source; does **not** represent 15 m of real terrain detail)
+- **Coordinate System:** EPSG:3310 (NAD83 / California Albers); source tiles in Web Mercator (EPSG:3857)
+- **Files:**
+  - `data/interim/cov_dem_terraintiles_z12_3310.tif` — elevation (m)
+  - `data/interim/cov_slope_deg_terraintiles_z12_3310.tif` — slope (degrees)
+  - `data/interim/cov_aspect_deg_terraintiles_z12_3310.tif` — aspect (degrees)
+- **Extent:** ten-county study area + 5 km collar (edge-correct slope/aspect)
+- **Elevation range (buffered AOI):** −123 m to 1,439 m
+- **License:** Terrain Tiles is public / open; individual source contributions carry their own terms (USGS 3DEP public domain; SRTM public domain; others vary). Attribution to the Terrain Tiles project and contributing agencies required.
+- **Role in project:** Terrain covariates (elevation, slope, aspect) for distribution/occupancy and connectivity analysis.
+
+**Known Issues / Limitations:**
+- **Not native 3DEP:** AWS Terrain Tiles are a Terrarium mosaic blending 3DEP,
+  SRTM, GMTED and others — not a single-source "3DEP 10 m" product. Effective
+  resolution is ~30 m (z=12), not 10 m. The 15.1 m delivered grid is a
+  reprojection artefact, not real detail.
+- **Water/void artefacts:** Sub-sea-level cells (down to −123 m) occur along the
+  Pacific coastline, SF Bay margins, and the Farallones — Terrarium water/void
+  encoding, not real bathymetry. Confined to non-terrestrial areas; removed by
+  the Week-5 clip to open-space units. Optionally floored to `NA` below −20 m.
+- **Blended vertical sources:** Mixed source DEMs mean vertical accuracy is not
+  uniform across the study area; adequate for landscape-scale covariates, not
+  for fine terrain analysis.
+- **1 m lidar not included:** USGS 3DEP QL2 / CA statewide lidar covers much of
+  the Bay Area at 1 m but is very large and unnecessary at this analysis scale.
+  Flagged as an optional supplement for a future phase; not acquired in Phase 1.
+- **Reprojection:** Reprojected with bilinear resampling (continuous data);
+  slope/aspect derived post-projection in degrees so gradients are in projected
+  metres.
 
 ### 4.3 Roads and traffic
-- **OpenStreetMap** via Geofabrik — road network and class
-- **Caltrans AADT** — traffic volume, which matters far more than road presence
-  for barrier effects
-- **Note:** OSM road class field is `fclass` in Geofabrik extracts, not
-  `highway` — carried over from tiger project experience.
 
-### 4.4 Housing and human footprint
-- **US Census TIGER/Line** — boundaries
-- **SILVIS housing density** or Census block housing units — urban-edge gradient
-- **Global Human Modification Index** (Kennedy et al. 2019) — already used in
-  tiger Phase 2, applicable here
+Two sources: the road **network and class** from OpenStreetMap (Geofabrik
+extract), and **traffic volume** from Caltrans. Traffic volume matters far more
+than road presence for barrier effects — a tertiary road and a freeway are both
+"roads" but differ by orders of magnitude in traffic. See Decision 14.
+
+#### 4.3.1 Road network — OpenStreetMap via Geofabrik (NorCal extract)
+
+**Full Citation:**
+> OpenStreetMap contributors. *OpenStreetMap Data Extract — Northern California
+> (NorCal)* [Dataset]. Geofabrik GmbH. Downloaded via
+> https://download.geofabrik.de/north-america/us/california/ under the Open
+> Database License (ODbL).
+
+- **Source:** Geofabrik **NorCal** sub-region shapefile extract (`-latest-free`).
+  The ten-county study area is fully contained in NorCal.
+- **Access URL:** https://download.geofabrik.de/north-america/us/california/norcal-latest-free.shp.zip
+- **Access Method:** `download.file()` (libcurl) in `scripts/01_download_open_data.R`;
+  no account required. `PK`-magic + size guard rejects a non-zip response.
+- **Accessed:** August 3, 2026 (download date + server `Last-Modified` recorded in
+  `data/raw/osm/geofabrik_download_stamp.txt`)
+- **Layer used:** `gis_osm_roads_free_1.shp` (road class field: **`fclass`**)
+- **Record count:** 936,784 features after clip to study area
+- **Coordinate System:** EPSG:3310 (reprojected from EPSG:4326 source)
+- **Files:**
+  - `data/interim/cov_roads_osm_3310.gpkg` — all road classes
+  - `data/interim/cov_roads_osm_major_3310.gpkg` — motorway→secondary barrier subset
+- **Licence:** Open Database License (ODbL) — attribution + share-alike required.
+- **Role in project:** road-density covariate (all classes) and barrier network
+  (major subset) for distribution/occupancy and connectivity analysis.
+
+**Known Issues / Limitations:**
+- **No statewide CA shapefile / no DOI:** Geofabrik does not publish a current
+  statewide California shapefile extract (only stale 2014–2018 snapshots); NorCal
+  sub-region used instead. "latest" is a moving target — pinned only by download
+  date + server timestamp, not a DOI. Re-running later gets a different network.
+- **`fclass` is Geofabrik's field, not raw OSM:** raw OSM/Overpass uses `highway`;
+  `fclass` exists only in Geofabrik's processed extracts (reason for this source).
+- **Volunteer data:** completeness varies; minor/private roads may be missing or
+  misclassified.
+- **Tracks/paths ambiguity:** `track` and `path` are unpaved/low-traffic and may be
+  permeable rather than barriers — resolved per species in Week 5 (Decision 14).
+
+#### 4.3.2 Traffic volume — Caltrans Traffic AADT
+
+**Full Citation:**
+> California Department of Transportation (Caltrans). *Traffic Volumes — Annual
+> Average Daily Traffic (AADT), 2023* [Dataset]. Caltrans GIS Data.
+> https://gisdata-caltrans.opendata.arcgis.com/
+
+- **Source:** Caltrans `CHhighway/Traffic_AADT` MapServer, layer 0 (2023 vintage).
+  Note: the service path is `Traffic_AADT` on a **MapServer** — "Traffic_Volumes_AADT"
+  is the layer display name, not the endpoint, and it is not a FeatureServer.
+- **Access URL (service):** https://caltrans-gis.dot.ca.gov/arcgis/rest/services/CHhighway/Traffic_AADT/MapServer/0
+- **Access Method:** ArcGIS REST query → GeoJSON (`?where=1=1&outFields=*&outSR=4326&f=geojson`);
+  no account required
+- **Accessed:** August 3, 2026
+- **Record count:** 2,423 count stations after clip to study area (not truncated;
+  transfer-cap guard did not fire)
+- **Geometry:** point (count-station locations on the state highway network)
+- **Coordinate System:** EPSG:3310 (reprojected from EPSG:4326)
+- **File:** `data/interim/cov_aadt_caltrans_points_3310.gpkg`
+- **Key fields:** `AHEAD_AADT`, `BACK_AADT` (per-direction leg volumes),
+  plus route/postmile identifiers
+- **Licence:** Caltrans public data, © State of California — informational use;
+  attribution expected.
+- **Role in project:** traffic-weighting for the barrier / road-mortality context;
+  the variable that distinguishes a freeway from a quiet road.
+
+**Known Issues / Limitations:**
+- **State highways only:** covers the Caltrans state-highway network — no county
+  roads, city streets, or local arterials. Roads off the state network have no
+  measured volume; Week 5 assigns an `fclass`-derived floor or model.
+- **Volumes stored as strings:** `AHEAD_AADT` / `BACK_AADT` are text (commas,
+  blanks; ~8% of `AHEAD_AADT` empty). Coerce to numeric and clean before use.
+- **Point, not line:** AADT is per count station, not attributed to road segments;
+  the AADT→segment join is a Week-5 covariate step (Decision 14).
+- **Sanity range (study area):** median AHEAD_AADT ~68,000, max ~292,000 —
+  freeway-scale, consistent with a state-highway-only dataset.
+
+### 4.4 Human footprint — human modification + housing density
+
+Two continuous layers that together carry the urban-**intensity** gradient
+(WorldCover has only a flat "Built-up" class; Decision 12). Load-bearing for the
+coexistence narrative, not context. Both choices deviate from the original
+Week-2 plan; see methodology Decisions 15–16.
+
+> Doc note: methodology §4.9 is the matching processing log. (Decision 12 and
+> methodology §4.5/§4.7 point to "§4.4" for these layers — that pointer is to
+> *this file's* §4.4; in methodology.md the footprint log is §4.9, since §4.4
+> there is CROS.)
+
+#### 4.4.1 Human modification — Global Human Modification v3, 2022
+
+**Full citation:**
+> Theobald, D.M., Oakleaf, J.R., Moncrieff, G., Voigt, M., Kiesecker, J., &
+> Kennedy, C.M. (2024). *Global human modification datasets of terrestrial
+> ecosystems for 2022* (v1.0.0) [Data set]. Zenodo.
+> https://doi.org/10.5281/zenodo.14502573
+
+- **Source:** "all threats combined" (AA) 300 m cloud-optimised GeoTIFF,
+  `HMv20240801_2022s_AA_300.tif`, read windowed via `/vsicurl` off the Zenodo
+  file URL (the file is 9.3 GB global — never downloaded whole).
+- **Layer meaning:** continuous 0–1 human-modification metric (0 = unmodified,
+  1 = fully modified), 5 stressor groups / 13 datasets, median year 2022.
+- **DOI:** 10.5281/zenodo.14502573 (pinned).
+- **Native CRS:** EPSG:4326 → reprojected to EPSG:3310 with **bilinear**
+  (continuous).
+- **Output:** `data/interim/cov_ghm_v3_2022_3310.tif`.
+- **Licence:** CC-BY 4.0 — attribution required.
+- **Why not Kennedy et al. 2019 (as the plan named):** the 2019 1 km layer ships
+  as a figshare zip / GEE export with no clean `/vsicurl` route; the GEE asset
+  needs an Earth Engine account + `rgee` (auth dependency avoided). v3 is a
+  DOI-pinned COG, acquirable by the WorldCover pattern, and more current. The
+  300 m → puma 1 km / bobcat 500 m aggregation makes the resolution difference
+  immaterial. Full rationale: Decision 15.
+
+**Known issues / limitations:**
+- Single global product, 2022, not Bay-Area-tuned; 300 m native.
+- Will correlate with housing density at the urban edge — check collinearity
+  before stacking both into a resistance surface (Week 5).
+
+#### 4.4.2 Housing density — SILVIS block-level (PLA v4)
+
+**Full citation:**
+> Helmers, D.P., Mockrin, M.H., Radeloff, V.C., et al. (2023). *Census Block
+> Level Housing Change 1990–2020 for the Conterminous United States* (Version 4,
+> Public-Land-Adjusted). SILVIS Lab, Dept. of Forest & Wildlife Ecology,
+> University of Wisconsin–Madison / USDA Forest Service Northern Research Station.
+> https://silvis.forest.wisc.edu/data/housing-block-change-2020/
+
+- **Source:** California state shapefile extract
+  (`CA_block20_change_1990_2020_PLA4_shp.zip`), direct download (no portal step).
+- **Fields kept:** housing density `HUDEN1990`–`HUDEN2020` (units/km², the
+  covariate), counts `HU2020` / `POP2020` / `POPDEN2020`, `PUBFLAG`, `WATER20`,
+  `BLK20`.
+- **Native CRS:** NAD83 / CONUS Albers (**EPSG:5070**) → reprojected to EPSG:3310.
+- **Geometry:** polygon blocks; clipped to the study area (vector — no resampling).
+- **Output:** `data/interim/cov_housing_silvis_blocks_3310.gpkg`.
+- **Licence:** USDA FS / SILVIS — no restrictive licence; acknowledgement
+  requested.
+- **Why SILVIS over a Census/`tidycensus` build:** single direct download and
+  housing **density** pre-computed per block (no API key, no per-decade join).
+  Decision 16.
+
+**Known issues / limitations:**
+- **Public-Land-Adjusted (PLA):** houses are moved *out* of protected areas into
+  neighbouring private blocks — so housing density inside CPAD units is near-zero
+  by construction. Density *at* an open-space site measures the surrounding
+  matrix, not housing in the unit. (Standing QC: `HUDEN2020` median by `PUBFLAG`.)
+- **Small-area density artifact:** tiny blocks with a nonzero housing count yield
+  implausibly high densities (study-area max ~2.26M units/km² vs p90 ~3k). Known
+  block-density artifact, not a data error; ~99% of blocks fall in 0–10⁴. Handled
+  in Week 5 by `log1p` + a p99/hard cap before rasterization (pre-registered in
+  methodology §4.9), not at download.
+- **No WUI flags** in this product — intermix/interface classification is a
+  separate SILVIS "WUI 1990–2020" dataset (`WUIFLAG*`), not acquired.
+- Rasterising `HUDEN2020` onto the puma/bobcat grids (with the log + cap above) is
+  a Week-5 covariate-construction step.
 
 ---
 
@@ -267,7 +483,10 @@ not from the `Park` label.
 | GBIF | CC0 / CC BY (varies) | Yes | Check per record |
 | iNaturalist | CC BY / CC BY-NC (varies) | Yes | Check per record |
 | CROS | Confirm terms | Yes | Confirm |
-| NLCD / 3DEP / TIGER | Public domain | No | Allowed |
+| AWS Terrain / TIGER | Public domain | No | Allowed |
 | ESA WorldCover | CC BY 4.0 | Yes | Allowed |
+| gHM v3 (Theobald 2024) | CC BY 4.0 | Yes | Allowed |
+| SILVIS housing | USDA FS / SILVIS (ack. requested) | Yes | Allowed |
 | OpenStreetMap | ODbL | Yes | Share-alike |
+| Caltrans AADT | CA public data | Yes | Informational |
 | Felidae | Agreement | Yes | **No** |

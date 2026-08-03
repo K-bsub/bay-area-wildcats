@@ -3,7 +3,7 @@
 **Project:** Wild Cats at the Urban Edge — Pumas and Bobcats in SF Bay Area Open Spaces
 **Author:** Kiran Balasubramanian
 **Repository:** https://github.com/K-bsub/bay-area-wildcats
-**Last updated:** July 27, 2026
+**Last updated:** August 3, 2026
 
 > Living document. Every processing step, parameter value and analytical
 > decision is recorded here as it happens, matching the convention established
@@ -292,16 +292,164 @@ dropped, obscuring fields preserved (data-sources §2.2).
   sitting at the ~28 km obscuring value.
 
 ### 4.4 Road mortality — CROS
-*Status: not started*
+*Status: terms confirmed — July 27, 2026; data request sent Aug 2, 2026 —
+awaiting reply. Acquisition deferred (request-gated); not built into any published
+output until republication terms are confirmed in writing.*
+
+**Terms outcome (Risk 3 → Decision 11):** CROS publishes no open bulk download
+and no reuse licence. Registered users can download only their own observations;
+the full puma/bobcat dataset requires a request to the UC Davis Road Ecology
+Center, and republication terms are set there, not published (data-sources §3.1).
+
+**Phase-1 approach:**
+- Request ten-county Bay Area puma + bobcat roadkill records from the Road
+  Ecology Center, explicitly asking whether derived maps may be shown on a public
+  GitHub Pages site (the republication question is the load-bearing term).
+  **Sent Aug 2, 2026, 3:45 PM** to F. Shilling (Director, Road Ecology Center;
+  fmshilling@ucdavis.edu) — awaiting terms.
+- Until that clears, CROS is not built into any published output. Fallback
+  (Risk 3): cite the Road Ecology Center's published hotspot reports / CA
+  Wildlife Crash Map, and/or aggregate any granted data to road-segment level —
+  never publish raw CROS points without a written grant.
+- No scraping of the public map. CROS does not block Week 2 — covariates proceed
+  in parallel.
+
+**Quality (published):** ~13 m spatial accuracy; >97% species ID accuracy.
 
 ### 4.5 Covariates — land cover
-*Status: not started*
+*Status: downloaded and inspected — Aug 2, 2026 (ESA WorldCover; Decision 12
+amended). Resampling to analysis grids deferred to Week 5.*
 
-### 4.6 Covariates — terrain (3DEP)
-*Status: not started*
+**Source/method:** ESA WorldCover 2021 v200 from public AWS COGs → `/vsicurl`
+crop to the 5 km-buffered AOI → EPSG:3310, nearest-neighbour. Output
+`data/interim/cov_landcover_worldcover2021_3310.tif` (~8 m post-reprojection;
+native 10 m). Clean run, standard classes only.
 
-### 4.7 Covariates — roads, traffic and housing density
-*Status: not started*
+**Class distribution (8 m cells; ×64 m² ≈ km²):**
+
+| Class | Cells | ~km² |
+|---|---|---|
+| 10 Tree cover | 140.9M | ~9,020 |
+| 30 Grassland | 113.1M | ~7,240 |
+| 80 Water | 51.2M | ~3,280 |
+| 50 Built-up | 32.5M | ~2,080 |
+| 40 Cropland | 25.1M | ~1,600 |
+| 90 Herb. wetland | 4.8M | ~300 |
+| 20 Shrubland | 1.9M | **~123** |
+| 60 Bare | 1.9M | ~120 |
+
+(No 70 snow / 95 mangrove / 100 moss — expected for the Bay Area.)
+
+- **Known limitation — WorldCover under-maps California chaparral.** Shrubland
+  (20) at ~123 km² is implausibly low for the Bay Area; the NLCD pull (before it
+  was abandoned) put shrub at ~3,200 km² — a ~26× gap. WorldCover folds
+  Mediterranean chaparral into **tree cover** (open woodland/savanna → 10,
+  inflating it to ~9,000 km²) and **grassland** (30). Chaparral is prime
+  bobcat/puma cover, so this layer systematically mislabels a key habitat type.
+- **Handling:** proceed with WorldCover for Phase 1 (clean, reproducible); flag
+  the chaparral limitation wherever land-cover covariates are interpreted. If the
+  bobcat occupancy covariates lean on shrub/chaparral, supplement the shrub class
+  with CAL FIRE FVEG (Decision 12) — a targeted fix, not a full re-do.
+- Built-up (50, ~2,080 km²) is the urban footprint; the developed-intensity
+  gradient comes from the human-footprint layers (§4.7), not this layer.
+
+### 4.6 Covariates — terrain (AWS Terrain Tiles via elevatr)
+
+**Status:** ✅ Complete — August 3, 2026
+
+**Source:** AWS Terrain Tiles (Terrarium mosaic — 3DEP / SRTM / GMTED / others),
+via `elevatr::get_elev_raster(src = "aws", z = 12)`. **Not** native 3DEP 10 m —
+see Decision 13 for the provenance correction.
+
+**Input:** AWS Terrain Tiles, z = 12, fetched for the ten-county study area + 5 km
+collar (`clip = "bbox"`).
+
+**Outputs** (all EPSG:3310, `data/interim/`):
+
+| File | Content | Unit |
+|---|---|---|
+| `cov_dem_terraintiles_z12_3310.tif` | Elevation | m |
+| `cov_slope_deg_terraintiles_z12_3310.tif` | Slope (derived) | degrees |
+| `cov_aspect_deg_terraintiles_z12_3310.tif` | Aspect (derived) | degrees |
+
+**Resolution:** ~30 m effective at 37.7°N (Web-Mercator source); 15.1 m grid after
+reprojection to EPSG:3310. The 15.1 m cell size is a reprojection artefact, not
+real terrain detail — effective resolution remains ~30 m. Adequate for covariates
+aggregated to the puma 1 km and bobcat 500 m grids.
+
+**Processing steps:**
+1. Load study-area outline; apply 5 km buffer (edge-correct slope/aspect).
+2. `get_elev_raster(locations = aoi, z = 12, clip = "bbox")` → convert to `terra`.
+3. Reproject to EPSG:3310 with **bilinear** (continuous data — contrast the
+   nearest-neighbour used for categorical WorldCover, §4.5 / Decision 12).
+4. Mask to buffered AOI.
+5. Derive slope and aspect with `terra::terrain()` in degrees (post-projection,
+   so gradients are computed in projected metres).
+6. Write all three rasters (DEFLATE-compressed).
+
+**Checks:**
+- CRS EPSG:3310; resolution 15.1 m confirmed.
+- Elevation range (buffered AOI): −123 m to 1,439 m. Max plausible (Hamilton
+  range summits pulled in by the 5 km collar). Sub-sea-level minima are Terrarium
+  water/void artefacts along the Pacific coast, SF Bay margins, and the Farallones
+  — confirmed by plotting `dem < -20`; all non-terrestrial, none clustered over
+  land. No re-fetch needed.
+- Slope 0–75.7°, aspect 0–360° — within expected bounds.
+
+**Known limitations:**
+- Not native 3DEP; blended-source vertical accuracy not uniform (Decision 13).
+- Water/void artefacts removed for free by the Week-5 clip to open-space units;
+  optionally floored to `NA` below −20 m.
+- 1 m lidar (3DEP QL2 / CA statewide) noted as an optional future-phase supplement;
+  not acquired.
+
+### 4.7 Covariates — roads and traffic
+
+**Status:** ✅ Complete — August 3, 2026 (housing / human footprint still pending;
+see §4.4 task list)
+
+**Sources:** OSM road network via **Geofabrik NorCal** extract (`fclass`);
+traffic volume via **Caltrans Traffic AADT** (2023). Source rationale — including
+why NorCal not statewide, and why Geofabrik not osmdata/Overpass — in Decision 14.
+
+**Outputs** (all EPSG:3310, `data/interim/`):
+
+| File | Content | Features |
+|---|---|---|
+| `cov_roads_osm_3310.gpkg` | All OSM road classes, clipped | 936,784 |
+| `cov_roads_osm_major_3310.gpkg` | Major/barrier subset (motorway→secondary) | subset |
+| `cov_aadt_caltrans_points_3310.gpkg` | Caltrans AADT count stations, clipped | 2,423 |
+
+**Processing steps:**
+1. Download Geofabrik NorCal shapefile extract (guarded against non-zip response).
+2. Read `gis_osm_roads_free_1.shp`; reproject to EPSG:3310.
+3. Bbox pre-filter then `st_intersection` clip to the study-area outline (vector
+   clip — no resampling).
+4. Write full layer; write major/barrier subset (motorway, trunk, primary,
+   secondary + links).
+5. Pull Caltrans AADT as GeoJSON (`outSR=4326`); reproject to EPSG:3310;
+   `st_filter` to study area; write points.
+
+**Checks:**
+- Roads: `fclass` present; 936,784 features; length-by-class table produced
+  (service 35,112 km, residential 30,257 km, footway 24,064 km lead; motorway
+  2,231 km / trunk 894 km form the core barrier network).
+- AADT: 2,423 stations, not truncated (transfer-cap guard silent); 92% have a
+  non-blank `AHEAD_AADT`; median ~68,000, max ~292,000 (freeway-scale, expected
+  for a state-highway dataset).
+
+**Known limitations:**
+- **AADT is state-highway only** — county/city/local roads have no measured
+  volume; Week 5 assigns an `fclass`-derived floor or model (Decision 14).
+- **AADT volumes are strings** (commas / blanks) — coerce and clean before use.
+- **Geofabrik has no DOI** — network pinned by download date + server timestamp;
+  re-running later yields a different network.
+- **Tracks/paths** may be permeable rather than barriers — resolved per species in
+  Week 5 (Decision 14, open item 1).
+
+**Deferred to Week 5 (covariate construction, not acquisition):**
+- Tracks/paths permeability decision (per species; Decision 3 — never pooled).
+- AADT→road-segment join / snap to weight the network by traffic.
 
 ### 4.8 Partner data — Felidae Wildpod stations
 *Status: **deferred to a future phase** (Decision 7). Not used in Phase 1; no
@@ -316,6 +464,85 @@ untrusted `Park` labels (include private ranches); sub-regions Peninsula / East
 Bay / South Bay plus an out-of-region Los Angeles group to drop; Latin-1
 encoding. Association would use the staged point-in-polygon / nearest-unit
 method — never a blanket large buffer.
+
+### 4.9 Covariates — human footprint (human modification + housing density)
+
+**Status:** ✅ Complete — August 3, 2026
+
+This is the layer group Decision 12 points to as the carrier of the
+urban-**intensity** gradient (WorldCover has only a flat "Built-up" class). It is
+therefore load-bearing for the coexistence narrative, not context. Two datasets,
+both continuous:
+
+**Sources:** Global Human Modification **v3, 2022** (Theobald et al. 2024; AA =
+all threats combined; 300 m COG on Zenodo; Decision 15) and SILVIS **block-level
+housing density** 1990–2020 (PLA v4, California extract; Decision 16). Note both
+choices deviate from the Week-2 plan wording — gHM is v3/2022 not Kennedy 2019,
+and housing is SILVIS not a Census/`tidycensus` build; rationale in Decisions 15–16.
+
+> Cross-reference correction: Decision 12 and §4.5 / §4.7 refer to the
+> human-footprint layers as "§4.4". §4.4 is CROS (road mortality); the footprint
+> layers are **§4.9** (this section). Read those pointers as §4.9.
+
+**Outputs** (all EPSG:3310, `data/interim/`):
+
+| File | Content | Type |
+|---|---|---|
+| `cov_ghm_v3_2022_3310.tif` | Human modification, 0–1 continuous | raster (300 m) |
+| `cov_housing_silvis_blocks_3310.gpkg` | Housing density per census block (1990–2020) | vector (polygon) |
+
+**Processing steps:**
+1. gHM: windowed `/vsicurl` read of the 9.3 GB global AA COG (never downloaded
+   whole), crop to the 5 km-buffered AOI, mask, reproject to EPSG:3310 with
+   **bilinear** (continuous). Guarded loud fallback to a full download only if
+   Zenodo refuses range requests.
+2. SILVIS: download the CA state shapefile (PK-magic + size guard, as Geofabrik);
+   reproject EPSG:5070 → EPSG:3310; bbox pre-filter then clip to the study area
+   (vector — no resampling); retain density (`HUDEN1990`–`HUDEN2020`), counts
+   (`HU2020`, `POP2020`, `POPDEN2020`), `PUBFLAG`, `WATER20`, `BLK20`.
+
+**Checks:**
+- gHM values confirmed within [0, 1]; study-area mean reported (an urban–wildland
+  mix should sit well above a wildland-only mean). Out-of-[0,1] triggers a warning.
+- Housing: block count and CRS reported; `HUDEN2020` median / p90 / max; and a
+  standing **PLA check** — median `HUDEN2020` split by `PUBFLAG`, which should show
+  public-land blocks near-zero by construction.
+
+**Known limitations:**
+- **gHM is 2022, 300 m** — coarser than the puma 1 km / bobcat 500 m grids in name
+  only (adequate after aggregation); a single global product, not Bay-Area-tuned.
+- **SILVIS is public-land-adjusted:** housing density inside protected areas is
+  near-zero by construction, so density *at* an open-space unit is not a measure
+  of housing *in* the unit but of the surrounding matrix. Interpret accordingly.
+- **Small-area density artifact.** `HUDEN2020 = HU / area_km²`, so blocks with a
+  tiny area and a nonzero housing count produce implausibly large densities
+  (observed study-area max **2,263,007 units/km²**, ≈765× the p90 of 2,959;
+  roughly the top few hundred blocks exceed 10⁵, ~76 exceed 10⁶). This is a known
+  block-density artifact (single-structure / sliver blocks), **not** a SILVIS or
+  download error — the acquisition is correct. The real distribution (~99% of
+  blocks) sits between 0 and ~10⁴ units/km². Handling is pre-registered below,
+  fixed before rasterization (do not decide the transform post-hoc).
+- **No WUI classification** in the housing product — intermix/interface flags are
+  a separate SILVIS dataset (Decision 16), not acquired.
+
+**Deferred to Week 5 (covariate construction, not acquisition):**
+- Rasterise `HUDEN2020` (and optionally the 1990→2020 change) onto the puma/bobcat
+  grids. **Pre-registered density handling (fixed before rasterization, to avoid
+  a post-hoc transform choice):**
+  1. **Log-transform** the density: `log1p(HUDEN2020)`. Justified by the heavy
+     right-skew independent of the outliers, and it compresses the small-area
+     artifact into the body of the distribution. This is the primary handling.
+  2. **Cap before burning to grid.** Winsorize at a defensible ceiling
+     (p99 within the study area, or a hard "no plausible block density exceeds
+     ~10⁴–10⁵ units/km²" threshold) so a handful of sliver blocks cannot dominate
+     the rasterized cell values. Applied in addition to the log where any single
+     block would otherwise occupy a grid cell at full (artifact) density.
+  Record the exact cap value and count of affected blocks in the change log when
+  run. The near-zero `PUBFLAG=1` density is *not* treated as an error — it is the
+  PLA design (Decision 16) and is left as-is.
+- Decide whether gHM and housing density are both carried into the resistance
+  surface or one is dropped for collinearity (they will correlate at the urban
+  edge; check before stacking — per species, never pooled, Decision 3).
 
 ---
 
@@ -507,6 +734,179 @@ that iNaturalist auto-obscures the species.
 auto-obscure claim removed); the ≥1 km puma output floor and `assert_publishable()`
 enforcement are retained and treated as essential, not precautionary.
 
+**Decision 11: CROS is request-gated; terms confirmed before use**
+*Date:* July 27, 2026
+*Decision:* Do not scrape or bulk-download CROS. Obtain puma/bobcat roadkill via
+a formal request to the UC Davis Road Ecology Center, and confirm in writing
+whether derived maps may be published on the public story site before building
+any published CROS output. Pending that, cite the published hotspot reports as
+the fallback.
+*Justification:* The CROS public site offers no open bulk download (own
+observations only) and publishes no reuse licence or republication grant (Risk 3
+anticipated this). Republishing raw roadkill points without a written grant would
+breach the request-governed terms; citing published outputs and aggregating to
+road segment is the safe fallback.
+*Impact:* CROS acquisition deferred to a data request; off the Phase-1 critical
+path (puma leans on connectivity; road mortality is a threat overlay). The story
+site cites published Road Ecology Center outputs unless/until a data-sharing
+agreement permits more.
+
+**Decision 12: Land-cover source — ESA WorldCover (amended Aug 2, 2026; originally NLCD)**
+*Date:* Aug 2, 2026
+*Decision:* Use **ESA WorldCover 2021 v200** (10 m, 11 classes) as the land-cover
+covariate. This replaces the original choice of Annual NLCD.
+*Original choice (NLCD) and why:* NLCD was picked for its developed-intensity
+gradient (Open Space / Low / Med / High), which suited the urban-edge narrative
+and the puma resistance surface. WorldCover collapses human land into a single
+"Built-up" class; FVEG is heavier, California-only, and weak on the developed
+gradient.
+*Why amended:* NLCD proved unacquirable via any clean route —
+`FedData::get_nlcd_annual()` is pinned to the retired C1V0 files and rejects
+newer versions; MRLC removed the flat S3 mosaics (now tiled + requester-pays);
+the MRLC WCS exposes only 1985–2023 change *summaries* (and reading one crashed
+the R session); and the NLCD Viewer export returned full-CONUS data with
+undocumented class codes (100–104) covering real habitat (Mt Diablo). The cost
+far exceeded the layer's value.
+*WorldCover instead:* 10 m, CC-BY 4.0, on public AWS COGs (`s3://esa-worldcover`,
+no auth) — genuinely scriptable via `/vsicurl`, cropped to the study bbox,
+reprojected to EPSG:3310 with **nearest-neighbour**. Tiles N36W123 (+N36W126 for
+the Point Reyes sliver). Citation: Zanaga et al. 2022, DOI 10.5281/zenodo.7254221.
+*Trade-off handled:* WorldCover's single Built-up class means no developed
+gradient — but the **urban-intensity gradient is carried by the Global Human
+Modification index and housing density (§4.4)**, which are continuous and
+arguably a better urban-edge signal than NLCD's four developed classes. So the
+coexistence story is preserved; the "human intensity" job moves from land cover
+to the footprint layers. FVEG remains a possible vegetation supplement.
+*Impact:* `cov_landcover_worldcover2021_3310.tif` in `data/interim`.
+
+**Decision 13 — Terrain source: AWS Terrain Tiles (elevatr z=12), not native 3DEP 10 m**
+*Date:* August 3, 2026
+*Decision:* Acquire terrain (elevation, slope, aspect) via `elevatr::get_elev_raster(src = "aws", z = 12)` rather than a native USGS 3DEP 1/3-arc-second product.
+*Provenance correction:* `elevatr` with `src = "aws"` serves **AWS Terrain Tiles** — a Terrarium-encoded mosaic that blends multiple sources (3DEP, SRTM, GMTED, etc.), sampled by integer Web-Mercator zoom level. It is **not** a native "3DEP 10 m" grid, and the Week-2 plan's "3DEP (10 m)" wording is inaccurate as-built. At the study-area latitude (~37.7°N), z=12 has an effective ground resolution of **~30 m** in the source Mercator grid (`156543 × cos(φ) / 2^z`). After reprojection to EPSG:3310 with bilinear resampling, cells are **15.1 m**, but this is a resampled grid — it does not add real terrain detail, so effective resolution remains ~30 m.
+*Justification:* ~30 m effective terrain is more than adequate for landscape-scale covariates aggregated to the puma 1 km and bobcat 500 m grids; finer source data (z=13, ~15 m) would ~4× the tile/pixel volume for no analytical gain at these grid resolutions. DEM reprojected to EPSG:3310 with **bilinear** (continuous data — contrast the `near`/nearest-neighbour used for categorical WorldCover, Decision 12). Slope and aspect derived post-projection in degrees via `terra::terrain()` so gradients are computed in projected metres, not degrees of lat/lon.
+*1 m lidar:* USGS 3DEP QL2 / CA statewide lidar covers much of the Bay Area but is prohibitively large and unnecessary at this scale. Recorded as a known-issue supplement in `data-sources.md`; **not** acquired in Phase 1.
+*QC:* buffered-AOI (5 km collar) elevation range −123 m to 1,439 m. Max is plausible (Hamilton range summits pulled in by the collar). Sub-sea-level minima are Terrarium water/void artefacts confined to the Pacific coastline, SF Bay margins, and the Farallones — all outside terrestrial open-space units and removed for free by the Week-5 clip-to-units. No bad-tile block over land; no re-fetch required.
+*Outputs:* `data/interim/cov_dem_terraintiles_z12_3310.tif`, `cov_slope_deg_terraintiles_z12_3310.tif`, `cov_aspect_deg_terraintiles_z12_3310.tif`.
+*Impact:* "3DEP 10 m" replaced by "AWS Terrain Tiles via elevatr, z=12 (~30 m effective)" wherever terrain provenance is stated (plan, data-sources, any figure caption). Filename tag `z12_3310` retained; resolution is documented in prose, not the filename.
+
+**Decision 14 — Roads source: Geofabrik NorCal extract; traffic from Caltrans AADT**
+*Date:* August 3, 2026
+*Decision:* Acquire the road network from the **Geofabrik NorCal sub-region
+shapefile extract** (OSM), and traffic volume from the **Caltrans Traffic AADT**
+point service. Not osmdata/Overpass; not the CA-statewide Geofabrik extract.
+*Why Geofabrik over osmdata/Overpass:* the `fclass` road-class field — the field
+this project keys on, carried over from tiger-project convention — exists **only**
+in Geofabrik's processed extracts. Raw OSM (what osmdata/Overpass returns) uses
+`highway`, which would have to be re-mapped by hand. Overpass also risks timeouts
+on a bbox as large and dense as the ten-county Bay Area.
+*Why NorCal, not statewide:* Geofabrik publishes **no current statewide California
+shapefile** — the CA download page explicitly directs to sub-regions, and the only
+`california-*-free.shp.zip` files are stale 2014–2018 snapshots. The ten-county
+study area sits entirely inside the **norcal** sub-region, which publishes a
+current `-latest-free.shp.zip`. (First attempt at the statewide URL silently
+returned a 9 KB HTML page; a `PK`-magic + size guard was added to the download so
+a non-zip fails loud rather than limping on to `unzip`/`st_read`.)
+*Reproducibility:* Geofabrik has no DOI and "latest" moves. Pinned by recording
+download date + server `Last-Modified` in `data/raw/osm/geofabrik_download_stamp.txt`
+(the closest analogue to the GBIF DOI). Documented as a known limitation.
+*Roads output:* clipped to the study area in EPSG:3310 (vector — clip, no
+resampling), two layers: `cov_roads_osm_3310.gpkg` (all classes, 936,784 features)
+and `cov_roads_osm_major_3310.gpkg` (motorway→secondary barrier subset).
+*Traffic (Caltrans AADT):* service is `CHhighway/Traffic_AADT` on a **MapServer**
+(the layer *display* name "Traffic_Volumes_AADT" is not the service path; it is not
+a FeatureServer). 2023 vintage. Pulled as GeoJSON, reprojected to EPSG:3310, clipped
+to the study area → `cov_aadt_caltrans_points_3310.gpkg` (2,423 stations; median
+AHEAD_AADT ~68,000, max ~292,000 — freeway-scale, as expected for a state-highway
+dataset).
+*Trade-offs / caveats recorded:*
+  - **AADT is state-highway only** — no county roads, city streets, or local
+    arterials. For barrier effects this is mostly acceptable (freeways are the
+    barriers), but roads off the state network have no measured volume and will
+    need an `fclass`-derived floor or model in Week 5.
+  - **AADT volumes are stored as strings** (`AHEAD_AADT` / `BACK_AADT`,
+    per-direction leg), with commas and blanks (~8% empty). Coerce to numeric and
+    clean before use.
+*Open items (deferred to Week 5, covariate prep):*
+  1. **Tracks / paths permeability.** `track` (12,375 km) and `path` (6,452 km) are
+     unpaved / low-or-no-traffic. For a puma/bobcat resistance surface they are
+     arguably permeable, not barriers. Decide whether they count as "roads" in the
+     connectivity context, per species (Decision 3 — never pooled). Not resolved here.
+  2. **AADT-to-segment join.** AADT points must be spatially joined / snapped to
+     road segments to turn "road present" into "road weighted by traffic." This is
+     a covariate-construction step, not a download step.
+*Impact:* `data/interim/cov_roads_osm_3310.gpkg`, `cov_roads_osm_major_3310.gpkg`,
+`cov_aadt_caltrans_points_3310.gpkg`. `osmdata` added to renv (kept available for
+surgical follow-up queries even though the bulk pull is Geofabrik).
+
+**Decision 15 — Human-modification source: gHM v3 (2022, Theobald 2024), not the Kennedy 2019 1 km layer**
+*Date:* August 3, 2026
+*Decision:* Acquire the human-modification gradient from the **Global Human
+Modification v3, 2022** dataset (Theobald et al. 2024) — the "all threats
+combined" (AA) 300 m cloud-optimised GeoTIFF on Zenodo — rather than the Kennedy
+et al. 2019 1 km layer named in the Week-2 plan, and not the Google Earth Engine
+asset.
+*Why not the 2019 layer as planned:* the canonical Kennedy et al. 2019 gHM
+(figshare, median year 2016, 1 km) ships as a GEE export / zipped raster with no
+clean `/vsicurl` endpoint; the programmatic route everyone uses is the GEE asset
+(`CSP/HM/GlobalHumanModification`), which requires an Earth Engine account and
+`rgee`. That adds an auth dependency this project has deliberately avoided (only
+GBIF is gated) and fails the "genuinely scriptable, no-auth" bar that led away
+from NLCD in Decision 12.
+*Why v3 instead:* Theobald et al. 2024 is public CC-BY, DOI-pinned
+(10.5281/zenodo.14502573), distributed as COGs — so it is acquirable by the exact
+windowed `/vsicurl` pattern already used for WorldCover — and more current (2022
+vs 2016). The resolution change (300 m vs 1 km) is immaterial at the puma 1 km /
+bobcat 500 m aggregation grids. Net: cleaner acquisition **and** a better layer;
+the only cost is a citation swap (Kennedy et al. 2019 → Theobald et al. 2024),
+recorded in `references.md` and `data-sources.md`.
+*Acquisition detail:* the AA GeoTIFF is **9.3 GB global**. It is not downloaded —
+it is read windowed via `/vsicurl`, cropped to the 5 km-buffered AOI, then only
+that window is fetched (a few MB of range reads). A guarded, loud full-download
+fallback exists solely for the case where Zenodo refuses HTTP range requests; it
+warns about the 9.3 GB size rather than pulling silently. Filename in the record
+*description* is mistyped (`HMv2024080101_`); the actual file is
+`HMv20240801_2022s_AA_300.tif` — the real name is used, not the description's.
+*Reproject:* EPSG:3310 with **bilinear** (continuous 0-1 metric — contrast the
+`near`/nearest-neighbour used for categorical WorldCover, Decision 12).
+*Role (per Decision 12):* gHM is load-bearing, not context — with housing density
+it carries the urban-intensity gradient that WorldCover's single Built-up class
+cannot. `terra` already in renv; no new package.
+*Impact:* `data/interim/cov_ghm_v3_2022_3310.tif`. Supersedes the plan's
+"Kennedy et al. 2019 gHM 1 km" wherever human-modification provenance is stated.
+
+**Decision 16 — Housing density source: SILVIS block-level (PLA v4), California extract**
+*Date:* August 3, 2026
+*Decision:* Acquire housing density from the SILVIS **Block Level Housing Density
+Change 1990–2020** product (public-land-adjusted, v4), California state shapefile
+extract, keeping the pre-computed housing-density fields (`HUDEN1990`–`HUDEN2020`,
+units/km²).
+*Why SILVIS over a Census/`tidycensus` block build:* the state extract is a single
+direct download (matches the CPAD/CCED idiom, no census-API key or per-decade
+join), and housing **density** — the covariate actually wanted — is already
+computed per block. Housing density is the second half of the urban-intensity
+gradient (Decision 12); the AA gHM layer above is the first.
+*Two caveats carried (both flagged, neither blocking):*
+  - **"PLA" = public-land-adjusted.** SILVIS moves houses *out* of protected areas
+    into neighbouring private blocks, so housing density **inside CPAD units is
+    near-zero by construction**. For a coexistence covariate this reads as
+    "pressure at the urban edge, not phantom houses inside open space" — arguably
+    the right behaviour, but it must be understood when sampling density at a site
+    (an open-space unit). The download reports median `HUDEN2020` split by
+    `PUBFLAG` as a standing check on this.
+  - **No WUI flags in this product.** The intermix/interface classification lives
+    in a *separate* SILVIS "WUI 1990–2020" dataset (`WUIFLAG*` fields), not in the
+    block-change file. So "density is baked in" is true; "WUI is baked in" is not.
+    If the interface classification is ever wanted it is a distinct future pull —
+    recorded here so the gap is explicit, not discovered later.
+*CRS / geometry:* native CRS is **NAD83 / CONUS Albers (EPSG:5070)**, reprojected
+to EPSG:3310 like every other layer. It is a **polygon** block layer — clip (not
+mask), no resampling. Rasterising `HUDEN2020` onto a covariate grid is a Week-5
+covariate-construction step, not part of this download.
+*Attribution:* USDA Forest Service Northern Research Station / SILVIS Lab,
+UW–Madison; acknowledgement requested (no restrictive licence).
+*Impact:* `data/interim/cov_housing_silvis_blocks_3310.gpkg` (blocks clipped to
+the study area, density + count + `PUBFLAG` fields retained).
+
 ---
 
 ## 7. Known limitations
@@ -564,3 +964,20 @@ is not redistributable.
 | 2026-07-27 | 4.3 | Obscuring decomposed: puma & bobcat obscuring both observer-set; *Puma concolor* NOT taxon-obscured in CA; ~1,057 precise puma points held — sensitive-data-policy rules load-bearing |
 | 2026-07-27 | 6 | Decision 10 — puma obscuring observer-driven not taxon policy; precise puma data held; policy §1 rationale corrected, coarsening rules load-bearing |
 | 2026-07-27 | 4.3 | iNat positional-accuracy spread logged (non-obscured: puma median 26 m / bobcat 31 m); puma precise pool confirmed |
+| 2026-07-27 | 4.4 | CROS terms confirmed — no open download / no published licence; request-gated (Decision 11); acquisition deferred, published hotspots as fallback |
+| 2026-07-27 | 6 | Decision 11 — CROS request-gated; confirm republication terms in writing before use; no scraping |
+| 2026-08-02 | 4.4 | CROS data request sent to F. Shilling (Road Ecology Center); awaiting terms |
+| 2026-08-02 | 6 | Decision 12 — land-cover source: Annual NLCD (developed-intensity gradient), over WorldCover/FVEG |
+| 2026-08-02 | 6 | Decision 12 amended — pivoted land cover NLCD → ESA WorldCover 2021 (NLCD access unworkable); urban gradient moved to GHM/housing |
+| 2026-08-02 | 4.5 | Land cover downloaded (ESA WorldCover 2021 v200, EPSG:3310); WorldCover under-maps CA chaparral (shrub ~123 km² vs NLCD ~3,200) — flagged, FVEG supplement if needed |
+| 2026-08-03 | 4.6 | Terrain downloaded (AWS Terrain Tiles via elevatr, z=12, EPSG:3310; DEM + derived slope/aspect); ~30 m effective (15.1 m reprojected grid); elevation −123–1,439 m; sub-sea-level minima confirmed as coastal/bay/Farallones water artefacts, not bad tiles |
+| 2026-08-03 | 6 | Decision 13 — terrain source AWS Terrain Tiles (elevatr z=12), NOT native 3DEP 10 m; "3DEP 10 m" wording corrected; bilinear reproject; slope/aspect post-projection; 1 m lidar deferred |
+| 2026-08-03 | 4.7 | Roads downloaded (Geofabrik NorCal extract, OSM; `fclass`; 936,784 features clipped, EPSG:3310); full + major/barrier subsets written. CA-statewide extract unavailable (stale 2014-2018 only) → NorCal sub-region used |
+| 2026-08-03 | 4.7 | Traffic downloaded (Caltrans Traffic_AADT MapServer, 2023; 2,423 stations clipped, EPSG:3310); AHEAD/BACK_AADT stored as strings; state-highway-only + AADT→segment join flagged for Week 5 |
+| 2026-08-03 | 6 | Decision 14 — roads via Geofabrik NorCal (`fclass`), not osmdata/Overpass or stale CA-statewide; traffic via Caltrans AADT; open items: tracks/paths permeability + AADT-segment join deferred to Week 5 |
+| 2026-08-03 | 4.9 | Human modification downloaded (gHM v3 2022, Theobald 2024, AA 300 m COG; windowed /vsicurl off 9.3 GB global file, EPSG:3310, bilinear); values confirmed in [0,1] |
+| 2026-08-03 | 6 | Decision 15 — gHM source v3/2022 (Zenodo COG, /vsicurl), NOT Kennedy 2019 1 km figshare/GEE; citation swaps Kennedy 2019 → Theobald 2024; auth-free acquisition preserved |
+| 2026-08-03 | 4.9 | Housing density downloaded (SILVIS block-level PLA v4, CA extract; EPSG:5070 → 3310; blocks clipped; HUDEN1990–2020 + PUBFLAG retained); PLA check: public-land blocks near-zero by construction |
+| 2026-08-03 | 6 | Decision 16 — housing via SILVIS block-level (density baked in), not Census/tidycensus build; caveats logged: PLA zeroes protected-area density, no WUI flags in this product |
+| 2026-08-03 | 4.9 | SILVIS QC: HUDEN2020 median 846 / p90 2,959 / max 2,263,007 units/km² — small-area (sliver-block) density artifact, not a download error; Week-5 handling pre-registered (log1p primary + p99/hard cap before rasterization); PLA public-land median 0 confirmed by design |
+| 2026-08-03 | 4.5/4.7/12 | Cross-ref correction — footprint layers are §4.9 (not §4.4, which is CROS); pointers in Decision 12 and §4.5/§4.7 read as §4.9 |

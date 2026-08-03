@@ -38,7 +38,7 @@ openspace_cpad_bayarea_3310.gpkg
 boundary_baycounties_3310.gpkg
 occ_puma_gbif_clean_3310.gpkg
 occ_bobc_inat_research_3310.gpkg
-cov_landcover_nlcd2021_3310.tif
+cov_landcover_worldcover2021_3310.tif
 cov_roads_osm_major_3310.gpkg
 kde_bobc_current_1km_3310.tif
 resist_puma_baseline_3310.tif

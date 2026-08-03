@@ -1,35 +1,237 @@
-# Data
+# Data — acquisition and layout
 
-**No data is committed to this repository.** All open datasets are publicly
-downloadable; partner data is restricted and non-redistributable.
+How to reacquire every dataset this project uses. **No data is committed** —
+`data/raw/**` and `data/interim/**` are gitignored. Everything open is
+scripted in `scripts/01_download_open_data.R` and re-downloadable from scratch;
+partner/gated data is not redistributable and is described but not shippable.
 
-## Directory roles
+- **Full dataset provenance** (versions, DOIs, licences, record counts, known
+  issues): `docs/data-sources.md`.
+- **Processing log** (what each script does, parameter values, QC): `docs/methodology.md` §4.
+- **Numbered decisions** behind every source choice: `docs/methodology.md` §6.
 
-| Directory | Contents | Committed |
-|---|---|---|
-| `raw/` | Downloaded source files, never edited | No |
-| `interim/` | Intermediate processing artefacts, safe to delete | No |
-| `processed/` | Analysis-ready layers (`.gpkg`, `.tif`) | No |
-| `restricted/` | Partner / sensitive data | **Never** |
+---
 
-`restricted/` is fully gitignored. Read `docs/sensitive-data-policy.md` before
-placing anything in it.
+## Conventions (apply to everything below)
 
-## Acquisition
+- **Two-CRS discipline.** Sources arrive in whatever CRS they ship in; every
+  layer is reprojected to **EPSG:3310** (NAD83 / California Albers) on import.
+  Web-export copies (EPSG:4326) are made only at export, never for analysis.
+- **Resampling by data type.** Categorical rasters → `near`; continuous rasters
+  → `bilinear`. Vectors → `sf::st_transform()` (no resampling).
+- **Filename convention.** Interim files end in their EPSG code
+  (`*_3310.gpkg` / `*_3310.tif`).
+- **Idempotent downloads.** Each block skips the download if the file already
+  exists, so re-running the script is cheap.
+- **Windows note.** `download.file(..., mode = "wb")` and `options(timeout = 600)`
+  are set per block — the large zips exceed the 60 s default.
 
-Most sources can be fetched with `scripts/01_download_open_data.R`. Sources
-requiring manual download or a registration step are listed below with steps.
+---
 
-| Dataset | Method | Script / URL |
-|---|---|---|
-| CPAD / CCED | Manual download | https://www.calands.org/ |
-| GBIF occurrences | Scripted (`rgbif`) | `scripts/01_download_open_data.R` |
-| iNaturalist | Scripted (`rinat`) or web export | `scripts/01_download_open_data.R` |
-| CROS roadkill | Manual — confirm data-use terms first | https://wildlifecrossing.net/california/ |
-| 3DEP elevation | Scripted (`elevatr`) | `scripts/01_download_open_data.R` |
-| NLCD land cover | Manual download | https://www.mrlc.gov/ |
-| OSM roads | Manual download (Geofabrik) | https://download.geofabrik.de/north-america/us/california.html |
-| Census TIGER/Line | Scripted (`tigris`) | `scripts/01_download_open_data.R` |
+## Prerequisites
 
-Record the access date, version and record count for every dataset in
-`docs/data-sources.md` at download time.
+1. Clone the repo; open the R project.
+2. `renv::restore()` — installs pinned package versions from `renv.lock`.
+3. Confirm `.Rprofile` neutralises `PROJ_LIB` / `PROJ_DATA` / `GDAL_DATA`
+   **above** renv's `activate.R` line (PostGIS `proj.db` conflict fix —
+   methodology §3). Without it `terra::project()` fails with `[rast] empty srs`.
+4. GBIF only: put `GBIF_USER` / `GBIF_PWD` / `GBIF_EMAIL` in your **user**
+   `.Renviron` (never committed).
+5. Run `scripts/01_download_open_data.R` top to bottom, or reacquire layer by
+   layer using the table below.
+
+## Directory layout
+
+```
+data/
+  raw/          # as-downloaded, gitignored
+    cpad/  cced/  gbif/  inaturalist/  worldcover/  terrain/
+    osm/  caltrans/  ghm/  silvis/
+  interim/      # reprojected to EPSG:3310, analysis-ready inputs, gitignored
+  restricted/   # partner data only, never committed (empty in Phase 1)
+```
+
+---
+
+## Open layers (scripted — no gate)
+
+Order matches `scripts/01_download_open_data.R`. The study-area boundary
+(row 3) is built first in practice because it is the bbox/clip frame for
+everything after it.
+
+### 1. CPAD 2026a — protected areas (fee lands)
+- **Source:** CPAD 2026a statewide release (GreenInfo Network), via data.ca.gov.
+- **How:** direct zip → `data/raw/cpad/cpad_2026a_release.zip`, unzip in place.
+  URL in `data-sources.md` §1.1 and in the script.
+- **Ships as:** three shapefiles — Holdings (162,773) / Units (17,930) /
+  SuperUnits (17,169). **Native EPSG:3310** — no reprojection.
+- **Output:** none yet. Analysis-ready `openspace_cpad_bayarea_3310.gpkg` is a
+  **Week-3** build (level choice + clip + non-habitat filter; Decision 5 / Risk 5).
+- **Gotcha:** SuperUnits has **no `COUNTY` field** → the ten-county selection
+  must be a spatial clip to the boundary (row 3), not an attribute filter.
+- Decision 8.
+
+### 2. CCED 2026a — conservation easements
+- **Source:** CCED 2026a statewide (GreenInfo), via data.ca.gov.
+- **How:** direct zip → `data/raw/cced/cced_2026a_release.zip`, unzip in place.
+- **Ships as:** single shapefile, 23,645 easement polygons. **Native EPSG:3310.**
+  No Holdings/Units/SuperUnits hierarchy.
+- **Output:** none yet. CPAD↔CCED integration (separate overlay vs. unioned
+  `protection_type` layer) is a **Week-3** decision.
+- **Caveat:** ~27% (6,363) have an "Unknown" holder — geometry valid, only
+  matters for by-holder analysis. Coverage gap quantified, not supplemented.
+- Decision 9.
+
+### 3. Study-area boundary — TIGER/Line counties (`tigris`)
+- **Source:** US Census TIGER/Line 2024, cartographic boundaries.
+- **How:** `tigris::counties("CA", cb = TRUE, year = 2024)` → filter to the ten
+  `STUDY_COUNTIES` (`R/00_config.R`) → reproject to EPSG:3310. Scripted.
+- **Outputs (`data/interim/`):**
+  - `boundary_baycounties_3310.gpkg` — 10 county polygons (`county`, `geoid`)
+  - `boundary_baydissolved_3310.gpkg` — single clip mask / study outline
+- **QC:** exactly 10 counties; dissolved land area **19,623 km²** (confirms
+  `cb = TRUE` land boundary — a water-inflated `cb = FALSE` would be ~28,000 km²).
+- **This is the bbox and clip frame for every layer below.** Decision 2.
+
+### 4. GBIF occurrences — puma + bobcat
+- **Source:** GBIF, both species, study-area bbox.
+- **How:** `rgbif::occ_download()` (the citable/DOI path — **not** `occ_search`,
+  which gives no DOI and caps at 100k). taxonKeys via `name_backbone()`;
+  `hasCoordinate = TRUE`, `hasGeospatialIssue = FALSE`. Needs GBIF creds
+  (prereq 4).
+- **DOI:** https://doi.org/10.15468/dl.87ne3u (key `0013933-260721160103020`);
+  saved to `data/raw/gbif/gbif_download_doi.txt`.
+- **Output:** raw zip `data/raw/gbif/<key>.zip`. Cleaned/split layers are a
+  **Week-4** build.
+- **Counts (pre-filter):** puma 1,843 · bobcat 5,164. Puma coords dominated by
+  ~28 km iNat obscuring (median 28,240 m).
+
+### 5. iNaturalist occurrences — puma + bobcat
+- **Source:** iNaturalist research-grade, study-area bbox, captive dropped.
+- **How:** `rinat::get_inat_obs(quality = "research", geo = TRUE, bounds = bbox,
+  maxresults = 10000)`. No account. Obscuring fields preserved
+  (`coordinates_obscured` → `obscured`, `taxon_geoprivacy`, `geoprivacy`,
+  `public_positional_accuracy`).
+- **Output:** `data/raw/inaturalist/inat_research_bayarea.rds`. Dedupe/clean is
+  a **Week-4** build.
+- **Counts:** puma 2,102 (50% obscured) · bobcat 6,295 (31% obscured).
+- **Load-bearing finding (Decision 10):** puma is **not** taxon-obscured in CA
+  (0 taxon-obscured) → the project holds **~1,057 precise puma points**. The
+  `docs/sensitive-data-policy.md` ≥1 km publish floor / coarsening rules are
+  therefore load-bearing, not precautionary. Heavy overlap with GBIF — **dedupe,
+  don't sum.**
+
+### 6. Land cover — ESA WorldCover 2021 v200
+- **Source:** ESA WorldCover 10 m 2021 v200 (11 classes).
+- **How:** windowed `/vsicurl` read of the public AWS COGs (no auth) — tile
+  **N36W123** (+ N36W126 for the Point Reyes sliver); crop in-script. No manual
+  download.
+- **CRS:** EPSG:4326 → EPSG:3310, **nearest-neighbour** (categorical).
+- **Output:** `data/interim/cov_landcover_worldcover2021_3310.tif`.
+- **Caveat:** single flat "Built-up" class (urban **intensity** comes from row 9,
+  not here). **Under-maps CA chaparral** — CAL FIRE FVEG is the targeted
+  supplement if bobcat covariates need shrub. Decision 12 (amended from NLCD).
+
+### 7. Terrain — AWS Terrain Tiles (`elevatr`)
+- **Source:** AWS Terrain Tiles (Terrarium mosaic: 3DEP / SRTM / GMTED / others).
+- **How:** `elevatr::get_elev_raster(locations = aoi, z = 12, src = "aws",
+  clip = "bbox")` over the study area + 5 km collar. No account.
+- **CRS:** EPSG:3857 → EPSG:3310, **bilinear** (continuous). Slope/aspect derived
+  **post-projection** with `terra::terrain()` (degrees).
+- **Outputs (`data/interim/`):** `cov_dem_terraintiles_z12_3310.tif`,
+  `cov_slope_deg_terraintiles_z12_3310.tif`,
+  `cov_aspect_deg_terraintiles_z12_3310.tif`.
+- **Caveats:** **not** native 3DEP 10 m — effective ~30 m; the 15.1 m grid is a
+  reprojection artefact. Sub-sea-level minima (−123 m) are coastal/bay/Farallones
+  water voids, not bad tiles. 1 m lidar deferred. Decision 13.
+
+### 8. Roads + traffic — Geofabrik OSM + Caltrans AADT
+- **Roads source:** Geofabrik **NorCal** OSM extract (CA-statewide extract was
+  stale 2014–2018 only → NorCal sub-region used).
+- **How (roads):** download NorCal shapefile (zip-magic guarded); read
+  `gis_osm_roads_free_1.shp`; reproject EPSG:3310; bbox pre-filter then
+  `st_intersection` clip to the boundary (vector — no resampling). Write full +
+  major/barrier subset.
+- **Traffic source:** Caltrans Traffic AADT MapServer, 2023.
+- **How (traffic):** pull as GeoJSON (`outSR=4326`); reproject EPSG:3310;
+  `st_filter` to study area; write points.
+- **Outputs (`data/interim/`):**
+  - `cov_roads_osm_3310.gpkg` — all classes, 936,784 features
+  - `cov_roads_osm_major_3310.gpkg` — motorway→secondary + links
+  - `cov_aadt_caltrans_points_3310.gpkg` — 2,423 count stations
+- **Caveats:** AADT is **state-highway only** (local roads get an `fclass`-derived
+  floor in Week 5); AADT volumes are **strings** (coerce/clean); Geofabrik has
+  **no DOI** — pin by download date + server timestamp. Tracks/paths permeability
+  and the AADT→segment join are **Week-5** covariate steps. Decision 14.
+
+### 9. Human footprint — gHM v3 + SILVIS housing
+> Load-bearing pair carrying the urban-**intensity** gradient WorldCover's single
+> Built-up class can't (Decision 12). Methodology log is **§4.9**; the
+> `data-sources.md` cross-ref to "§4.4" is CROS, not this — read as §4.9.
+
+- **gHM source:** Global Human Modification **v3, 2022** (Theobald et al. 2024),
+  "all threats" (AA) 300 m COG on Zenodo (DOI 10.5281/zenodo.14502573).
+- **How (gHM):** windowed `/vsicurl` read off the **9.3 GB global** file (never
+  downloaded whole) — crop to the 5 km-buffered AOI, mask, reproject EPSG:3310
+  **bilinear**. A guarded, loud full-download fallback exists only if Zenodo
+  refuses HTTP range requests. Real filename is
+  `HMv20240801_2022s_AA_300.tif` (the script *description* mistypes it).
+- **Housing source:** SILVIS **Block-Level Housing Density Change 1990–2020**,
+  public-land-adjusted (PLA v4), California extract.
+- **How (housing):** direct shapefile download
+  (`CA_block20_change_1990_2020_PLA4_shp.zip`, PK-magic + size guarded);
+  reproject **EPSG:5070 → EPSG:3310**; clip to study area (vector — no resample);
+  keep `HUDEN1990`–`HUDEN2020`, counts, `PUBFLAG`.
+- **Outputs (`data/interim/`):**
+  - `cov_ghm_v3_2022_3310.tif` (300 m continuous 0–1)
+  - `cov_housing_silvis_blocks_3310.gpkg` (blocks, density + `PUBFLAG`)
+- **Caveats / pre-registered Week-5 handling:**
+  - **PLA** moves houses *out* of protected areas → density inside CPAD units is
+    near-zero **by construction** (reads as "edge pressure, not phantom houses";
+    QC: `HUDEN2020` median by `PUBFLAG`, public-land median 0 confirmed).
+  - **Sliver-block artifact:** `HUDEN2020` max ~2.26M units/km² (p90 ~3k) — tiny
+    blocks with nonzero counts. Handling fixed = **`log1p` + p99/hard cap before
+    rasterization**, not at download.
+  - **No WUI flags** in this product (separate SILVIS WUI dataset; not acquired).
+  - **gHM × housing collinearity** check per species before stacking the
+    resistance surface (Week 5).
+  - Citation swap: Kennedy et al. 2019 → **Theobald et al. 2024** (Decision 15).
+  - Decisions 15 (gHM) and 16 (housing).
+
+---
+
+## Gated / parked (not scripted — do not assume redistributable)
+
+### CROS — California Roadkill Observation System
+- **Status:** **parked.** Data request sent to F. Shilling (UC Davis Road Ecology
+  Center) 2026-08-02; awaiting terms. Decision 11.
+- **Why gated:** no open bulk download and **no published licence / republication
+  grant**. Registered users can export only their own observations; the full
+  dataset is request-gated, and republication terms for derived maps are set in
+  that request, not published. **Do not scrape; do not assume raw CROS points may
+  be republished** on the public site without written confirmation.
+- **When granted:** download per the agreed terms, document acquisition here and
+  in `data-sources.md` §3.1, and record the granted republication scope.
+- **Fallback if not granted:** cite the Road Ecology Center's published annual
+  "California Wildlife–Vehicle Collision Hotspots" reports + the CA Wildlife Crash
+  Map (publishable/citable without a raw-data request). CROS is a **threat
+  overlay, not a Phase-1 backbone** — Week 2 can close with it explicitly parked.
+
+### Felidae Conservation Fund — Wildpod camera stations
+- **Status:** **deferred to a future phase** (Decision 7). No Felidae data is
+  held in this repository.
+- **Terms:** requires a written agreement first (`docs/sensitive-data-policy.md`
+  §4). Precise station coordinates are **T3 restricted** — never committed, never
+  published at native precision. If resumed, lands in `data/restricted/` only.
+- Full characteristics for whoever resumes it: `data-sources.md` §6.1.
+
+---
+
+## Population context (reports, not spatial layers)
+
+Not downloaded as data — cited as **context only, never as a trend**
+(`docs/references.md`): the California Mountain Lion Project statewide abundance
+estimate (~3,200–4,500) and the CDFW status review / CESA listing for the
+Southern California / Central Coast population (Central Coast North = the Santa
+Cruz Mountains, listed threatened April 2026). No statewide bobcat estimate
+exists.
