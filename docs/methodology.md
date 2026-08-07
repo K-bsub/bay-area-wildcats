@@ -907,6 +907,192 @@ UW–Madison; acknowledgement requested (no restrictive licence).
 *Impact:* `data/interim/cov_housing_silvis_blocks_3310.gpkg` (blocks clipped to
 the study area, density + count + `PUBFLAG` fields retained).
 
+**Decision 17: CPAD analysis unit — Units as the site, hierarchy carried as attributes**
+*Date:* August 5, 2026
+*Decision:* Use CPAD 2026a **Units** as the analysis "site" unit. Build the
+canonical open-space layer from Units, carrying `suid_nma` (SuperUnit key) and,
+where a per-Holding roll-up is needed, `holding_id` as attributes rather than
+maintaining Holdings or SuperUnits as parallel site geometries.
+*Justification:*
+- **SuperUnits is nearly flat and loses key fields.** The 2026a schema has 17,169
+  SuperUnits vs 17,930 Units — SuperUnit collapses only ~760 units (~4%), so it
+  buys almost no aggregation. It also lacks a `COUNTY` field and drops the
+  owner-agency and access attributes that Units and Holdings carry. No reason to
+  pay that cost.
+- **Holdings fragments habitat on ownership seams.** 162,773 parcels; splitting
+  contiguous habitat on invisible tenure lines destroys site independence for
+  occupancy and inflates N with correlated neighbours. Holdings is the
+  *filtering* layer (see Decision 18), not the site.
+- **Units matches how habitat is managed and experienced**, retains covariate
+  variation a site needs, and the hierarchy keys already exist
+  (`HOLDING_ID` → `UNIT_ID` → `SUID_NMA` are present on Holdings), so the
+  roll-up needs no spatial join.
+- **Per-track note:** the occupancy (bobcat) track uses Units directly as sites.
+  The connectivity (puma) track does not use any CPAD level as its unit — it
+  dissolves the CPAD∪CCED union (Decision 19) into habitat patches; the Units
+  layer feeds patch-building, it is not the corridor input.
+*Ten-county membership:* by **spatial clip** to `boundary_baydissolved_3310.gpkg`,
+which is the source of truth. Units *do* carry a `COUNTY` field (58 distinct,
+fully populated), but a Unit's `COUNTY` is a single label even where the polygon
+straddles a county line, so the attribute is retained only as a secondary audit
+check, not the selection method. (SuperUnits has no `COUNTY` field at all —
+another reason it is not used.)
+*Join discipline:* join Holdings↔Units on `UNIT_ID` (17,930 distinct = feature
+count), never on `UNIT_NAME` (only 15,006 distinct — ~2,900 units share a name).
+*Geometry:* 2 invalid Unit geometries and 3 invalid SuperUnit geometries found on
+load; run `st_make_valid()` before any overlay.
+*Impact:* Canonical layer is Unit-level. `openspace_cpad_bayarea_3310.gpkg` is
+built from Units, filtered per Decision 18, clipped to the ten-county boundary.
+
+*Large-Unit gradient flag (covariate pre-flag for Week 4/5).* A `spans_gradient`
+boolean is written onto the layer, set `hab_area_km2 > 5.0 km²`, flagging **192 of
+1,129 kept units (17%)**. This is **not a filter** — no units are dropped; the flag
+tells the Week-4/5 covariate step that a single whole-unit mean is unsafe for
+these large units (they span internal land-cover / terrain gradients — e.g. Henry
+Coe at 237 km²) and to summarise by sub-cell instead. Threshold set against the
+kept-unit area distribution (median 0.79 km², p90 8.7 km²): a ">1 km²" rule would
+flag ~45% of units and lose triage value, so 5 km² was chosen to isolate the
+~top-sixth large tail where the gradient concern is real.
+
+**Decision 18: Non-habitat filtering — size floor on habitat area + Holdings-level non-habitat flag**
+*Date:* August 5, 2026
+*Decision:* Remove non-habitat open space from the analysis frame using a
+**minimum-area floor applied to habitat area**, combined with a **non-habitat
+flag derived at Holdings level** and carried onto Units. Non-habitat Holdings
+inside an otherwise-good Unit are **flagged, not erased** — geometry is kept
+intact and the information is carried as attributes (`nonhab_area_km2`,
+`hab_frac`, `has_nonhabitat`).
+*Filter definition (in order):*
+1. **Flag non-habitat at Holdings level.** A Holding is non-habitat if:
+   - `SPEC_USE` ∈ {`Golf Course`, `Cemetery`, `Community Garden`,
+     `Community Center`, `Senior Center`, `Youth Center`} — the unambiguous
+     developed/landscaped uses. **Not** excluded: `Trail Corridor`,
+     `National Monument`, `HCP/NCCP`, `Arboretum/Botanical Garden`,
+     `Planned Park` — these are habitat or conservation lands.
+   - `LAND_WATER` = `Water` — submerged/open-water parcels (reservoir surface,
+     bay); not terrestrial felid habitat. (`SPEC_USE` and `LAND_WATER` exist
+     **only** on Holdings, which is why the flag is derived there.)
+   - `AGNCY_TYP` / `MNG_AG_TYP` = `Cemetery District` — marginal (2 units) but
+     free; included for completeness.
+2. **Overlay flagged Holdings onto Units** and compute per Unit:
+   `nonhab_area_km2`, total `area_km2`, and `hab_frac = (area − nonhab) / area`.
+3. **Apply the size floor to habitat area:** drop Units with
+   **habitat area < 0.10 km² (10 ha)**.
+4. **Secondary non-habitat rule:** drop Units with `hab_frac < 0.5` (majority
+   non-habitat, e.g. a unit that is mostly golf course) even if total area
+   passes the floor.
+*Justification:*
+- **The size floor is nearly costless in area.** At Bay-Area Unit level, dropping
+  everything < 0.10 km² removes 3,123 of 4,375 units (71% by count) but only
+  ~1.0% of total open-space area (61.6 of 5,993.8 km²). The units removed are
+  pocket parks, medians and tot-lots, not habitat. Thresholds tested:
+  < 0.02 km² → 0.2% area; < 0.05 → 0.7%; **< 0.10 → 1.0%**. 0.10 km² chosen as
+  the point where count-removal is high but area-loss is still ~1%.
+- **`ACCESS_TYP` is deliberately NOT used as a filter.** Excluding
+  `No Public Access` would remove 753.6 km² — **12.6% of total area** — because
+  it captures water-district watersheds (SFPUC Peninsula), private ranch
+  easements and closed preserves that are among the *best* felid habitat in the
+  region. Access is retained as a descriptive attribute only. Habitat filtering
+  keys on *what the land is* (special use, land/water, size), not *whether
+  people can enter*.
+- **Agency-type exclusions are marginal** (Cemetery District = 2 units; no
+  Airport-typed units in the Bay Area CPAD). The filter is carried by size and
+  `SPEC_USE`, not agency type. `School District` ownership is **not** blanket-cut
+  — much school-adjacent green space is bobcat-permeable; those units stand or
+  fall on the size floor and `hab_frac` like any other.
+- **Flag-not-erase** keeps Units corresponding to real CPAD entities, preserves
+  the `UNIT_ID`→`SUID_NMA` roll-up, keeps occupancy sites whole, and is
+  reversible; the non-habitat signal is carried by covariates (WorldCover, gHM,
+  housing) and by `hab_frac`, which is where it belongs analytically.
+*Ordering (load-bearing):* flag at Holdings → overlay to Units → compute
+`hab_frac` → apply floor to habitat area → apply `hab_frac` rule → dissolve.
+Filtering must precede the dissolve, or interior non-habitat is swallowed and
+becomes invisible.
+*Audit trail:* log counts at each step (raw Bay-Area Units → after size floor →
+after `hab_frac` rule → final), and record total habitat area retained.
+*`hab_frac` cutoff — resolved.* Set at **0.50**, confirmed against the observed
+distribution (no longer provisional). Of 303 study-area units containing any
+flagged non-habitat, `hab_frac` is strongly **bimodal**: median 0.050, p75 0.951,
+with almost nothing between — units are either essentially all non-habitat
+(a golf course that is its own unit → `hab_frac ≈ 0`) or barely affected
+(a large preserve with a small interior garden → `hab_frac ≈ 1`). The cutoff is
+insensitive across 0.4–0.6: dropping at <0.4 removes 174 units, <0.5 removes 177,
+<0.6 removes 183 — a 9-unit spread. 0.50 sits in the empty middle of the gap and
+reads as "majority habitat," so the choice is not a fine judgment call.
+
+*Observed result (August 5, 2026 run):* 4,375 raw Bay-Area units → 1,142 after the
+0.10 km² habitat-area floor → **1,129 after the `hab_frac ≥ 0.50` rule**. The size
+floor does ~99% of the filtering; `hab_frac` removes 13 additional
+whole-unit-non-habitat cases. **4,660 km² habitat retained**; 106 final units
+carry `has_nonhabitat = TRUE` (mostly-habitat units with a flagged interior
+parcel — the flag-not-erase case). 1,129 sites is well above the ≥40-site
+occupancy fallback floor (Risk 1), leaving headroom for Week-4 effort filtering.
+
+**Decision 19: CPAD↔CCED integration — two frames, tenure preserved on the union**
+*Date:* August 5, 2026
+*Decision:* Do not fold CCED into the canonical open-space layer. Maintain **two
+frames** from the same source data, serving the two analysis tracks:
+- **Occupancy frame (bobcat):** CPAD Units only —
+  `openspace_cpad_bayarea_3310.gpkg` (Decisions 17–18), unchanged. CCED
+  easements are not added as sites.
+- **Connectivity frame (puma):** a CPAD∪CCED **union**,
+  `protected_union_bayarea_3310.gpkg`, carrying a `protection_type` attribute
+  ∈ {`fee`, `easement`} with **fee precedence on overlap**.
+*Justification:*
+- **The tracks need different things.** For connectivity, an easement-held
+  grazing parcel is permeable habitat to a wide-ranging puma regardless of
+  tenure, so it belongs in the patch fabric. For occupancy, a CCED easement is
+  not a survey-able unit with a detection history the way a named CPAD preserve
+  is; adding easements as "sites" would manufacture pseudo-sites over private
+  ranchland. Keeping two frames serves both without redundant geometry — the
+  union is derived from, not a replacement for, the CPAD layer.
+- **Tenure is preserved, not dissolved (Option b).** Much Bay Area connectivity
+  land is easement-held ranchland; flattening fee and easement into one
+  "protected" surface would erase exactly the signal the connectivity narrative
+  leans on. `protection_type` keeps it queryable and mappable.
+- **Fee precedence on overlap.** Where a CPAD fee parcel and a CCED easement map
+  the same ground, the CPAD fee record is the authoritative, better-attributed
+  protection statement; the easement is a tenure instrument layered on top. The
+  union erases the CPAD footprint from CCED **before** merging (`st_difference`),
+  so every area is attributed exactly once and the easement layer contributes
+  only the ground CPAD does not already cover. This prevents double-counting of
+  protected area and keeps the "additional easement land" interpretation clean.
+*Inputs / integration form:*
+- CPAD side: **filtered** Bay-Area Units from Decision 18 (fee land), tagged
+  `protection_type = "fee"`. Using the filtered layer, not raw CPAD, so pocket
+  parks and non-habitat do not re-enter through the union.
+- CCED side: Bay-Area easements (spatial clip to the ten-county boundary, per
+  Decision 17), tagged `protection_type = "easement"`, with CPAD fee geometry
+  differenced out.
+- CCED carries no Units/SuperUnits hierarchy (flat, one easement per row); it is
+  matched on `e_hold_id`. Relevant CCED attributes retained: `eholdtyp`,
+  `e_type`, `pubaccess`, `county`, `gis_acres`.
+*Caveats carried forward:*
+- The CCED coverage gap (Decision 9) is **not** closed by the union — the union
+  labels tenure where CCED has data; absence of an easement still does not mean
+  unprotected. State this wherever the union is used.
+- ~27% of CCED easements have "Unknown" holder type (Decision 9); `eholdtyp` is
+  kept as-is, not imputed.
+*Output:* `protected_union_bayarea_3310.gpkg` — connectivity track only. The
+occupancy frame remains `openspace_cpad_bayarea_3310.gpkg`.
+
+*Observed result (August 5, 2026 run):* 1,129 CPAD fee units (4,720.8 km²) ∪
+2,799 Bay-Area CCED easements (1,773.8 km²). Fee precedence erased **498.2 km²**
+of easement area overlapping CPAD fee (~28% of raw Bay-Area CCED area — the
+double-counting the difference prevents), and dropped 155 easements wholly inside
+fee land. **CCED contributes 1,275.7 km² of genuinely new protected land — a ~27%
+increase over the CPAD fee footprint** — confirming easements are a material part
+of the connectivity fabric, not a rounding error. Union total: 3,773 features,
+5,996.5 km² (fee 4,720.8 / easement 1,275.7).
+*Area-definition note:* the 4,720.8 km² fee figure here is raw unit area
+(`st_area`), which differs from 02c's 4,660.4 km² `hab_area_km2` (raw minus
+flagged interior non-habitat). The ~61 km² gap is the flagged golf/garden/water
+parcels inside kept units — two different area definitions, not a discrepancy.
+Record both in the data dictionary.
+*Downstream note:* the union is a tenure layer (fee/easement), not yet a
+habitat-patch layer. Dissolving the 3,773 features into contiguous patches across
+tenure boundaries is a Week-8 connectivity step, not Week-3 study-area prep.
+
 ---
 
 ## 7. Known limitations
@@ -981,3 +1167,7 @@ is not redistributable.
 | 2026-08-03 | 6 | Decision 16 — housing via SILVIS block-level (density baked in), not Census/tidycensus build; caveats logged: PLA zeroes protected-area density, no WUI flags in this product |
 | 2026-08-03 | 4.9 | SILVIS QC: HUDEN2020 median 846 / p90 2,959 / max 2,263,007 units/km² — small-area (sliver-block) density artifact, not a download error; Week-5 handling pre-registered (log1p primary + p99/hard cap before rasterization); PLA public-land median 0 confirmed by design |
 | 2026-08-03 | 4.5/4.7/12 | Cross-ref correction — footprint layers are §4.9 (not §4.4, which is CROS); pointers in Decision 12 and §4.5/§4.7 read as §4.9 |
+| 2026-08-05 | 6 | Decision 17 recorded — CPAD Units as analysis site unit; SuperUnits ruled out (near-flat ~4% aggregation, no COUNTY field), Holdings ruled out (fragments habitat on ownership seams); hierarchy carried as suid_nma/holding_id attributes; ten-county membership by spatial clip to boundary_baydissolved (COUNTY attribute audit-only); join on UNIT_ID not UNIT_NAME (~2,900 shared names); spans_gradient flag added (hab_area_km2 > 5 km², 192 units) as Week-4/5 covariate pre-flag, not a filter |
+| 2026-08-05 | 6 | Decision 18 recorded — non-habitat filter: 0.10 km² floor on habitat area (removes 71% of units, ~1% of area) + SPEC_USE/LAND_WATER/Cemetery-District deny-list flagged at Holdings level pre-dissolve; ACCESS_TYP deliberately excluded (No Public Access = 12.6% of area, incl. SFPUC watershed/ranch easements); non-habitat flagged-not-erased; hab_frac ≥ 0.50 cutoff (bimodal dist, insensitive 0.4–0.6, confirmed not provisional); result 4,375 → 1,142 (floor) → 1,129 units, 4,660.4 km² habitat, 106 has_nonhabitat |
+| 2026-08-05 | 6 | Decision 19 recorded — CPAD∪CCED kept as separate connectivity frame, not folded into occupancy layer; protection_type {fee, easement} with fee precedence on overlap (Option b, tenure preserved); result 3,773 features (1,129 fee + 2,644 easement), 498.2 km² fee/easement overlap erased, 155 easements dropped wholly-inside-fee, CCED adds 1,275.7 km² new protected land; fee 4,720.8 km² (raw st_area) vs occupancy 4,660.4 km² (hab_area) reconciled — ~61 km² flagged interior non-habitat, not a discrepancy |
+| 2026-08-05 | 4 | Built openspace_cpad_bayarea_3310.gpkg (occupancy frame, 1,129 units, scripts 02/02b/02c), protected_union_bayarea_3310.gpkg (connectivity frame, 3,773 features, script 02d), grid_puma_1km_3310.tif (20,416 land cells) + grid_bobc_500m_3310.tif (80,073 land cells, nested 4:1, script 02e); all EPSG:3310; four layers added to data-dictionary.md |

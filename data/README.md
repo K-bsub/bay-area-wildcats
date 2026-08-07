@@ -65,8 +65,10 @@ everything after it.
   URL in `data-sources.md` §1.1 and in the script.
 - **Ships as:** three shapefiles — Holdings (162,773) / Units (17,930) /
   SuperUnits (17,169). **Native EPSG:3310** — no reprojection.
-- **Output:** none yet. Analysis-ready `openspace_cpad_bayarea_3310.gpkg` is a
-  **Week-3** build (level choice + clip + non-habitat filter; Decision 5 / Risk 5).
+- **Output:** `data/interim/openspace_cpad_bayarea_3310.gpkg` (occupancy frame,
+  1,129 Units) — built Week 3: Units chosen as site unit (Decision 17), non-habitat
+  filtered (Decision 18), clipped to the ten-county boundary. Also feeds the
+  `fee` half of `protected_union_bayarea_3310.gpkg` (Decision 19).
 - **Gotcha:** SuperUnits has **no `COUNTY` field** → the ten-county selection
   must be a spatial clip to the boundary (row 3), not an attribute filter.
 - Decision 8.
@@ -76,8 +78,10 @@ everything after it.
 - **How:** direct zip → `data/raw/cced/cced_2026a_release.zip`, unzip in place.
 - **Ships as:** single shapefile, 23,645 easement polygons. **Native EPSG:3310.**
   No Holdings/Units/SuperUnits hierarchy.
-- **Output:** none yet. CPAD↔CCED integration (separate overlay vs. unioned
-  `protection_type` layer) is a **Week-3** decision.
+- **Output:** `data/interim/protected_union_bayarea_3310.gpkg` — built Week 3.
+  CPAD↔CCED integration resolved (Decision 19) as a **separate connectivity
+  union** (not folded into the occupancy layer): `protection_type` {fee, easement},
+  fee precedence on overlap. CCED contributes 1,275.7 km² of new protected land.
 - **Caveat:** ~27% (6,363) have an "Unknown" holder — geometry valid, only
   matters for by-holder analysis. Coverage gap quantified, not supplemented.
 - Decision 9.

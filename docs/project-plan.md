@@ -35,7 +35,7 @@
 |---|---|---|---|
 | **1** | Repository and environment setup | Repo scaffold, docs, renv, R toolchain verified | ✅ Complete |
 | **2** | Data acquisition | All open datasets downloaded and documented | ✅ Complete (CROS parked) |
-| **3** | Boundary and study-area preparation | Open-space units defined and filtered; analysis grid built | ⚪ Not started |
+| **3** | Boundary and study-area preparation | Open-space units defined and filtered; analysis grid built | ✅ Complete |
 | **4** | Occurrence processing | Cleaned, deduplicated, CRS-aligned occurrence layers for both species | ⚪ Not started |
 | **5** | Covariate preparation | Land cover, terrain, roads, housing summarised to grid and unit | ⚪ Not started |
 | **6** | Descriptive spatial analysis | KDE and Gi* for both species; unit-level statistics | ⚪ Not started |
@@ -95,6 +95,182 @@
 
 ---
 
+## Week 3 tasks — open-space unit definition + study-area preparation
+
+*Goal: turn raw statewide CPAD/CCED into the ten-county analysis frame — a
+canonical open-space layer with a defined "site" unit, non-habitat parcels
+filtered, CPAD↔CCED integrated, and the per-species analysis grids built.
+Target output: `openspace_cpad_bayarea_3310.gpkg`. Next Decision number is 17.*
+
+*Schema inspection (do first — write filters against the real schema, not the docs)*
+- [x] Inspect the acquired CPAD 2026a layer(s): geometry levels held (Holdings
+      162,773 / Units 17,930 / SuperUnits 17,169), fields, CRS (native 3310
+      confirmed), validity (2 invalid Units, 3 invalid SuperUnits). Files are in
+      `data/raw/cpad/` (not `data/interim/` as the task first assumed). Script `02`.
+- [x] Enumerate filter fields + join keys — real names recorded: `ACCESS_TYP`,
+      `AGNCY_TYP`/`MNG_AG_TYP`, `AGNCY_LEV`, `SPEC_USE`, `LAND_WATER`; join keys
+      `HOLDING_ID`→`UNIT_ID`→`SUID_NMA`. Vocabularies dumped in script `02b`.
+- [x] Confirmed CPAD Units **do** carry `COUNTY` (58 distinct, fully populated);
+      SuperUnits do not. Membership is by spatial clip to
+      `boundary_baydissolved_3310.gpkg`; `COUNTY` kept as audit check only.
+
+*CPAD level choice — Decision 17 (Risk 5, resolved)*
+- [x] Site unit decided: **Units** (Decision 17). SuperUnits ruled out (near-flat
+      ~4% aggregation, no `COUNTY`), Holdings ruled out (fragments habitat);
+      `suid_nma` carried as attribute for connectivity roll-up.
+- [x] Large-Unit gradient flag added: `spans_gradient` = `hab_area_km2 > 5 km²`
+      (192 units), a Week-4/5 covariate pre-flag (not a filter), written to the
+      layer.
+
+*Non-habitat filtering — Decision 18 (resolved)*
+- [x] Criteria defined + justified (Decision 18): 0.10 km² habitat-area floor +
+      `SPEC_USE`/`LAND_WATER`/Cemetery-District deny-list; `ACCESS_TYP`
+      deliberately excluded (would drop 12.6% of area). `hab_frac ≥ 0.50` cutoff
+      confirmed against a bimodal distribution.
+- [x] Filter→dissolve ordering recorded and implemented: flag at Holdings →
+      overlay to Units → filter → dissolve. Non-habitat **flagged, not erased**.
+- [x] Audit trail logged: 4,375 → 1,142 (size floor) → 1,129 units; 4,660.4 km²
+      habitat retained; 106 `has_nonhabitat`.
+
+*CPAD↔CCED integration — Decision 19 (resolved)*
+- [x] Integration form decided (Decision 19): **two frames, not one.** Occupancy
+      frame stays CPAD-only; connectivity frame is a CPAD∪CCED **union** with
+      `protection_type` {fee, easement}. (Correcting the original Week-3 goal
+      wording — the union is a *separate* connectivity layer, NOT folded into
+      `openspace_cpad_bayarea_3310.gpkg`.)
+- [x] `protection_type` values defined; overlap resolved by **fee precedence**
+      (CPAD fee differenced out of CCED before merge). Result: 3,773 features
+      (1,129 fee + 2,644 easement); 498.2 km² overlap erased; CCED adds
+      1,275.7 km² new land.
+- [x] CCED coverage-gap caveat (Decision 9) carried forward — union labels tenure
+      where CCED has data; absence ≠ unprotected.
+
+*Analysis grids — puma 1 km, bobcat 500 m (separate, never pooled — Decision 3)*
+- [x] Puma grid built: 1 km, EPSG:3310, snapped to round 3310 origin, masked to
+      boundary. 45,400 cells / 20,416 land. 1 km cell = the puma publish floor
+      (policy §3), confirmed.
+- [x] Bobcat grid built: 500 m, EPSG:3310, shared origin — nests 4:1 in the puma
+      grid (verified). 181,600 cells / 80,073 land. Separate file.
+- [x] Grid extent, origin, cell counts, CRS recorded (data dictionary + 02e
+      output).
+
+*Documentation & reproducibility*
+- [x] Wrote the `02`-family scripts (split from the single script the plan first
+      imagined, which was cleaner): `02_prepare_openspace.R` (schema inspection,
+      read-only), `02b_filter_vocab_probe.R` (vocab/area probe, read-only),
+      `02c_prepare_openspace_build.R` (filter → overlay → dissolve → clip → write
+      occupancy layer), `02d_prepare_protected_union.R` (CPAD∪CCED connectivity
+      layer, Decision 19). Full scripts, numbered-step comments, EPSG suffix on
+      every written layer.
+- [x] Grids folded into the `02` family as `02e_build_grids.R` (the plan allowed
+      "or fold into `02_`") — puma 1 km + bobcat 500 m, aligned/nested, EPSG:3310.
+- [x] Added all four output layers to `docs/data-dictionary.md` — every field
+      typed, with units, description, source, nulls-allowed.
+- [x] Recorded Decisions 17–19 in `docs/methodology.md` §6 with date +
+      justification + observed results; change-log rows added to §9.
+- [x] Updated `docs/data-sources.md` — CPAD §1.1 feature counts filled + derived
+      outputs noted; CCED §1.2 union note added. The integrated layer does **not**
+      warrant a new source entry (it is derived, not a source); its full spec
+      lives in the data dictionary. `data/interim/**` + `data/restricted/**`
+      gitignore confirmed.
+
+*Doc-hygiene carry-ins from Week 2*
+- [x] `naming-conventions.md` §2 — already using `cov_landcover_worldcover2021_3310.tif`
+      (NLCD example was already fixed; no change needed).
+- [x] Reconcile `data-sources.md` §5 CESA framing: corrected "status review"
+      (candidate) → **listed threatened April 2026** (SC/CC DPS; Central Coast
+      North = Santa Cruz Mountains). Verify against primary FGC notice before any
+      public-facing claim.
+
+*Explicitly NOT this week (guard against scope creep — Risk 4)*
+- Occurrence dedupe/clip (Week 4) — including the puma unique-count confirmation.
+- Covariate summarisation to unit/grid (Week 5).
+- Any occupancy detection-history construction (Week 4 feasibility gate, Risk 1).
+
+---
+
+## Week 4 tasks — occurrence processing + occupancy feasibility gate
+
+*Goal: turn the raw GBIF and iNaturalist downloads into clean, deduplicated,
+CRS-aligned, study-area-clipped occurrence layers for each species — then run
+the Risk 1 gate that decides whether the bobcat track is occupancy modelling or
+SDM. Puma and bobcat processed in parallel, never pooled (Decision 3).
+Next Decision number is 20.*
+
+*Inputs on hand (from Week 2 — see `data/README.md`)*
+- `data/raw/gbif/<key>.zip` — GBIF, both species (DOI 10.15468/dl.87ne3u; puma
+  1,843 · bobcat 5,164 pre-filter).
+- `data/raw/inaturalist/inat_research_bayarea.rds` — iNat research-grade (puma
+  2,102, 50% obscured · bobcat 6,295, 31% obscured); obscuring fields preserved.
+- Clip frame: `boundary_baydissolved_3310.gpkg`. Grids: `grid_puma_1km_3310.tif`,
+  `grid_bobc_500m_3310.tif`.
+
+*Schema inspection (do first — same discipline as Week 3)*
+- [ ] Load both raw sources; print columns, row counts, CRS, date ranges, and the
+      obscuring/accuracy fields actually present (`coordinates_obscured`,
+      `taxon_geoprivacy`, `geoprivacy`, `public_positional_accuracy`,
+      `coordinateUncertaintyInMeters`). Write cleaning against the real schema.
+- [ ] Confirm the GBIF↔iNat relationship: iNat records flow into GBIF, so the two
+      **overlap heavily**. Quantify the overlap before deduping — this is the
+      crux of the puma unique-count (Risk 2).
+
+*Cleaning + CRS + clip (per species, per source)*
+- [ ] Reproject both sources to EPSG:3310; filenames end in `_3310`
+      (`occ_puma_gbif_clean_3310.gpkg`, `occ_bobc_inat_research_3310.gpkg`, etc.).
+- [ ] Clip to `boundary_baydissolved_3310.gpkg` (study-area frame).
+- [ ] Coordinate-quality filter: define and justify a `coord_uncert_m` threshold
+      as a numbered decision (Decision 20). Note the asymmetry — puma iNat coords
+      are dominated by ~28 km obscuring (median 28,240 m) for *obscured* records,
+      but Decision 10 established puma is **not taxon-obscured** in CA, so the
+      precise (~1,057) and obscured records must be separated, not blanket-cut.
+- [ ] Preserve, don't drop, the `obscured` flag and `coord_uncert_m` on every
+      record — needed for the T1/T2 handling (sensitive-data-policy §2) and the
+      detection-effort/observer-bias question (proposal Q5).
+
+*Dedupe — the load-bearing step (Risk 2)*
+- [ ] **Dedupe across GBIF ∪ iNat, do not sum** (README_data explicitly flags
+      this). Define the dedupe key (e.g. same observer/date/coordinate, or GBIF
+      `occurrenceID` provenance back to iNat) as part of Decision 20.
+- [ ] Report the **unique** puma count after dedupe + clip + quality filter —
+      this confirms or revises Risk 2 (the "~1,057 precise puma points" figure)
+      and determines whether a coarse puma distribution layer is viable alongside
+      the connectivity backbone.
+- [ ] Report unique bobcat count — feeds the occupancy feasibility gate below.
+
+*Occupancy feasibility gate — Risk 1 (the decision that shapes Weeks 6–7)*
+- [ ] Assess whether a defensible **detection history** can be built for bobcat
+      from opportunistic records against the pre-registered fallback criteria in
+      `methodology.md §5.4`: fewer than 40 usable site histories, naive occupancy
+      outside 0.10–0.90, detection probability below 0.10, parameter instability,
+      or MacKenzie-Bailey GOF failure. **Criteria are fixed before fitting** — no
+      post-hoc rationalisation.
+- [ ] Site = open-space unit (`openspace_cpad_bayarea_3310.gpkg`); replicate =
+      time bin; effort via target-group background. Count usable site-histories
+      against the ≥40 floor (1,129 units is the ceiling, not the usable count).
+- [ ] Record the gate outcome as a numbered decision: **occupancy proceeds** or
+      **fall back to SDM (`maxnet`/ENMeval)** and reframe the bobcat question
+      (proposal Q2 stands either way; only the method changes).
+
+*Documentation & reproducibility*
+- [ ] Write `scripts/03_prepare_occurrences.R` (schema → clean → CRS → clip →
+      quality filter → dedupe → per-species clean layers). Full script, numbered
+      steps, EPSG suffix on every written layer.
+- [ ] Add all occurrence output layers to `docs/data-dictionary.md` (every field,
+      including `obscured`, `coord_uncert_m`, `source`, `species`).
+- [ ] Record Decision 20 (and the Risk 1 gate decision) in `methodology.md` §6 +
+      change-log §9; update §4.2/§4.3 processing logs with observed counts.
+- [ ] Update Risk 1 and Risk 2 status in this plan once the gate + unique count
+      resolve.
+
+*Explicitly NOT this week (Risk 4)*
+- Covariate summarisation to unit/grid (Week 5).
+- KDE / Gi* descriptive analysis (Week 6).
+- Any occupancy *fitting* — Week 4 only builds the detection history and runs the
+  feasibility gate; model fitting is Week 7.
+- CROS integration (parked, Decision 11).
+
+---
+
 ## Risks
 
 | # | Risk | Level | Mitigation |
@@ -103,7 +279,7 @@
 | 2 | **Puma records too sparse for any surface** — obscured and few | 🟢 Low (revised) | Substantially resolved: *Puma concolor* is not taxon-obscured (Decision 10); ~1,057 precise puma points held (median 26 m accuracy). A coarse distribution layer is now plausible — pending Week-4 dedupe (heavy GBIF overlap) + clip to confirm the *unique* count. Connectivity + CROS remain the puma backbone regardless |
 | 3 | **CROS data-use terms restrict republication** | 🟡 Medium | Terms confirmed request-gated (no open API; Decision 11); data request sent Aug 2 to F. Shilling, awaiting reply. Parked, not blocking — it's a threat overlay, not a Phase-1 backbone. Fallback: aggregate to road segment and cite |
 | 4 | **R spatial toolchain / learning curve** — new stack after ArcGIS | 🟡 Medium | Week 1 buffer for setup; keep scripts small and numbered; `targets` deferred until pipeline is stable |
-| 5 | **CPAD includes non-habitat parcels** | 🟢 Low | Define and document filtering criteria (minimum area, land cover, access class) as a numbered decision |
+| 5 | **CPAD includes non-habitat parcels** | 🟢 Low (resolved) | Mitigated by Decision 18 (Week 3): 0.10 km² habitat-area floor + `SPEC_USE`/`LAND_WATER`/Cemetery deny-list, non-habitat flagged-not-erased, `hab_frac ≥ 0.50`. 4,375 → 1,129 units; `ACCESS_TYP` deliberately not used as a filter (would drop watershed/ranch habitat) |
 | 6 | **Sensitive data disclosure** | 🔴 High | `docs/sensitive-data-policy.md` enforced from Week 1; `data/restricted/**` gitignored. Felidae (restricted tier) deferred — none held. **But the project now holds ~1,057 precise puma coordinates** from open-geoprivacy iNat records (Decision 10): the ≥1 km publish floor + `assert_publishable()` are load-bearing, not precautionary. Never publish precise puma surfaces |
 
 ---
@@ -370,3 +546,49 @@ is broken — use the WorldCover AWS COGs already in the script.
   choice (Units vs SuperUnits vs Holdings) + non-habitat filtering (Decision 5 /
   Risk 5), CPAD↔CCED integration, and the analysis grid (puma 1 km / bobcat
   500 m). SuperUnits has no `COUNTY` field → spatial clip, not attribute filter.
+
+### Week 3 closeout — August 5, 2026
+- **Progress:** ✅ **Week 3 complete** — study-area frame built. Four
+  analysis-ready layers under `data/interim/`, three new Decisions (17–19), all
+  documentation updated.
+- **Occupancy frame — `openspace_cpad_bayarea_3310.gpkg` (1,129 units).**
+  CPAD **Units** chosen as the site unit (Decision 17); SuperUnits ruled out
+  (near-flat ~4% aggregation, no `COUNTY`), Holdings ruled out (fragments habitat
+  on ownership seams). Non-habitat filtered (Decision 18): 0.10 km² habitat-area
+  floor + `SPEC_USE`/`LAND_WATER`/Cemetery deny-list, flagged-not-erased,
+  `hab_frac ≥ 0.50`. 4,375 → 1,142 (floor) → 1,129 units; 4,660.4 km² habitat.
+  `ACCESS_TYP` deliberately **not** a filter — "No Public Access" is 12.6% of
+  area and captures SFPUC watershed / ranch-easement habitat.
+- **Connectivity frame — `protected_union_bayarea_3310.gpkg` (3,773 features).**
+  CPAD fee ∪ CCED easement with `protection_type` and **fee precedence on
+  overlap** (Decision 19). 498.2 km² of easement/fee overlap erased; CCED adds
+  **1,275.7 km²** of genuinely new protected land (~27% over the fee footprint) —
+  easements are a material part of the connectivity fabric. Kept **separate** from
+  the occupancy frame by design; not folded in.
+- **Analysis grids.** `grid_puma_1km_3310.tif` (20,416 land cells) +
+  `grid_bobc_500m_3310.tif` (80,073 land cells), snapped to a shared round-3310
+  origin, bobcat nesting 4:1 inside puma (verified). 1 km puma cell = the
+  sensitive-data-policy §3 publish floor. Separate grids, never pooled (Decision 3).
+- **`spans_gradient` flag** (192 units, `hab_area_km2 > 5 km²`) written to the
+  occupancy layer — a Week-4/5 covariate pre-flag (not a filter) marking large
+  units where a whole-unit covariate mean smears across a land-cover gradient.
+- **Scripts:** `02` (schema inspection), `02b` (vocab/area probe), `02c` (build
+  occupancy layer), `02d` (build union), `02e` (grids). Split from the single
+  script the plan first imagined — cleaner and matches how the work broke.
+- **Docs updated:** Decisions 17–19 in `methodology.md` §6 + change log §9; four
+  layers in `data-dictionary.md`; `data-sources.md` CPAD/CCED derived-output
+  notes + feature counts; `data-sources.md` §5 CESA framing corrected to the
+  April 2026 threatened listing. `data/interim/**` + `data/restricted/**`
+  gitignore confirmed clean.
+- **Two area definitions coexist by design:** occupancy `hab_area_km2`
+  (4,660.4 km², habitat only) vs union raw `area_km2` (fee 4,720.8 km²) — the
+  ~61 km² gap is flagged interior non-habitat, documented in the data dictionary
+  so it never reads as a discrepancy.
+- **Carry-ins to Week 4:** CROS still parked (Decision 11, awaiting F. Shilling);
+  CESA §5 wording corrected but **verify against the primary FGC notice** before
+  any public-facing claim.
+- **Blockers:** none.
+- **Next:** Week 4 — occurrence processing (GBIF + iNat dedupe/clean/clip for
+  both species) and the Risk 1 occupancy-feasibility gate. The puma unique-count
+  confirmation (Risk 2) lands here: heavy GBIF/iNat overlap means **dedupe, don't
+  sum** the ~1,057 precise puma points.

@@ -28,7 +28,7 @@ the Bay Area edition, which also incorporates conservation easements from CCED.
 - **File:** `data/raw/cpad/cpad_2026a_release.zip` (unzipped in place) — gitignored
 - **Format / geometry levels:** Esri shapefiles — **Holdings**, **Units**, **SuperUnits** (all three present)
 - **Native CRS:** California Albers (EPSG:3310) — confirm on load; matches the analysis CRS, so no reprojection needed
-- **Feature counts:** _(fill after running the inspection)_ Holdings _n_ · Units _n_ · SuperUnits _n_
+- **Feature counts:** Holdings 162,773 · Units 17,930 · SuperUnits 17,169 (statewide, 2026a; confirmed on load August 5, 2026)
 
 **Geometry levels (which one is used is decided in Week 3):**
 - **Holdings** — parcel-level ownership; most detailed attributes
@@ -50,6 +50,14 @@ convenience outweighs freshness.
 - Includes urban pocket parks; filtering by size and land cover is required.
 - Three geometry levels (Holdings / Units / SuperUnits) — Units or SuperUnits
   are the appropriate analysis level; record which is chosen and why.
+
+**Derived outputs (Week 3 — see `docs/methodology.md` Decisions 17–19,
+fields in `docs/data-dictionary.md`):**
+- `data/interim/openspace_cpad_bayarea_3310.gpkg` — gitignored — occupancy
+  analysis frame. **Units** chosen as the site unit (Decision 17); non-habitat
+  filtered (Decision 18); clipped to the ten-county boundary. 1,129 units.
+- `data/interim/protected_union_bayarea_3310.gpkg` — gitignored — connectivity
+  frame, CPAD fee ∪ CCED easement (Decision 19). Shared with §1.2.
 
 ### 1.2 CCED — California Conservation Easement Database
 Parallel dataset covering easement-protected land, which CPAD excludes.
@@ -79,6 +87,11 @@ Relevant because much Bay Area connectivity land is easement-held ranchland.
   county recorder records are authoritative for individual easements.
 - Easements sit mostly on private land; apply the same publication care as other
   layers and honour the GreenInfo data disclaimer.
+
+**Derived output (Week 3):** contributes the `easement` half of
+`data/interim/protected_union_bayarea_3310.gpkg` (gitignored) — CPAD fee ∪ CCED
+easement, fee precedence on overlap (Decision 19). CCED adds 1,275.7 km² of
+protected land not in CPAD fee. Full spec in `docs/data-dictionary.md`.
 
 ### 1.3 Study-area boundary — TIGER/Line counties (via `tigris`)
 The ten-county clip frame for every other layer — it defines the study extent
@@ -439,9 +452,16 @@ Available context:
 - California Mountain Lion Project statewide abundance estimate (CDFW with
   UC Santa Cruz, UC Davis, Audubon Canyon Ranch, Institute for Wildlife
   Studies) — a single point-in-time estimate, roughly 3,200–4,500 statewide.
-- CDFW CESA status review — regional estimate for the Central Coast North
-  population, which includes the San Francisco, San Mateo and peninsula
-  populations.
+- CDFW status review and **CESA listing** — in **April 2026** the Fish and Game
+  Commission listed mountain lions in the Southern California / Central Coast
+  Distinct Population Segment (SC/CC DPS) as **threatened** under CESA. The
+  relevant subpopulation here is **Central Coast North = the Santa Cruz Mountains
+  population**, which anchors the puma connectivity/isolation narrative and spans
+  the San Francisco, San Mateo and peninsula range. (This supersedes the earlier
+  "candidate under review" framing; see `docs/references.md` for the petition
+  (2019), candidacy (2020) and listing (2026) chain. Verify against the primary
+  Commission notice before any public-facing narrative claim — the doc's current
+  sourcing is secondary legal alerts.)
 - No statewide bobcat abundance estimate exists.
 
 Cite these as context only. Do not present them as a trend.

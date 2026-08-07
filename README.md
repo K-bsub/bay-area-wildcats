@@ -9,7 +9,7 @@ Phase 1 of a multi-phase project. Sister project to
 | | |
 |---|---|
 | **Author** | Kiran Balasubramanian |
-| **Status** | Week 2 complete (data acquisition; CROS parked) — Week 3 next: study-area prep |
+| **Status** | Week 3 complete (study-area frame: open-space units, connectivity union, analysis grids) — Week 4 next: occurrence processing + occupancy feasibility gate |
 | **Focal species** | *Puma concolor* (puma / mountain lion), *Lynx rufus* (bobcat) |
 | **Study area** | Ten-county San Francisco Bay Area |
 | **Analysis CRS** | EPSG:3310 — NAD83 / California Albers |
