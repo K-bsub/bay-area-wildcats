@@ -4,7 +4,7 @@
 **Author:** Kiran Balasubramanian
 **Start date:** July 23, 2026
 **Target:** 10 weeks
-**Last updated:** August 3, 2026
+**Last updated:** August 9, 2026
 
 ---
 
@@ -36,7 +36,7 @@
 | **1** | Repository and environment setup | Repo scaffold, docs, renv, R toolchain verified | ✅ Complete |
 | **2** | Data acquisition | All open datasets downloaded and documented | ✅ Complete (CROS parked) |
 | **3** | Boundary and study-area preparation | Open-space units defined and filtered; analysis grid built | ✅ Complete |
-| **4** | Occurrence processing | Cleaned, deduplicated, CRS-aligned occurrence layers for both species | ⚪ Not started |
+| **4** | Occurrence processing | Cleaned, deduplicated, CRS-aligned occurrence layers for both species | ✅ Complete |
 | **5** | Covariate preparation | Land cover, terrain, roads, housing summarised to grid and unit | ⚪ Not started |
 | **6** | Descriptive spatial analysis | KDE and Gi* for both species; unit-level statistics | ⚪ Not started |
 | **7** | Occupancy modelling | Bobcat occupancy fitted and validated; puma feasibility assessed | ⚪ Not started |
@@ -206,60 +206,60 @@ Next Decision number is 20.*
   `grid_bobc_500m_3310.tif`.
 
 *Schema inspection (do first — same discipline as Week 3)*
-- [ ] Load both raw sources; print columns, row counts, CRS, date ranges, and the
+- [x] Load both raw sources; print columns, row counts, CRS, date ranges, and the
       obscuring/accuracy fields actually present (`coordinates_obscured`,
       `taxon_geoprivacy`, `geoprivacy`, `public_positional_accuracy`,
       `coordinateUncertaintyInMeters`). Write cleaning against the real schema.
-- [ ] Confirm the GBIF↔iNat relationship: iNat records flow into GBIF, so the two
+- [x] Confirm the GBIF↔iNat relationship: iNat records flow into GBIF, so the two
       **overlap heavily**. Quantify the overlap before deduping — this is the
       crux of the puma unique-count (Risk 2).
 
 *Cleaning + CRS + clip (per species, per source)*
-- [ ] Reproject both sources to EPSG:3310; filenames end in `_3310`
+- [x] Reproject both sources to EPSG:3310; filenames end in `_3310`
       (`occ_puma_gbif_clean_3310.gpkg`, `occ_bobc_inat_research_3310.gpkg`, etc.).
-- [ ] Clip to `boundary_baydissolved_3310.gpkg` (study-area frame).
-- [ ] Coordinate-quality filter: define and justify a `coord_uncert_m` threshold
+- [x] Clip to `boundary_baydissolved_3310.gpkg` (study-area frame).
+- [x] Coordinate-quality filter: define and justify a `coord_uncert_m` threshold
       as a numbered decision (Decision 20). Note the asymmetry — puma iNat coords
       are dominated by ~28 km obscuring (median 28,240 m) for *obscured* records,
       but Decision 10 established puma is **not taxon-obscured** in CA, so the
       precise (~1,057) and obscured records must be separated, not blanket-cut.
-- [ ] Preserve, don't drop, the `obscured` flag and `coord_uncert_m` on every
+- [x] Preserve, don't drop, the `obscured` flag and `coord_uncert_m` on every
       record — needed for the T1/T2 handling (sensitive-data-policy §2) and the
       detection-effort/observer-bias question (proposal Q5).
 
 *Dedupe — the load-bearing step (Risk 2)*
-- [ ] **Dedupe across GBIF ∪ iNat, do not sum** (README_data explicitly flags
+- [x] **Dedupe across GBIF ∪ iNat, do not sum** (README_data explicitly flags
       this). Define the dedupe key (e.g. same observer/date/coordinate, or GBIF
       `occurrenceID` provenance back to iNat) as part of Decision 20.
-- [ ] Report the **unique** puma count after dedupe + clip + quality filter —
+- [x] Report the **unique** puma count after dedupe + clip + quality filter —
       this confirms or revises Risk 2 (the "~1,057 precise puma points" figure)
       and determines whether a coarse puma distribution layer is viable alongside
       the connectivity backbone.
-- [ ] Report unique bobcat count — feeds the occupancy feasibility gate below.
+- [x] Report unique bobcat count — feeds the occupancy feasibility gate below.
 
 *Occupancy feasibility gate — Risk 1 (the decision that shapes Weeks 6–7)*
-- [ ] Assess whether a defensible **detection history** can be built for bobcat
+- [x] Assess whether a defensible **detection history** can be built for bobcat
       from opportunistic records against the pre-registered fallback criteria in
       `methodology.md §5.4`: fewer than 40 usable site histories, naive occupancy
       outside 0.10–0.90, detection probability below 0.10, parameter instability,
       or MacKenzie-Bailey GOF failure. **Criteria are fixed before fitting** — no
       post-hoc rationalisation.
-- [ ] Site = open-space unit (`openspace_cpad_bayarea_3310.gpkg`); replicate =
+- [x] Site = open-space unit (`openspace_cpad_bayarea_3310.gpkg`); replicate =
       time bin; effort via target-group background. Count usable site-histories
       against the ≥40 floor (1,129 units is the ceiling, not the usable count).
-- [ ] Record the gate outcome as a numbered decision: **occupancy proceeds** or
+- [x] Record the gate outcome as a numbered decision: **occupancy proceeds** or
       **fall back to SDM (`maxnet`/ENMeval)** and reframe the bobcat question
       (proposal Q2 stands either way; only the method changes).
 
 *Documentation & reproducibility*
-- [ ] Write `scripts/03_prepare_occurrences.R` (schema → clean → CRS → clip →
+- [x] Write `scripts/03_prepare_occurrences.R` (schema → clean → CRS → clip →
       quality filter → dedupe → per-species clean layers). Full script, numbered
       steps, EPSG suffix on every written layer.
-- [ ] Add all occurrence output layers to `docs/data-dictionary.md` (every field,
+- [x] Add all occurrence output layers to `docs/data-dictionary.md` (every field,
       including `obscured`, `coord_uncert_m`, `source`, `species`).
-- [ ] Record Decision 20 (and the Risk 1 gate decision) in `methodology.md` §6 +
+- [x] Record Decision 20 (and the Risk 1 gate decision) in `methodology.md` §6 +
       change-log §9; update §4.2/§4.3 processing logs with observed counts.
-- [ ] Update Risk 1 and Risk 2 status in this plan once the gate + unique count
+- [x] Update Risk 1 and Risk 2 status in this plan once the gate + unique count
       resolve.
 
 *Explicitly NOT this week (Risk 4)*
@@ -271,16 +271,106 @@ Next Decision number is 20.*
 
 ---
 
+## Week 5 tasks — covariate construction + resistance surface + bobcat detection history
+
+*Goal: turn the raw covariate downloads into analysis-ready, unit- and
+grid-summarised layers for both tracks; build the puma resistance surface; and
+construct the bobcat detection history that closes Decision 22. Puma and bobcat
+covariates stay on their own grids (puma 1 km, bobcat 500 m); never pooled
+(Decision 3). Next Decision number is 23.*
+
+*Inputs on hand (from Weeks 2–4)*
+- Covariate rasters/vectors: `cov_landcover_worldcover2021_3310.tif`,
+  `cov_ghm_v3_2022_3310.tif`, `cov_housing_silvis_blocks_3310.gpkg`,
+  `cov_roads_osm_*_3310.gpkg`, `cov_aadt_caltrans_points_3310.gpkg`,
+  terrain (DEM + slope/aspect).
+- Frames/grids: `openspace_cpad_bayarea_3310.gpkg` (1,129 units, carries
+  `spans_gradient`), `protected_union_bayarea_3310.gpkg`,
+  `grid_puma_1km_3310.tif`, `grid_bobc_500m_3310.tif`.
+- Occurrence + effort: `occ_bobc_clean_3310.gpkg`, `occ_puma_clean_3310.gpkg`,
+  `cov_effort_gbif_mammal_unityear_3310.gpkg` (3A),
+  `cov_effort_gbif_vertebrate_unityear_3310.gpkg` (3B).
+
+*Covariate transforms (pre-registered — apply as specified, record the observed values)*
+- [ ] **SILVIS `HUDEN2020` transform** (pre-registered Week-2 QC): `log1p` +
+      p99/hard cap **before** rasterization, to tame the sliver-block artifact
+      (max 2,263,007 units/km², ~765× p90). Record the exact cap value and the
+      number of blocks affected when run — this was pre-registered to prevent a
+      post-hoc transform choice.
+- [ ] **gHM × housing-density collinearity check** (flagged Week 2): both carry
+      the urban-intensity gradient (Decision 12) and will correlate. Compute the
+      correlation at unit/grid summary level and decide — before stacking — which
+      to keep, or whether to keep both with the collinearity documented. Numbered
+      decision if one is dropped.
+
+*Covariate summarisation to unit + grid (per species, on the right grid)*
+- [ ] Summarise each covariate to (a) CPAD units (occupancy frame) and (b) the
+      species grid (puma 1 km, bobcat 500 m). Categorical → `near`, continuous →
+      `bilinear` on any reprojection; filenames end in `_3310`.
+- [ ] **`spans_gradient` handling** (192 units, `hab_area_km2 > 5 km²`): it is a
+      **covariate pre-flag, not a filter** (Decision 17). For these large units a
+      whole-unit covariate mean is unsafe — summarise by sub-cell, or carry the
+      within-unit covariate heterogeneity as a flag, per the pre-registered
+      intent. Do not drop them.
+- [ ] Write stacked covariate tables keyed on `unit_id` (occupancy) and
+      `cell_id` (grid), with a data-dictionary entry per output.
+
+*Roads / traffic finalisation (deferred from Week 2, Decision 14 open items)*
+- [ ] **Tracks/paths permeability decision, per species** — whether OSM
+      `track`/`path` classes count as barriers, neutral, or permeable, and
+      differently for puma vs bobcat. Numbered decision.
+- [ ] **AADT → road-segment join** — attach Caltrans `AHEAD_AADT`/`BACK_AADT`
+      (currently point stations, stored as strings) to road segments so traffic
+      *volume* (not just road presence) drives the puma barrier effect (proposal
+      Q3). Parse the string AADT to numeric here.
+
+*Puma resistance surface (connectivity track)*
+- [ ] Build `resist_puma_baseline_3310.tif` on the 1 km grid from the stacked
+      covariates (land cover, terrain, human modification/housing, road+traffic
+      barrier). Pre-register the resistance assignment before building — no
+      post-hoc weight tuning. Publishable at 1 km (sensitive-data-policy §3).
+
+*Bobcat detection history — closes Decision 22*
+- [ ] Build the unit × year detection history by crossing `occ_bobc_clean_3310`
+      (detections) against the Fork-3 effort layer (surveyed cells). Surveyed +
+      no bobcat = 0; unsurveyed = NA (never a fabricated 0). Calendar-year
+      replicate, 2010–2026 window (Decision 22 draft).
+- [ ] Build it under **both** backgrounds (3A mammal / 3B vertebrate) — the A-vs-B
+      choice is held to the fit (Decision 22).
+- [ ] Fit the **null** occupancy model (`unmarked`) under each background and
+      read the Week-7-deferred §5.4 criteria that are now testable: fitted
+      detection probability `p`, parameter stability, MacKenzie-Bailey GOF.
+- [ ] **Close Decision 22** on the result: occupancy confirmed (and which
+      background), or SDM fallback re-triggered. Record which background won and
+      the fitted `p` under each.
+
+*Documentation & reproducibility*
+- [ ] Numbered decisions for: gHM/housing collinearity outcome (if a drop),
+      tracks/paths permeability, resistance assignment, and the Decision 22
+      close. Record the observed SILVIS cap value + affected-block count.
+- [ ] Add every stacked covariate + resistance + detection-history output to
+      `docs/data-dictionary.md`.
+- [ ] Update `methodology.md` §5 (methods now executed, not just defined) + §6 +
+      change-log §9. Update Risk 1 status once Decision 22 closes.
+
+*Explicitly NOT this week*
+- KDE / Gi* descriptive analysis (Week 6).
+- Least-cost paths / corridor extraction from the resistance surface (Week 6+).
+- CROS integration (parked, Decision 11).
+- Felidae partner data (deferred, Decision 7).
+
+---
+
 ## Risks
 
 | # | Risk | Level | Mitigation |
 |---|---|---|---|
-| 1 | **Occupancy modelling not feasible from opportunistic data** — `unmarked` needs detection histories from repeated visits; GBIF/iNat records are not survey data | 🔴 High | Assess in Week 4 before committing. Fallbacks: (a) spatial-replication design with documented assumptions; (b) request Felidae detection histories (Phase-3 partner data, not used in Phase 1); (c) drop to species distribution modelling (MaxEnt / `maxnet`) and reframe the narrative |
-| 2 | **Puma records too sparse for any surface** — obscured and few | 🟢 Low (revised) | Substantially resolved: *Puma concolor* is not taxon-obscured (Decision 10); ~1,057 precise puma points held (median 26 m accuracy). A coarse distribution layer is now plausible — pending Week-4 dedupe (heavy GBIF overlap) + clip to confirm the *unique* count. Connectivity + CROS remain the puma backbone regardless |
+| 1 | **Occupancy modelling not feasible from opportunistic data** — `unmarked` needs detection histories from repeated visits; GBIF/iNat records are not survey data | 🟢 Low (gate passed) | Assessed Week 4 (script 03a): pre-fit §5.4 criteria PASS — 321 site histories, 194 units with ≥2 detection-years, naive ψ 0.284 (all in range). Fork-3 background effort built (script 03b, GBIF DOI 10.15468/dl.6xzcjt) supplying real non-detections. Decision 22 drafted **occupancy proceeds**, held open only on the fit-time criteria (fitted `p`, stability, GOF) that resolve at the Week-5 null fit. SDM fallback (`maxnet`/ENMeval) retained if the fit fails |
+| 2 | **Puma records too sparse for any surface** — obscured and few | 🟢 Low (resolved) | Resolved Week 4: after GBIF∪iNat identity-dedupe + clip, **2,031 unique puma records (1,028 precise + 1,003 obscured)**. The "~1,057 precise" figure held (1,028 post-clip). A coarse puma distribution layer is viable alongside the connectivity backbone; obscured records ride an `obscured` flag (Decisions 20/21). Connectivity + CROS remain the puma backbone regardless |
 | 3 | **CROS data-use terms restrict republication** | 🟡 Medium | Terms confirmed request-gated (no open API; Decision 11); data request sent Aug 2 to F. Shilling, awaiting reply. Parked, not blocking — it's a threat overlay, not a Phase-1 backbone. Fallback: aggregate to road segment and cite |
 | 4 | **R spatial toolchain / learning curve** — new stack after ArcGIS | 🟡 Medium | Week 1 buffer for setup; keep scripts small and numbered; `targets` deferred until pipeline is stable |
 | 5 | **CPAD includes non-habitat parcels** | 🟢 Low (resolved) | Mitigated by Decision 18 (Week 3): 0.10 km² habitat-area floor + `SPEC_USE`/`LAND_WATER`/Cemetery deny-list, non-habitat flagged-not-erased, `hab_frac ≥ 0.50`. 4,375 → 1,129 units; `ACCESS_TYP` deliberately not used as a filter (would drop watershed/ranch habitat) |
-| 6 | **Sensitive data disclosure** | 🔴 High | `docs/sensitive-data-policy.md` enforced from Week 1; `data/restricted/**` gitignored. Felidae (restricted tier) deferred — none held. **But the project now holds ~1,057 precise puma coordinates** from open-geoprivacy iNat records (Decision 10): the ≥1 km publish floor + `assert_publishable()` are load-bearing, not precautionary. Never publish precise puma surfaces |
+| 6 | **Sensitive data disclosure** | 🔴 High | `docs/sensitive-data-policy.md` enforced from Week 1; `data/restricted/**` gitignored. Felidae (restricted tier) deferred — none held. **The project holds 1,028 precise puma coordinates** (Week-4 confirmed, `occ_puma_clean_3310.gpkg` `obscured = FALSE`) from open-geoprivacy iNat records (Decision 10): the ≥1 km publish floor + `assert_publishable()` are load-bearing, not precautionary. Never publish precise puma surfaces |
 
 ---
 
@@ -592,3 +682,56 @@ is broken — use the WorldCover AWS COGs already in the script.
   both species) and the Risk 1 occupancy-feasibility gate. The puma unique-count
   confirmation (Risk 2) lands here: heavy GBIF/iNat overlap means **dedupe, don't
   sum** the ~1,057 precise puma points.
+
+### Week 4 closeout — August 9, 2026
+- **Progress:** ✅ **Week 4 complete** — occurrence layers built, occupancy gate
+  passed, Fork-3 background effort acquired. Decisions 20–21 closed, 22 drafted
+  (held to the Week-5 fit). Scripts `03`, `03a`, `03b`.
+- **Occurrence layers (script 03).** GBIF ∪ iNat deduped on **observation
+  identity, not coordinates** (Decision 20) — obscured puma coords are randomised
+  and differ between feeds. iNat `.rds` is master; GBIF contributes only its
+  non-iNat remainder. Results: `occ_puma_clean_3310.gpkg` **2,031** (1,028
+  precise + 1,003 obscured), `occ_bobc_clean_3310.gpkg` **6,232** (4,420 precise
+  + 1,812 obscured), after a 360-row / 4.2% study-area clip. No `coord_uncert_m`
+  cutoff at the layer stage (Decision 20 amended — filter per-analysis); puma
+  obscured kept under an `obscured` flag, not cut (Decision 21).
+- **Risk 2 resolved.** The "~1,057 precise puma" figure held — 1,057 precise iNat
+  puma pre-clip → 1,028 post-clip. A coarse puma distribution layer is viable
+  alongside the connectivity backbone. Decision 10 confirmed empirically: **zero**
+  puma records taxon-obscured; obscuring is entirely observer-set `geoprivacy`.
+- **Risk 1 gate passed (script 03a, diagnostic only).** Site = CPAD unit,
+  replicate = calendar year, window 2010–2026. Pre-fit §5.4 criteria all PASS:
+  **321** occupied units (≥40 floor), **194** units with ≥2 detection-years
+  (repeat-visit structure — the part that usually kills opportunistic occupancy),
+  naive ψ **0.284** (in 0.10–0.90). Recent window barely differs from all-years
+  (97% of records are ≥2010), so the sample is already contemporary. `p`,
+  parameter stability, MacKenzie-Bailey GOF are un-evaluable pre-fit — deferred
+  to the Week-5 null fit by construction.
+- **Fork-3 background effort (script 03b).** Reframed from `rinat` (fought the
+  iNat 10k cap — capped even at month level for City Nature Challenge) to a single
+  **GBIF async download** (no cap, server-side filter; DOI 10.15468/dl.6xzcjt).
+  Scope widened to **all GBIF datasets** (broad effort proxy). Dissolved-boundary
+  WKT footprint (not bbox — bbox pulled 42.8M records incl. ocean/Central Valley;
+  boundary cut it to 33.0M). Two effort layers written:
+  `cov_effort_gbif_mammal_unityear_3310.gpkg` (3A) and
+  `cov_effort_gbif_vertebrate_unityear_3310.gpkg` (3B).
+- **Decision 22 drafted — occupancy proceeds, HELD OPEN.** The gate passes and a
+  fittable detection history demonstrably exists, but the decision is held on the
+  fit-time criteria. **Fork 3A vs 3B held to the fit**: mammal background naive
+  detection rate 0.171 vs vertebrate 0.083 — 3B is deflated by bird effort (99% of
+  the pull is Aves) that shares little of a bobcat's detectability, so 3A is the
+  target-group-correct option, but the *fitted* p decides. Both layers retained.
+- **Docs updated:** Decisions 20–22 in `methodology.md` §6 + change log §9; §4.2/
+  §4.3 processing logs updated with observed counts; two occurrence layers + two
+  effort layers in `data-dictionary.md`; GBIF background download (DOI
+  10.15468/dl.6xzcjt) added to `data-sources.md` §2.3; Known Limitations expanded
+  with the occupancy-design caveats (52% out-of-unit records, 36% single-record
+  units).
+- **Carry-ins to Week 5:** close Decision 22 at the null fit (which background,
+  fitted p); SILVIS `HUDEN2020` log1p+cap transform (pre-registered — record the
+  cap value + affected blocks); gHM×housing collinearity check before stacking;
+  tracks/paths permeability + AADT→segment join (deferred from Week 2);
+  `spans_gradient` sub-cell covariate handling. CROS still parked (Decision 11).
+- **Blockers:** none.
+- **Next:** Week 5 — covariate stacking to unit/grid, puma resistance surface, and
+  the bobcat detection-history build + null occupancy fit that closes Decision 22.

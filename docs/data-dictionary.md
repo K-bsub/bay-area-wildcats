@@ -101,6 +101,83 @@ Completed as layers are built. Field naming rules in `docs/naming-conventions.md
 
 ---
 
+### `occ_puma_clean_3310.gpkg`  — puma occurrence layer (cleaned, deduped)
+
+**Source:** iNaturalist research-grade (`rinat`) ∪ GBIF non-iNat remainder
+**Geometry:** point (POINT), one row per unique observation
+**CRS:** EPSG:3310 (geometry). *Note:* `latitude`/`longitude` columns are the
+original EPSG:4326 values, retained for provenance; geometry is the 3310 reprojection.
+**Records:** 2,031 (1,028 precise + 1,003 obscured); iNat 2,017 + GBIF-non-iNat 14
+**Created by:** `scripts/03_prepare_occurrences.R`
+**Storage:** `data/interim/`. Tier **T1/T2** — precise (`obscured = FALSE`) puma
+points are T2-sensitive (`sensitive-data-policy.md` §2); this raw layer is **not**
+published. Published puma products are coarsened per policy §3.
+**Decisions:** 20 (identity dedupe, no coord cutoff), 21 (obscured kept under flag)
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `species` | character | — | Constant `puma` | derived | No |
+| `source` | character | — | `inat` or `gbif` — feed of origin | derived | No |
+| `obs_id` | character | — | Stable identity key: iNat observation id (iNat rows) or `gbif:<gbifID>` (GBIF rows). Dedupe key (Decision 20) | derived | No |
+| `observed_on` | character | — | Observation date (`YYYY-MM-DD`); iNat `observed_on` / GBIF `eventDate`. **No date filter applied** (Decision 21) | inat/gbif | Yes |
+| `latitude` | numeric | ° | Original **EPSG:4326** latitude (provenance; geometry is 3310) | inat/gbif | No |
+| `longitude` | numeric | ° | Original **EPSG:4326** longitude (provenance; geometry is 3310) | inat/gbif | No |
+| `coord_uncert_m` | numeric | m | Coordinate uncertainty: iNat `public_positional_accuracy` (→ `positional_accuracy` fallback) / GBIF `coordinateUncertaintyInMeters`. **Preserved, not filtered** — per-analysis cutoff (Decision 20 amended) | inat/gbif | Yes |
+| `obscured` | logical | — | `TRUE` if iNat obscured the coordinate (observer-set `geoprivacy`; puma is NOT taxon-obscured in CA, Decision 10). GBIF rows = `FALSE` | inat/gbif | No |
+| `geoprivacy` | character | — | iNat user-set geoprivacy (`obscured`/`open`/NA); `""` normalised to NA. NA for GBIF rows | inat | Yes |
+| `taxon_geoprivacy` | character | — | iNat taxon-policy geoprivacy; **all NA/"open" for puma** (Decision 10 evidence). NA for GBIF rows | inat | Yes |
+
+**Notes:**
+- **Dedupe is by `obs_id`, never coordinates** (Decision 20): obscured puma coords
+  are randomised and differ between GBIF and iNat, so a coordinate dedupe would
+  mismatch pairs. All 6,781 iNat-sourced GBIF rows matched an iNat id; only the
+  non-iNat GBIF remainder (14 puma post-clip) is additive.
+- **Precise vs obscured is a flag, not a split** (Decision 21). Filter on
+  `obscured == FALSE` for the ~1,028 precise points; the obscured half stays for
+  coarse-distribution and observer-bias (proposal Q5) use.
+- **Geometry is 3310; `latitude`/`longitude` are 4326.** Use geometry for all
+  spatial ops; the lat/long columns are provenance only.
+- Study-area clip (to `boundary_baydissolved_3310.gpkg`) dropped bbox-corner
+  points; 0 coordinate-validity drops.
+
+---
+
+### `occ_bobc_clean_3310.gpkg`  — bobcat occurrence layer (cleaned, deduped)
+
+**Source:** iNaturalist research-grade (`rinat`) ∪ GBIF non-iNat remainder
+**Geometry:** point (POINT), one row per unique observation
+**CRS:** EPSG:3310 (geometry). `latitude`/`longitude` columns are original EPSG:4326.
+**Records:** 6,232 (4,420 precise + 1,812 obscured); iNat 6,027 + GBIF-non-iNat 205
+**Created by:** `scripts/03_prepare_occurrences.R`
+**Storage:** `data/interim/`. Tier **T0/T1** — bobcat is low-sensitivity; may be
+published at finer resolution than puma, still reviewed per policy §3.
+**Decisions:** 20 (identity dedupe, no coord cutoff), 21 (obscured kept under flag)
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `species` | character | — | Constant `bobc` | derived | No |
+| `source` | character | — | `inat` or `gbif` — feed of origin | derived | No |
+| `obs_id` | character | — | Stable identity key: iNat observation id or `gbif:<gbifID>`. Dedupe key (Decision 20) | derived | No |
+| `observed_on` | character | — | Observation date (`YYYY-MM-DD`). No date filter applied | inat/gbif | Yes |
+| `latitude` | numeric | ° | Original **EPSG:4326** latitude (provenance) | inat/gbif | No |
+| `longitude` | numeric | ° | Original **EPSG:4326** longitude (provenance) | inat/gbif | No |
+| `coord_uncert_m` | numeric | m | Coordinate uncertainty (iNat `public_positional_accuracy`/`positional_accuracy`; GBIF `coordinateUncertaintyInMeters`). Preserved, not filtered | inat/gbif | Yes |
+| `obscured` | logical | — | `TRUE` if iNat obscured (observer-set). GBIF rows = `FALSE`. One anomalous taxon-obscured bobcat kept as obscured, not special-cased | inat/gbif | No |
+| `geoprivacy` | character | — | iNat user-set geoprivacy; `""` → NA; NA for GBIF | inat | Yes |
+| `taxon_geoprivacy` | character | — | iNat taxon-policy geoprivacy (1 bobcat = "obscured", rest NA/"open"); NA for GBIF | inat | Yes |
+
+**Notes:**
+- Same identity-dedupe and flag-not-cut logic as the puma layer. Additive GBIF
+  remainder = 205 bobcat post-clip.
+- **This is the layer the Risk 1 occupancy gate is assessed against.** Preview:
+  6,232 records land on 3,640 distinct 500 m grid cells; 322 of 1,129 CPAD units
+  hold ≥1 record, but only 48% of records (2,961) fall inside any CPAD unit — the
+  site-definition choice is the first gate decision (repeat-visit structure, not
+  raw site count, is the binding criterion).
+- Geometry is 3310; `latitude`/`longitude` are 4326 (provenance only).
+
+---
+
 ### `grid_puma_1km_3310.tif`  — puma analysis grid
 
 **Source:** derived from `boundary_baydissolved_3310.gpkg`
@@ -151,6 +228,67 @@ Completed as layers are built. Field naming rules in `docs/naming-conventions.md
 - Bobcat may be published at finer resolution than puma (policy §3), still
   reviewed before publication.
 - Never pooled with puma (Decision 3).
+
+---
+
+### `cov_effort_gbif_mammal_unityear_3310.gpkg`  — bobcat detection-history effort (Fork 3A)
+
+**Source:** GBIF all-datasets download (DOI 10.15468/dl.6xzcjt), class Mammalia,
+bobcat excluded
+**Geometry:** polygon (MULTIPOLYGON) — CPAD unit geometry, one row per surveyed
+unit × year
+**CRS:** EPSG:3310
+**Records:** 5,401 unit × year features (841 distinct units, 2010–2026)
+**Created by:** `scripts/03b_bobcat_background_effort.R`
+**Storage:** `data/interim/` (T0 open)
+**Decision:** 22 (draft — occupancy detection history; target-group background)
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `unit_id` | integer | — | CPAD unit key (join to occupancy frame) | cpad | No |
+| `yr` | integer | year | Calendar year of background effort (2010–2026) | derived | No |
+| `surveyed` | integer | — | Constant `1` — presence of ≥1 non-bobcat mammal record in this unit × year (effort marker). **Absence of a row = not surveyed = NA, never a 0** | derived | No |
+
+**Notes:**
+- **This is the non-detection basis for bobcat occupancy** (Decision 22 draft).
+  A unit × year present here but with no bobcat detection = a real non-detection
+  (0); a unit × year absent here = unsurveyed = NA (not a 0). The detection
+  history is assembled by crossing this against `occ_bobc_clean_3310.gpkg`.
+- **Target-group background:** other mammals share more of a bobcat's
+  detectability than birds do. Preview: 4,476 real non-detections, naive
+  detection rate 0.171, 697 units with ≥2 surveyed years.
+- Effort geometry is the CPAD unit polygon (via `unit_id` join), not the raw
+  GBIF points — the point cloud is not retained.
+- **Fork 3A.** Held alongside 3B (vertebrate) pending the Week-7 fit; the fitted
+  detection probability under each decides which background the model uses.
+
+---
+
+### `cov_effort_gbif_vertebrate_unityear_3310.gpkg`  — bobcat detection-history effort (Fork 3B)
+
+**Source:** GBIF all-datasets download (DOI 10.15468/dl.6xzcjt), classes Mammalia
+/ Aves / Reptilia / Amphibia / Actinopterygii, bobcat excluded
+**Geometry:** polygon (MULTIPOLYGON) — CPAD unit geometry, one row per surveyed
+unit × year
+**CRS:** EPSG:3310
+**Records:** 12,505 unit × year features (1,072 distinct units, 2010–2026)
+**Created by:** `scripts/03b_bobcat_background_effort.R`
+**Storage:** `data/interim/` (T0 open)
+**Decision:** 22 (draft)
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `unit_id` | integer | — | CPAD unit key | cpad | No |
+| `yr` | integer | year | Calendar year of background effort (2010–2026) | derived | No |
+| `surveyed` | integer | — | Constant `1` — presence of ≥1 non-bobcat **vertebrate** record in this unit × year. Absence of a row = not surveyed = NA, never a 0 | derived | No |
+
+**Notes:**
+- Same structure and role as the mammal layer (3A), broader taxon net.
+- **Weaker per-cell evidence:** 32.7M of 33.0M pulled records are birds. Bird
+  effort marks nearly every unit as "surveyed" nearly every year (1,022 units
+  with ≥2 years) but shares little of a bobcat's detectability, deflating the
+  naive detection rate to 0.083. More 0s, each individually weaker.
+- **Fork 3B.** Retained for the Week-7 fit comparison; not yet selected.
 
 ---
 

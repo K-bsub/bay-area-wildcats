@@ -11,8 +11,10 @@ Precise location data for pumas is a poaching, harassment and disturbance risk.
 This is not hypothetical: many iNaturalist observers deliberately obscure their
 own puma sightings for the animals' safety, and research organisations do not
 publish raw camera-trap coordinates. **iNaturalist does not auto-obscure *Puma
-concolor* in California** (Decision 10) — so this project actually holds ~1,057
-precise, publicly-shared puma locations. Publishing precise puma outputs would
+concolor* in California** (Decision 10) — so this project actually holds **1,028
+precise, publicly-shared puma locations** (Week-4 confirmed: 1,057 precise iNat
+records pre-clip → 1,028 inside the study area; `occ_puma_clean_3310.gpkg`,
+`obscured = FALSE`). Publishing precise puma outputs would
 expose real hotspots, including near sites that obscuring observers deliberately
 hid. The coarsening rules below are therefore load-bearing, not precautionary.
 

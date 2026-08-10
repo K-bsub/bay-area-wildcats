@@ -182,6 +182,58 @@ The ten-county clip frame for every other layer — it defines the study extent
 - **10,000-record API cap** — a species at the cap means truncation; split by
   year or `place_id` if hit.
 
+### 2.3 GBIF — target-group background effort (bobcat occupancy)
+Not an occurrence source for the focal species — this is the **effort layer**
+that supplies non-detection 0s for the bobcat occupancy detection history
+(Fork 3, Decision 22 draft). A "surveyed" unit×year is one where *any* non-bobcat
+vertebrate was recorded; a bobcat absent from a surveyed cell is a real
+non-detection.
+
+- **Access method:** `rgbif::occ_download()` (same credentialed path as §2.1).
+- **Why GBIF, not `rinat`:** the effort pull spans *all* vertebrate observations
+  across the study area for 2010–2026 — hundreds of thousands to millions of
+  records. `rinat`'s 10,000-record cap makes this impossible: county×year tiling
+  capped heavily, and county×month still capped in City Nature Challenge months
+  (San Mateo April). GBIF's async download has no cap and filters server-side.
+- **Scope:** ALL GBIF datasets (broad effort proxy — museum, eBird-via-GBIF,
+  other surveys — not iNat-only), a deliberate widening from the original
+  iNat-only Fork 3 framing. Shifts "iNat research-grade effort" to "any
+  georeferenced vertebrate occurrence"; defensible and arguably stronger for a
+  "was this unit visited by anyone recording wildlife" signal.
+- **Query (server-side):** `taxonKey ∈ {Mammalia 359, Aves 212, Reptilia 358,
+  Amphibia 131, Actinopterygii 204}`, `hasCoordinate = TRUE`,
+  `hasGeospatialIssue = FALSE`, `year` 2010–2026, `pred_within(<WKT>)`, and
+  `pred_not(speciesKey = 2435246)` to exclude *Lynx rufus*.
+- **Footprint:** the **dissolved 10-county boundary** (`boundary_baydissolved_3310`)
+  simplified to ~300 m tolerance (≈565 WKT vertices, EPSG:4326, CCW winding) —
+  **not** the full bbox. The bbox first attempt returned 42.8M records / 4.8 GB
+  (ocean + Central Valley); the boundary footprint cut this to 33.0M / 3.7 GB.
+- **Format:** `SIMPLE_CSV` (note: has a `class` name column, **no** `classKey`).
+- **Licence:** CC0 / CC BY (varies per record).
+- **DOI:** https://doi.org/10.15468/dl.6xzcjt — GBIF.org, accessed 2026-08-09
+  (key `0006760-260806074905277`); saved to
+  `data/raw/gbif_background/background_download_key.txt`
+- **File:** `data/raw/gbif_background/<key>.zip` — gitignored
+- **Downloaded:** August 9, 2026
+- **Record counts:** 33.0M pulled → 17.2M inside a CPAD unit. Class mix is
+  bird-dominated (32.7M Aves, 0.11M Mammalia, 0.12M Amphibia).
+- **Created by:** `scripts/03b_bobcat_background_effort.R`
+- **Outputs:** `cov_effort_gbif_mammal_unityear_3310.gpkg` (Fork 3A; 5,401
+  unit×year, 841 units), `cov_effort_gbif_vertebrate_unityear_3310.gpkg`
+  (Fork 3B; 12,505 unit×year, 1,072 units). See `docs/data-dictionary.md`.
+
+**Known issues:**
+- **Bird effort ≠ bobcat detectability.** 99% of the pull is birds; a birder in
+  a unit is near-zero evidence about bobcat presence. This deflates the
+  vertebrate-background naive detection rate (0.083 vs 0.171 for mammal-only) —
+  the mammal layer (3A) is the target-group-correct option. A-vs-B is held to the
+  Week-7 fit (Decision 22 draft).
+- **Boundary simplification is fuzzy at the edges** — a few near-county-line
+  background records may fall just outside the WKT. Negligible for a
+  presence-of-effort signal; the unit×year "surveyed" bit is set by interior
+  activity, and the Part-B spatial join still clips precisely to unit polygons.
+- **Absence of a unit×year row = not surveyed = NA, never a fabricated 0.**
+
 ---
 
 ## 3. Road mortality

@@ -1,9 +1,11 @@
 # Data — acquisition and layout
 
 How to reacquire every dataset this project uses. **No data is committed** —
-`data/raw/**` and `data/interim/**` are gitignored. Everything open is
-scripted in `scripts/01_download_open_data.R` and re-downloadable from scratch;
-partner/gated data is not redistributable and is described but not shippable.
+`data/raw/**` and `data/interim/**` are gitignored. Most open data is scripted in
+`scripts/01_download_open_data.R`; the bobcat background-effort download (row 10)
+is acquired later in `scripts/03b_bobcat_background_effort.R` because it depends
+on the occupancy design. All of it is re-downloadable from scratch; partner/gated
+data is not redistributable and is described but not shippable.
 
 - **Full dataset provenance** (versions, DOIs, licences, record counts, known
   issues): `docs/data-sources.md`.
@@ -45,7 +47,7 @@ partner/gated data is not redistributable and is described but not shippable.
 ```
 data/
   raw/          # as-downloaded, gitignored
-    cpad/  cced/  gbif/  inaturalist/  worldcover/  terrain/
+    cpad/  cced/  gbif/  gbif_background/  inaturalist/  worldcover/  terrain/
     osm/  caltrans/  ghm/  silvis/
   interim/      # reprojected to EPSG:3310, analysis-ready inputs, gitignored
   restricted/   # partner data only, never committed (empty in Phase 1)
@@ -105,8 +107,11 @@ everything after it.
   (prereq 4).
 - **DOI:** https://doi.org/10.15468/dl.87ne3u (key `0013933-260721160103020`);
   saved to `data/raw/gbif/gbif_download_doi.txt`.
-- **Output:** raw zip `data/raw/gbif/<key>.zip`. Cleaned/split layers are a
-  **Week-4** build.
+- **Output:** raw zip `data/raw/gbif/<key>.zip`. **Cleaned (Week 4, script 03):**
+  GBIF ∪ iNat deduped on observation identity (not coordinates), split per species
+  → `data/interim/occ_puma_clean_3310.gpkg`, `occ_bobc_clean_3310.gpkg`. GBIF
+  contributes only its **non-iNat remainder** (17 puma / 209 bobcat pre-clip) —
+  the iNat-sourced GBIF rows are a strict subset of the `.rds` (Decision 20).
 - **Counts (pre-filter):** puma 1,843 · bobcat 5,164. Puma coords dominated by
   ~28 km iNat obscuring (median 28,240 m).
 
@@ -116,11 +121,14 @@ everything after it.
   maxresults = 10000)`. No account. Obscuring fields preserved
   (`coordinates_obscured` → `obscured`, `taxon_geoprivacy`, `geoprivacy`,
   `public_positional_accuracy`).
-- **Output:** `data/raw/inaturalist/inat_research_bayarea.rds`. Dedupe/clean is
-  a **Week-4** build.
+- **Output:** `data/raw/inaturalist/inat_research_bayarea.rds`. **Cleaned
+  (Week 4, script 03):** deduped with GBIF by observation identity, clipped, split
+  per species → `occ_puma_clean_3310.gpkg` (2,031: 1,028 precise + 1,003
+  obscured), `occ_bobc_clean_3310.gpkg` (6,232: 4,420 precise + 1,812 obscured).
 - **Counts:** puma 2,102 (50% obscured) · bobcat 6,295 (31% obscured).
 - **Load-bearing finding (Decision 10):** puma is **not** taxon-obscured in CA
-  (0 taxon-obscured) → the project holds **~1,057 precise puma points**. The
+  (0 taxon-obscured) → the project holds **1,028 precise puma points** (Week-4
+  confirmed: 1,057 precise iNat pre-clip → 1,028 in study area). The
   `docs/sensitive-data-policy.md` ≥1 km publish floor / coarsening rules are
   therefore load-bearing, not precautionary. Heavy overlap with GBIF — **dedupe,
   don't sum.**
@@ -201,6 +209,40 @@ everything after it.
     resistance surface (Week 5).
   - Citation swap: Kennedy et al. 2019 → **Theobald et al. 2024** (Decision 15).
   - Decisions 15 (gHM) and 16 (housing).
+
+### 10. GBIF background effort — bobcat occupancy non-detections
+> Acquired **Week 4** (script `03b`), not Week 2. This is not focal-species
+> occurrence data — it is the **target-group effort layer** that supplies
+> non-detection 0s for the bobcat occupancy detection history (Fork 3,
+> Decision 22 draft). A unit×year with any non-bobcat vertebrate record = the
+> unit was surveyed; a bobcat absent from a surveyed cell = a real non-detection.
+
+- **Source:** GBIF, **all datasets** (broad effort proxy — museum, eBird-via-GBIF,
+  other surveys — not iNat-only), vertebrate classes, 2010–2026, bobcat excluded.
+- **Why GBIF not `rinat`:** the pull spans *all* vertebrate observations over the
+  study area — millions of records. `rinat`'s 10,000-cap made this impossible
+  (county×month tiling still capped in City Nature Challenge months). GBIF's async
+  download has no cap and filters server-side. Needs GBIF creds (prereq 4).
+- **How:** `rgbif::occ_download()` — `pred_in("taxonKey", <Mammalia/Aves/Reptilia/
+  Amphibia/Actinopterygii>)`, `hasCoordinate`, `!hasGeospatialIssue`, year range,
+  `pred_within(<WKT>)`, `pred_not(speciesKey = 2435246)`. Footprint = the
+  **dissolved 10-county boundary** simplified to ~300 m (~565 WKT vertices,
+  EPSG:4326, CCW) — **not** the bbox (bbox pulled 42.8M records incl. ocean /
+  Central Valley; boundary cut it to 33.0M). SIMPLE_CSV has `class` (name string),
+  **no** `classKey`. Two-part script: submit (Part A) → wait → lean 5-column
+  import (Part B).
+- **DOI:** https://doi.org/10.15468/dl.6xzcjt (key `0006760-260806074905277`);
+  saved to `data/raw/gbif_background/background_download_key.txt`.
+- **Outputs (`data/interim/`):**
+  - `cov_effort_gbif_mammal_unityear_3310.gpkg` (Fork 3A; 5,401 unit×year, 841 units)
+  - `cov_effort_gbif_vertebrate_unityear_3310.gpkg` (Fork 3B; 12,505 unit×year, 1,072 units)
+- **Counts:** 33.0M pulled → 17.2M inside a CPAD unit; bird-dominated (32.7M Aves).
+- **Caveats:** bird effort ≠ bobcat detectability → vertebrate-background naive
+  detection rate 0.083 vs mammal 0.171, so the **mammal layer (3A) is
+  target-group-correct**; A-vs-B held to the Week-5 fit (Decision 22 draft).
+  Boundary-simplification edge fuzz is negligible (the Part-B spatial join clips
+  precisely to unit polygons). Absence of a unit×year row = not surveyed = NA,
+  **never a fabricated 0.** Decision 22 (draft).
 
 ---
 

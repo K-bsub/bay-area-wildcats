@@ -3,7 +3,7 @@
 **Project:** Wild Cats at the Urban Edge — Pumas and Bobcats in SF Bay Area Open Spaces
 **Author:** Kiran Balasubramanian
 **Repository:** https://github.com/K-bsub/bay-area-wildcats
-**Last updated:** August 3, 2026
+**Last updated:** August 9, 2026
 
 > Living document. Every processing step, parameter value and analytical
 > decision is recorded here as it happens, matching the convention established
@@ -201,8 +201,9 @@ and non-habitat filtering.
   extent incl. bay/ocean) so the study area is terrestrial.
 
 ### 4.2 Occurrence records — GBIF
-*Status: downloaded and inspected — July 27, 2026. Cleaning/filtering deferred to
-Week 4.*
+*Status: downloaded and inspected — July 27, 2026. Cleaned, deduped against iNat,
+and clipped — Aug 9, 2026 (script 03; Decisions 20/21). See "Week-4 processing
+result" below.*
 
 **Download:** `rgbif::occ_download()`, both species + study-area bbox +
 `hasCoordinate = TRUE` / `hasGeospatialIssue = FALSE` (data-sources §2.1).
@@ -242,9 +243,27 @@ Week 4.*
 threshold, recent-year window, `basisOfRecord` keep/drop, GBIF↔iNat dedupe, and
 the precise clip from bbox to the ten-county polygon.
 
+**Week-4 processing result (Aug 9, 2026 — script 03; Decisions 20/21):**
+- **GBIF is almost entirely iNaturalist re-served.** Of 7,007 GBIF rows, 6,781
+  are iNat-sourced (datasetKey `50c9509d-…`; `occurrenceID` carries the iNat
+  observation URL). All 6,781 match an observation id in the iNat `.rds` — GBIF's
+  iNat portion is a strict subset. GBIF's only additive contribution is its
+  **non-iNat** remainder: **17 puma, 209 bobcat** (museum specimens, other
+  datasets).
+- **Dedupe is by observation identity, not coordinates** (Decision 20) — obscured
+  puma coords are randomised and differ between feeds, so a coordinate dedupe
+  would mismatch pairs.
+- **No coordinate-uncertainty cutoff applied at the layer stage** (Decision 20,
+  amended): `coord_uncert_m` is preserved from `coordinateUncertaintyInMeters`
+  and left for per-analysis filtering. The recent-year window was also **not**
+  applied — no date filter (Decision 21).
+- GBIF's contribution flows into the combined per-species layers below (§4.3),
+  not into standalone `occ_*_gbif_*` files.
+
 ### 4.3 Occurrence records — iNaturalist
-*Status: downloaded and inspected — July 27, 2026. Dedupe/filtering deferred to
-Week 4.*
+*Status: downloaded and inspected — July 27, 2026. Cleaned, deduped with GBIF,
+clipped, and written to per-species layers — Aug 9, 2026 (script 03;
+Decisions 20/21). See "Week-4 processing result" below.*
 
 **Download:** `rinat::get_inat_obs()`, research grade + study-area bbox, captive
 dropped, obscuring fields preserved (data-sources §2.2).
@@ -290,6 +309,43 @@ dropped, obscuring fields preserved (data-sources §2.2).
   hasn't ingested. Still dedupe (GBIF primary); iNat adds that tail + the flags.
 - Reconciles with §4.2: ~half+ of puma obscured explains the GBIF puma median
   sitting at the ~28 km obscuring value.
+
+**Week-4 processing result (Aug 9, 2026 — script 03; Decisions 20/21):**
+- **Schema note (recorded so re-runs don't trip on it):** the saved `.rds` is the
+  *raw* `rinat::get_inat_obs()` output — a named list `list(puma, bobc)` of raw
+  `rinat` columns (`id`, `scientific_name`, `coordinates_obscured`, `geoprivacy`,
+  `taxon_geoprivacy`, `positional_accuracy`, `public_positional_accuracy`,
+  `captive_cultivated`, …). The `tidy_inat()`/captive-drop in the download script
+  was **not** persisted, so cleaning derives `obscured`, `captive`, `coord_uncert_m`
+  and the species token from the raw fields in script 03. `geoprivacy` /
+  `taxon_geoprivacy` use `""` (empty string) for "not set" — normalised to NA on
+  load.
+- **iNat `.rds` is the master for all iNat-sourced records** (Decision 20);
+  combined 8,397 rows (puma 2,102, bobcat 6,295), all captive = FALSE. 1,616 iNat
+  observation ids are present in the `.rds` but not in the GBIF snapshot — the
+  fresher recent tail GBIF hasn't ingested, confirming iNat is not a pure subset.
+- **Decision 10 confirmed empirically:** zero puma records carry
+  `taxon_geoprivacy = "obscured"`; puma obscuring is entirely observer-set
+  `geoprivacy` (967 with taxon NA + 78 with taxon "open"). One anomalous bobcat
+  carries `taxon_geoprivacy = "obscured"` — flagged, kept as obscured, not
+  special-cased (1 record).
+
+**Combined cleaned layers written (GBIF ∪ iNat, identity-deduped, EPSG:3310,
+clipped to `boundary_baydissolved_3310.gpkg`):**
+
+| Layer | Total | Precise | Obscured | Sources |
+|---|---|---|---|---|
+| `occ_puma_clean_3310.gpkg` | 2,031 | 1,028 | 1,003 | iNat 2,017 + GBIF-non-iNat 14 |
+| `occ_bobc_clean_3310.gpkg` | 6,232 | 4,420 | 1,812 | iNat 6,027 + GBIF-non-iNat 205 |
+
+- Union before clip: puma 2,034, bobcat 6,504 (iNat combined 8,397 + 226 non-iNat
+  GBIF = 8,623). Study-area clip dropped 360 rows (4.2%) falling in the bbox
+  corners outside the dissolved ten-county boundary. Coordinate-validity drop: 0.
+- **Risk 2 resolved:** the "~1,057 precise puma" figure holds — 1,057 precise iNat
+  puma pre-clip → **1,028 precise after clip**, plus 14 precise non-iNat GBIF. A
+  coarse puma distribution layer is viable alongside the connectivity backbone.
+- Every record carries `source`, `species`, `obscured`, `coord_uncert_m`,
+  `geoprivacy`, `taxon_geoprivacy` (see `docs/data-dictionary.md`).
 
 ### 4.4 Road mortality — CROS
 *Status: terms confirmed — July 27, 2026; data request sent Aug 2, 2026 —
@@ -1093,6 +1149,119 @@ Record both in the data dictionary.
 habitat-patch layer. Dissolving the 3,773 features into contiguous patches across
 tenure boundaries is a Week-8 connectivity step, not Week-3 study-area prep.
 
+**Decision 20: Occurrence dedupe on observation identity, not coordinates**
+*Date:* 2026-08-09
+*Decision:* Deduplicate GBIF∪iNat by iNaturalist observation ID, never by
+coordinates. iNat research-grade records flow into GBIF, so the two feeds
+overlap heavily (6,781 of 7,007 GBIF rows are iNat-sourced; all 6,781 match an
+id in the iNat .rds). The iNat .rds is treated as master for all iNat-sourced
+records; GBIF contributes only its non-iNat remainder (17 puma, 209 bobcat).
+*Justification:* Obscured puma records receive randomised coordinates that
+differ between the two feeds, so a coordinate-based dedupe would drop or keep
+the wrong member of a pair. Observation ID is the only stable join key.
+*Result:* Puma 2,031 (1,028 precise + 1,003 obscured); bobcat 6,232 (4,420
+precise + 1,812 obscured), after study-area clip (360 rows / 4.2% fell outside
+the dissolved 10-county boundary).
+*No coordinate-uncertainty cutoff at the layer stage.* `coord_uncert_m` is
+computed and preserved on every record (GBIF `coordinateUncertaintyInMeters`;
+iNat `public_positional_accuracy`, falling back to `positional_accuracy`) but
+is **not** used to filter the cleaned layers. Rationale: the defensible
+threshold is analysis-specific — occupancy at 500 m, puma connectivity at 1 km
+and any KDE each tolerate different positional error, so a single layer-stage
+cutoff would either impose the strictest analysis's limit on all uses or discard
+records a coarser analysis could use. Each downstream step filters on
+`coord_uncert_m` (and `obscured`) to its own need; the interim layer stays
+complete. Same flag-not-cut logic as the `obscured` handling (Decision 21).
+*Impact:* Two layers written — occ_puma_clean_3310.gpkg,
+occ_bobc_clean_3310.gpkg. Puma obscured records retained in-layer under a flag
+(Decision 21), not cut. Coordinate-quality filtering is deferred to each
+analysis, not applied here.
+
+**Decision 21: Puma obscured records kept in-layer under a flag**
+*Date:* 2026-08-09
+*Decision:* Retain all puma records — precise (1,028) and obscured (1,003) — in
+a single occ_puma_clean_3310.gpkg, distinguished by an `obscured` logical, with
+no date filter. Do not split obscured records into a separate layer or drop them.
+*Justification:* Puma is not taxon-obscured in California (Decision 10, confirmed
+empirically: zero puma records carry taxon_geoprivacy = "obscured"; obscuring is
+user-driven via geoprivacy). Obscured records still carry real presence
+information at coarse resolution. Coarsening for publication is applied at export
+time per sensitive-data-policy.md §3, not by cutting the raw interim layer.
+*Impact:* Downstream steps filter on `obscured` as needed; the raw layer stays
+complete.
+
+**Decision 22 (DRAFT — provisional, not closed): Bobcat track = occupancy
+modelling, not SDM fallback**
+*Date drafted:* 2026-08-09
+*Status:* **DRAFT.** The Risk 1 feasibility gate (methodology §5.4) is assessed,
+the pre-fit-testable criteria pass, and the Fork-3 background-effort layers are
+now built (script 03b) — so a fittable detection history demonstrably exists.
+The decision is **held open only on the pre-fit-unevaluable criteria** (fitted
+detection probability p, parameter stability, GOF), which resolve at Week-7 fit.
+The background *type* (mammal vs vertebrate) is also deliberately carried to the
+fit rather than chosen now (see Fork 3 outcome below). Do not treat as final; do
+not cite as closed in public-facing text.
+*Gate assessed by:* `scripts/03a_bobcat_occupancy_gate.R` (diagnostic, no fit).
+*Background built by:* `scripts/03b_bobcat_background_effort.R` (GBIF download,
+DOI 10.15468/dl.6xzcjt).
+*Provisional decision:* Proceed with **occupancy modelling** for the bobcat
+track (proposal Q2), not the `maxnet`/ENMeval SDM fallback. Site = CPAD unit
+(Decision 17 frame); temporal replicate = **calendar year**; analysis window
+**2010–2026**.
+*Evidence (recent window 2010–2026, the contemporary sample):*
+- Site histories: **321 occupied units** ≥ 40 floor (8×). PASS.
+- Repeat-visit sample: **194 units with ≥2 detection-years** ≥ 40 (5×) — the
+  structure that normally kills opportunistic occupancy is present in force. PASS.
+- Naive occupancy **ψ = 0.284** ∈ [0.10, 0.90], with margin; true ψ is higher
+  (surveyed-unit denominator < all 1,129 units). PASS.
+- Window is evidence-based: 2010–2026 retains **97%** of dated in-unit records
+  (2,858 of 2,956); the pre-2010 museum tail is only 98 records (3%) and shifts
+  ψ by <0.001 and the ≥2-bin count by 8 units — negligible. All-years vs recent
+  are effectively identical, confirming the dataset is already contemporary.
+*Criteria NOT evaluable at the gate (deferred to Week-7 fitting by construction):*
+detection probability p < 0.10, parameter instability, MacKenzie-Bailey GOF.
+The gate decides whether a defensible detection history **exists**; these three
+are checked when the model is actually fit. If any fails at fit, the SDM
+fallback is re-triggered then.
+*Conditions carried with the draft:*
+1. **Fork 3 dependency — SATISFIED (Aug 9).** Background effort built from GBIF
+   (all datasets, vertebrate classes, dissolved-boundary footprint, 2010–2026,
+   bobcat excluded; DOI 10.15468/dl.6xzcjt). Real non-detections now exist:
+   surveyed unit×year cells with no bobcat = 0, unsurveyed = NA (never a
+   fabricated 0). Two layers written — `cov_effort_gbif_mammal_unityear_3310.gpkg`
+   (3A) and `cov_effort_gbif_vertebrate_unityear_3310.gpkg` (3B).
+2. **Single-record units (non-blocking):** 114 of 321 occupied units (36%) hold
+   one record — ψ-informative, p-uninformative. At fit their ψ leans on
+   covariates. Documented, not a blocker.
+3. **Detection-probability watch (Week-7):** naive detection rate under mammal
+   background is 0.171 (above the §5.4 p<0.10 fallback line); under vertebrate
+   background 0.083 (below it, but an effort artifact — see Fork 3 outcome). The
+   *fitted* p, not the naive rate, is the actual §5.4 test.
+*Fork 3 outcome (Aug 9) — background pull done, A-vs-B HELD to Week-7 fit.*
+The pull reframed from `rinat` (fought the iNat 10k cap; City Nature Challenge
+months capped even at week level) to a single GBIF async download (no cap,
+server-side filter). Scope widened from iNat-only to **all GBIF datasets** — a
+broader, more defensible effort proxy (museum, eBird-via-GBIF, other surveys),
+though it shifts "iNat research-grade effort" to "any georeferenced vertebrate
+occurrence." Both candidate backgrounds were built and previewed:
+- **3A (mammal):** 5,401 eligible unit×year cells, 4,476 real non-detections,
+  naive detection rate **0.171**, 697 units with ≥2 surveyed years.
+- **3B (vertebrate):** 12,505 cells, 11,463 non-detections, naive rate **0.083**,
+  1,022 units with ≥2 surveyed years.
+- **3C (bobcat-only naive):** rejected — fabricates non-detections.
+*Reading:* 3B's extra coverage is mostly bird effort (32.7M of 33M pulled
+records are Aves), which shares little of a bobcat's detectability — its 0.083
+rate is deflated by "surveyed" cells where no observer could plausibly detect a
+bobcat. 3A is the target-group-correct choice (taxonomically similar, similar
+detectability) and its 0.171 is the more honest rate. **Both layers are
+retained** and the choice is deferred to the Week-7 fit, where the *fitted* p
+under each background — not the naive rate — is the deciding §5.4 evidence.
+Holding both costs nothing (layers already written) and avoids committing on a
+preview statistic.
+*If the gate had failed:* fall back to `maxnet`/ENMeval SDM (presence +
+background, no repeat visits needed); proposal Q2 stands, only the method
+changes. Recorded so the fallback path is not re-litigated.
+
 ---
 
 ## 7. Known limitations
@@ -1106,7 +1275,15 @@ tenure boundaries is a Week-8 connectivity step, not Week-3 study-area prep.
 - **Coordinate obscuring.** iNaturalist obscures puma coordinates. Records are
   usable for coarse distribution only.
 - **Occupancy design.** Opportunistic records are not survey data. Any
-  occupancy model built on them requires explicit, documented assumptions.
+  occupancy model built on them requires explicit, documented assumptions. The
+  bobcat detection history (Decision 22 draft) is *constructed*, not surveyed:
+  site = CPAD unit, replicate = calendar year (2010–2026), non-detections
+  established from target-group iNat effort (Fork 3), never from empty cells.
+  Two caveats ride the gate: (1) **52% of bobcat records fall outside CPAD units**
+  and are excluded from the occupancy frame by design — occupancy is on open
+  space; the out-of-unit urban-edge records inform proposal Q5, not ψ. (2) **36%
+  of occupied units are single-record** — ψ-informative but p-uninformative;
+  their occupancy estimate leans on covariates at fit.
 - **Open space ≠ habitat.** CPAD includes urban pocket parks and non-habitat
   holdings; filtering criteria must be defined and justified.
 
@@ -1171,3 +1348,9 @@ is not redistributable.
 | 2026-08-05 | 6 | Decision 18 recorded — non-habitat filter: 0.10 km² floor on habitat area (removes 71% of units, ~1% of area) + SPEC_USE/LAND_WATER/Cemetery-District deny-list flagged at Holdings level pre-dissolve; ACCESS_TYP deliberately excluded (No Public Access = 12.6% of area, incl. SFPUC watershed/ranch easements); non-habitat flagged-not-erased; hab_frac ≥ 0.50 cutoff (bimodal dist, insensitive 0.4–0.6, confirmed not provisional); result 4,375 → 1,142 (floor) → 1,129 units, 4,660.4 km² habitat, 106 has_nonhabitat |
 | 2026-08-05 | 6 | Decision 19 recorded — CPAD∪CCED kept as separate connectivity frame, not folded into occupancy layer; protection_type {fee, easement} with fee precedence on overlap (Option b, tenure preserved); result 3,773 features (1,129 fee + 2,644 easement), 498.2 km² fee/easement overlap erased, 155 easements dropped wholly-inside-fee, CCED adds 1,275.7 km² new protected land; fee 4,720.8 km² (raw st_area) vs occupancy 4,660.4 km² (hab_area) reconciled — ~61 km² flagged interior non-habitat, not a discrepancy |
 | 2026-08-05 | 4 | Built openspace_cpad_bayarea_3310.gpkg (occupancy frame, 1,129 units, scripts 02/02b/02c), protected_union_bayarea_3310.gpkg (connectivity frame, 3,773 features, script 02d), grid_puma_1km_3310.tif (20,416 land cells) + grid_bobc_500m_3310.tif (80,073 land cells, nested 4:1, script 02e); all EPSG:3310; four layers added to data-dictionary.md |
+| 2026-08-09 | 4.2/4.3 | Built occ_puma_clean_3310.gpkg (2,031: 1,028 precise + 1,003 obscured) + occ_bobc_clean_3310.gpkg (6,232: 4,420 precise + 1,812 obscured), script 03; GBIF∪iNat identity-deduped (all 6,781 iNat-sourced GBIF rows matched .rds; only 226 non-iNat GBIF additive: 17 puma / 209 bobcat), 360 rows / 4.2% clipped outside boundary |
+| 2026-08-09 | 6 | Decision 20 recorded — occurrence dedupe on iNat observation ID not coordinates (obscured puma coords randomised, differ between feeds); iNat .rds is master, GBIF contributes non-iNat remainder only (17 puma / 209 bobcat) |
+| 2026-08-09 | 6 | Decision 21 recorded — puma obscured records kept in-layer under `obscured` flag, no date filter, not split or cut; Decision 10 confirmed empirically (zero puma taxon_geoprivacy="obscured"); publish-time coarsening per sensitive-data-policy §3 |
+| 2026-08-09 | 6 | Decision 20 amended — no coord_uncert_m cutoff at layer stage; `coord_uncert_m` preserved on every record, coordinate-quality filtering deferred per-analysis (occupancy/connectivity/KDE tolerate different error); flag-not-cut, consistent with Decision 21 |
+| 2026-08-09 | 5.4/6 | Risk 1 occupancy gate assessed (script 03a, diagnostic only); pre-fit §5.4 criteria PASS on 2010–2026 window — 321 site histories, 194 units ≥2 detection-years, naive ψ 0.284; site=CPAD unit, replicate=calendar year. Decision 22 DRAFTED (occupancy proceeds, not SDM) but HELD OPEN pending Fork-3 background-effort pull that supplies real non-detections; p/instability/GOF deferred to Week-7 fit |
+| 2026-08-09 | 4.3/6 | Fork-3 background effort built (script 03b) — reframed rinat→GBIF async download (iNat 10k cap unworkable, capped even at month/week for City Nature Challenge); GBIF all-datasets vertebrate, dissolved-boundary WKT footprint, 2010–2026, bobcat excluded (DOI 10.15468/dl.6xzcjt; 33.0M pulled, 17.2M in-unit). Two effort layers written (mammal 3A / vertebrate 3B). Fork-3 dependency for Decision 22 SATISFIED; A-vs-B held to Week-7 fit (mammal naive p 0.171 vs vertebrate 0.083 — 3B deflated by bird effort) |
