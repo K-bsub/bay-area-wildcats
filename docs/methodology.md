@@ -629,16 +629,90 @@ measured; layer keep/drop = Decision 23.
 Area, perimeter, shape index, elevation range, land cover composition,
 edge-to-urban distance, and road density per unit.
 
+**Week 6 — per-unit descriptive summary (script `05_kde_and_hotspots.R` PART 3):
+Complete (2026-08-16).** Two tables, one per species, never pooled (Decision 3):
+`stats_puma_unit_3310.csv` and `stats_bobc_unit_3310.csv`, keyed on `unit_id`
+(1,129 units each). Each carries occurrence counts (precise inside+snapped and
+total incl. obscured), the sparse/low-meaning obscured fraction (flagged — obscured
+coords are randomised, so it is not a unit property), effort-year count,
+coverage-weighted KDE mean and max per unit (`exactextractr`; NA where the unit
+falls on masked KDE cells — ~300 units, "not covered" not "zero"), and the Gi*
+class, z-score and Q5 flag. The bobcat table adds `bobc_detected` — the naive
+per-unit detection collapse (1 detected / 0 surveyed-not-detected / NA
+never-surveyed: 351 / 508 / 270), which is the naive observable, **not** modelled
+occupancy ψ (a study-wide fitted scalar). These feed the story-site unit popups
+and the methods cross-check.
+
 ### 5.2 Kernel density estimation
-`spatstat.explore::density.ppp()`. Bandwidth selection to be tested and
-recorded (candidates: `bw.diggle`, `bw.ppl`, and fixed bandwidths at species-
-relevant scales). Shared class breaks across species/periods for comparability.
+`spatstat.explore::density.ppp()` with Jones-Diggle edge correction
+(`diggle = TRUE`). Puma on the 1 km grid, bobcat on the 500 m grid; the
+dissolved study-area boundary is the observation window (`owin`).
+
+**Week 6 — KDE (script `05_kde_and_hotspots.R`): Complete (2026-08-16).**
+Bandwidth is chosen by a pre-registered rule, not hand-tuned (Decision 28).
+Obscured-coordinate handling is precise-only for the published surfaces, with a
+separate caveated obscured-puma companion (Decision 29). Three candidate
+bandwidths are computed and printed; the chosen value follows a fixed rule
+decided in advance and is recorded in
+`outputs/tables/tbl_09_kde_bandwidth_selection.csv`.
+
+- **Puma:** `bw.diggle` 48.8 m and `bw.ppl` 1,458 m both failed the rule (below
+  the effort-collapse floor of home/3 = 1,667 m); the home-range prior **5,000 m**
+  was used (rule 4). On 1,028 sparse precise points, both data-driven selectors
+  chased observer clustering — the rule refused them. Output
+  `kde_puma_current_1km_3310.tif`, precise-only, gated through
+  `assert_publishable()`.
+- **Bobcat:** `bw.ppl` **1,109.6 m** survived the rule (≥ 500 m cell, ≥ 500 m
+  effort floor) and was the smallest survivor (rule 3); `bw.diggle` 36.8 m was
+  rejected (sub-cell). Output `kde_bobc_current_500m_3310.tif`, precise-only.
+
 **Same caveat as tiger Phase 1:** KDE of opportunistic records maps *detection
-effort* as much as animal density.
+effort* as much as animal density. This is why the bandwidth rule rejects
+effort-collapsed candidates, and why the raw KDE is cross-read against the
+Fork-3 effort layer (proposal Q5) rather than published alone.
 
 ### 5.3 Hot spot analysis (Getis-Ord Gi*)
-`sfdep::local_gstar_perm()` on a regular grid of counts. Distance band and
-number of permutations to be recorded. FDR correction applied.
+
+**Week 6 — Gi* + Q5 effort cross-read (script `05_kde_and_hotspots.R` PART 2):
+Complete (2026-08-16).** `sfdep::local_gstar_perm()` on occurrence counts per
+CPAD unit, per species, never pooled (Decision 3, Decision 30).
+
+- **Grain:** CPAD unit (one tessellation) — matches the effort layer and the
+  occupancy frame. Not the grid: the effort proxy exists only at unit grain (the
+  GBIF background point cloud was not retained).
+- **Neighbours:** fixed distance band = **6,342 m**, sized from the data so the
+  mean unit has ~8 neighbours (the skew-reliability rule of thumb), unioned with
+  a k = 8 KNN floor so no unit is stranded (408 units KNN-topped; final mean 11.5
+  links; 32 sub-graphs). Gi* (star) includes self. Binary weights (count data).
+  The neighbour-scheme history is recorded in Decision 30 (two corrections:
+  queen contiguity → KNN → distance-band+floor).
+- **Point→unit assignment:** three-way, grounded in each record's own
+  `coord_uncert_m` (Decision 30): inside a unit / snapped if a unit lies within
+  the point's own uncertainty / else matrix. Matrix points are retained as a
+  separate finding (real signal for Q5 + connectivity), not discarded.
+- **Inference:** 999 conditional permutations; Benjamini-Hochberg FDR on the
+  folded permutation p-values; α = 0.05.
+- **Results:** puma **47 hot / 430 cold**; bobcat **6 hot / 224 cold**; effort
+  **104 hot / 112 cold**. Global G (QC, retained) is significant and positive for
+  both species (puma z ≈ 31, bobc z ≈ 9.9, both p ≈ 0), confirming real
+  clustering — so the local Gi* is behaving correctly and no detrending is
+  warranted. Bobcat's lower hot-spot count is a spatial-arrangement finding, not
+  an artifact (Decision 30 / §7): bobcat highs are spikier and more isolated
+  (69% zero units, max 519, p99 = 29), so fewer form the jointly-high
+  neighbourhoods Gi* requires; puma highs are moderate and spatially clustered
+  (47 hot). Recorded in `tbl_10_gistar_q5_crossread.csv`.
+
+**Q5 effort cross-read (first-class, not a caveat — the tiger-project Ranthambore
+lesson).** A raw-count hot spot is partly an observer-effort hot spot. Gi* is run
+a second time on the per-unit surveyed-year count (the retained mammal effort
+layer), and each occurrence hot unit is labelled: `SUSPECT` if it is also an
+effort hot spot, `TRUSTED` if it is not. This labels the counts for honest
+reading; it does not "correct" them. Result: puma 25 suspect / 22 trusted; bobcat
+2 suspect / 4 trusted. The effort proxy is bobcat-shaped (Decision 30 caveat); for
+puma it is a looser general mammal-observer proxy.
+
+**Same caveat as tiger Phase 1:** the counts reflect detection effort as well as
+animal density — the Q5 cross-read is the explicit control, not a footnote.
 
 ### 5.4 Occupancy modelling
 `unmarked::occu()`. Requires detection histories — repeated visits to fixed
@@ -1728,6 +1802,186 @@ on naive_p is upward (toward honest), recorded in the fit.
 
 ---
 
+**Decision 28 — KDE bandwidth: a pre-registered selection rule, not a fixed value or a post-hoc look**
+*Date:* 2026-08-16
+*Status:* CLOSED.
+
+*Context.* KDE bandwidth (σ) sets the smoothing scale and therefore the map. The
+project's pre-registration discipline forbids choosing an analytical value after
+inspecting the output (as with the resistance weights, Decision 26, and the
+housing cap, Decision 23). But the two standard data-driven selectors are built
+for *point-process intensity estimation* of a designed sample, not for
+effort-clustered opportunistic records. On clustered iNaturalist data `bw.diggle`
+in particular collapses toward a very small bandwidth, producing a KDE that maps
+*where observers go* — the exact Q5 effort artifact the analysis must expose, not
+bake in. A separate hard constraint: the puma publish floor is 1 km
+(`sensitive-data-policy.md` §3) and the puma cell **is** 1 km, so any σ below the
+cell is meaningless at the output grain.
+
+*Decision.* Compute **three** candidates per species and print them: `bw.diggle`,
+`bw.ppl`, and a **home-range prior** (author prior: puma **5,000 m**, bobcat
+**1,500 m**). Choose by a rule fixed in advance — only the *value* is read from
+output, never the *choice*:
+
+1. Reject any σ **< output cell size** (sub-cell smoothing; for puma, below the
+   1 km policy floor).
+2. Reject any σ **< home-range prior / 3** (collapsed toward the observer-cluster
+   scale rather than the movement scale).
+3. Among survivors, take the **smallest** σ (least smoothing that still passes
+   1–2; preserves real structure without effort-chasing).
+4. If none survive, use the **home-range prior** — defensible from first
+   principles: KDE bandwidth ≈ the scale at which one occurrence informs
+   neighbouring space = the animal's movement scale.
+
+*Outcome (real run, script 05, values recorded in
+`tbl_09_kde_bandwidth_selection.csv`).*
+- **Puma (1,028 precise points):** `bw.diggle` 48.8 m — rejected (rules 1 + 2);
+  `bw.ppl` 1,458.1 m — rejected (rule 2, below the 1,666.7 m effort floor); →
+  **home-range prior 5,000 m** used (rule 4). Both data-driven selectors chased
+  effort on the sparse point set; the rule refused them. This is the
+  pre-registration working as intended.
+- **Bobcat (4,420 precise points):** `bw.diggle` 36.8 m — rejected (rules 1 + 2);
+  `bw.ppl` **1,109.6 m** — passed both tests, smallest survivor → **chosen**
+  (rule 3). The larger point set gave `bw.ppl` enough support to clear the
+  collapse floor with headroom (1,109.6 ≫ 500).
+
+*Caveat (stated so it is not mistaken for two independent checks).* For bobcat the
+effort floor (home/3 = 500 m) **equals** the cell size (500 m), so rules 1 and 2
+coincided; they were not independent guards for bobcat. `bw.ppl` cleared with wide
+margin, so the outcome is unambiguous, but the coincidence is noted. For puma the
+two guards were distinct (1,000 m cell vs 1,666.7 m floor).
+
+*Justification.* (a) The rule, not the number, is pre-registered — this is the
+only way "compute all three, then pick" stays inside the project's own discipline.
+(b) It structurally prevents an effort-collapsed bandwidth from setting the
+smoothing, directly serving proposal Q5. (c) The species diverge on which
+candidate wins (puma → prior, bobcat → `bw.ppl`) purely through data density, not
+through any per-species hand-tuning — the same rule produced both.
+
+---
+
+**Decision 29 — Obscured-coordinate handling in KDE: precise-only published surfaces + a caveated obscured-puma companion**
+*Date:* 2026-08-16
+*Status:* CLOSED.
+
+*Context.* Puma occurrence is ~49% obscured (1,003 of 2,031) with coordinates
+randomised within ~28 km (Decision 10/20). A KDE that includes obscured points
+smears ~28 km of positional noise into a 1 km surface — a diffuse haze that is
+pure artifact, not signal. Bobcat is ~29% obscured (1,812 of 6,232), also
+randomised, but precise-dominant and low-sensitivity (`sensitive-data-policy.md`
+§2, T1).
+
+*Decision.* Published KDE surfaces for **both species are precise-only**
+(`obscured == FALSE`): puma 1,028 points, bobcat 4,420 points. A **separate,
+caveated obscured-puma density companion** (`kde_puma_obscured_caveat_1km_3310.tif`)
+is written from the 1,003 obscured puma points at the home-range bandwidth
+(5,000 m) — for the Q5 effort/uncertainty cross-read **only**. It is **not** a
+distribution surface and **not** the published puma KDE. Bobcat gets **no**
+obscured companion.
+
+*Justification.* (a) Precise-only removes the ~28 km smear from every published
+surface. (b) The puma companion earns its place because dropping the obscured half
+discards ~49% of puma records; seeing where that obscured effort concentrates is a
+first-class Q5 input, not a caveat. Bobcat's obscured fraction is smaller (~29%)
+and the precise set is already dense (4,420), so no companion is needed — **the
+asymmetry is deliberate and by data situation, not an oversight.** (c) The
+companion still clears policy §3: home-range smoothing over already-randomised
+~28 km coordinates cannot reverse to a camera or den, and it is ≥ 1 km; it passes
+`assert_publishable()`. It is labelled `_caveat_` in the filename and flagged in
+the data dictionary as an effort/uncertainty read.
+
+*Scope / cost.* Three rasters written (script 05): `kde_puma_current_1km_3310.tif`
+(published, precise-only), `kde_puma_obscured_caveat_1km_3310.tif` (T2 companion,
+caveated), `kde_bobc_current_500m_3310.tif` (published, precise-only). Every puma
+export gated through `assert_publishable()`; no sub-1 km puma intermediate is
+written at any point.
+
+---
+
+**Decision 30 — Gi* hot-spot analysis: unit grain, distance-band neighbours, uncertainty-grounded point assignment, and a first-class Q5 effort cross-read**
+*Date:* 2026-08-16
+*Status:* CLOSED.
+
+*Context.* Getis-Ord Gi* (`sfdep::local_gstar_perm`) identifies units whose local
+neighbourhood sum is significantly high (hot) or low (cold). Three design choices
+drive the result — grain, neighbour scheme, and how occurrence points are
+assigned to units — plus the Q5 effort control. Two of these went through
+documented corrections before the design held; both are recorded here rather than
+hidden, per the project's "document corrections" discipline.
+
+*Decision — grain.* CPAD **unit**, one tessellation, per species, never pooled
+(Decision 3). Rationale: the effort proxy (Fork-3 mammal layer) exists only at
+unit grain — the GBIF background point cloud was not retained — so a grid-grain
+effort cross-read is impossible without re-opening a closed acquisition step. The
+KDE surfaces (§5.2) carry the fine-grain *distribution* product; Gi* carries the
+*statistical-cluster* product. They answer different questions.
+
+*Decision — neighbour scheme (TWO CORRECTIONS recorded).*
+- **Attempt 1 — queen contiguity (rejected).** Stranded 485 / 1,129 units (43%)
+  with no neighbour; 630 sub-graphs. CPAD open-space units rarely share edges, so
+  contiguity is structurally wrong for this geometry.
+- **Attempt 2 — KNN k = 8 (rejected).** Fixed the stranding but diluted dense
+  clusters: KNN is distance-blind, so a unit's 8 "nearest" can be tens of km away.
+  Bobcat collapsed to 3 hot units because dense clusters borrowed low-count units
+  across the matrix. The "~8 neighbours" rule of thumb was mis-applied — it sizes
+  a *distance band*, it is not an endorsement of KNN (literature: ESRI Gi* best
+  practice; Getis & Ord 1992/1995).
+- **Final — fixed distance band + KNN floor.** Band = **6,342 m**, computed from
+  the data as the mean per-unit distance to the 8th-nearest unit (min 2,159 /
+  median 5,680 / mean 6,342 / max 44,112). Any unit left under 8 neighbours is
+  unioned with its nearest 8 (KNN floor): 408 units topped, final mean 11.5 links,
+  32 sub-graphs. This is the literature default for skewed count data — a natural
+  spatial scale with a minimum-neighbour guarantee. Gi* (star) includes self;
+  binary weights (`style = "B"`, correct for counts). The band is **not**
+  per-species: the unit tessellation is identical across species, so one shared
+  graph is built once and reused for puma, bobcat and effort — keeping the three
+  runs directly comparable. Only the counts on the units differ.
+
+*Decision — point→unit assignment (uncertainty-grounded, literature-led).*
+Occurrences do not carry `unit_id`; they are assigned spatially, three ways:
+(1) **inside** a unit (`st_within`); (2) **snapped** if the nearest unit lies
+within the point's **own `coord_uncert_m`** (boundary-jitter recovery); (3)
+**matrix** otherwise, including `coord_uncert_m = NA` (conservatively not snapped).
+The snap tolerance is grounded in each record's coordinate uncertainty (~26-31 m
+median here), **not** a chosen 1-2 km constant — a km-scale blanket snap would
+launder genuine matrix detections into parks. Literature basis: ground snap
+tolerance in the data's positional error (PostGIS guidance); characterise the
+neighbourhood by the radius of actual sampling uncertainty (conservation-methods
+neighbourhood approach). Result: puma 657 inside / 79 snapped / 292 matrix (59 NA);
+bobcat 2,502 inside / 396 snapped / 1,522 matrix (392 NA). Matrix points are
+**retained** as a finding (`occ_<sp>_matrix_3310.gpkg`) — genuine outside-open-space
+occurrence is signal for Q5 and connectivity, not error. The puma matrix layer is
+precise puma coordinates (T2-source): it stays in `data/interim/`, is never
+published as points, and only counts/summaries may inform Q5.
+
+*Decision — Q5 effort cross-read (first-class).* Gi* is run a second time on the
+per-unit surveyed-year count (retained mammal effort layer), and each occurrence
+hot unit is labelled `SUSPECT` (also effort-hot) or `TRUSTED` (not effort-hot).
+This is the tiger-project Ranthambore lesson made a first-class analytical step,
+not a caveat. It labels, does not correct. Result: puma 25 suspect / 22 trusted;
+bobcat 2 suspect / 4 trusted. **Caveat (explicit asymmetry):** the mammal effort
+layer is bobcat-shaped (bobcat excluded, mammal target-group tuned to bobcat
+detectability); for puma it is a looser general mammal-observer proxy. There is no
+puma-specific effort layer.
+
+*Results and QC.* Puma 47 hot / 430 cold; bobcat 6 hot / 224 cold; effort 104 hot
+/ 112 cold (FDR ≤ 0.05, 999 permutations). **Bobcat's low hot-spot count was
+verified real, not an artifact**, by a retained Global G QC step: both species
+have significant positive Global G (puma z ≈ 31, bobc z ≈ 9.9, both p ≈ 0) — real
+clustering is present. A global-gradient artifact would show significant Global G
+*with* suppressed local structure; instead puma has 47 local hot spots and the
+mechanism is working. The species differ in the **spatial arrangement** of their
+highs: bobcat is spikier and more isolated (69% zero units, max 519, p99 = 29), so
+fewer units form the jointly-high neighbourhoods Gi* rewards; puma highs are
+moderate and spatially clustered. No detrending applied — forcing more bobcat hot
+spots would be post-hoc number-chasing. This is a finding, recorded in §7.
+
+*Outputs.* `hot_puma_gistar_unit_3310.gpkg`, `hot_bobc_gistar_unit_3310.gpkg`,
+`occ_puma_matrix_3310.gpkg` (interim), `occ_bobc_matrix_3310.gpkg`,
+`tbl_10_gistar_q5_crossread.csv`.
+
+---
+
 ## 7. Known limitations
 
 - **No population time series.** There is no repeated regional census
@@ -1736,6 +1990,15 @@ on naive_p is upward (toward honest), recorded in the fit.
 - **Detection effort bias.** Opportunistic occurrence records concentrate near
   trailheads, roads and parking areas. Same artefact documented in tiger
   Phase 1; must be stated explicitly wherever KDE or Gi* output is shown.
+- **Bobcat Gi* hot-spot count is low by spatial arrangement, not scarcity.**
+  Bobcat returns only 6 Gi* hot units despite abundant data. This is a real
+  spatial-structure result (verified by Global G QC, Decision 30): bobcat's
+  high-count units are spikier and more spatially isolated than puma's, so fewer
+  form the jointly-high neighbourhoods Gi* requires. The bobcat KDE surface
+  (§5.2) is the better *distribution* product; the Gi* is the better
+  *statistical-cluster* product. The low hot-spot count must not be read as "few
+  bobcats" — 351 units hold bobcat records and 34% of precise points fall in the
+  matrix outside any unit.
 - **Coordinate obscuring.** iNaturalist obscures puma coordinates. Records are
   usable for coarse distribution only.
 - **Occupancy design.** Opportunistic records are not survey data. Any
@@ -1831,3 +2094,10 @@ is not redistributable.
 | 2026-08-15 | 6 | Decision 27 CLOSED — a bobcat detection implies observation effort; detected unit-years encode surveyed+detected (1) even where the target-group background missed them (98 cells, 85 units, mammal_precise). Prevents a proxy miss from discarding real detections / deflating p. Non-detected unsurveyed cells stay NA. Logged in tbl_08_detections_upgraded_d27.csv |
 | 2026-08-15 | 6/5.4 | Decision 22 CLOSED — occupancy confirmed on 3A mammal background. Null occu(~1 ~1): fitted p=0.295 (annual, clears 0.10 line 3x), converged, psi=0.464 identifiable. Annual MB-GOF degenerate on sparse histories (590 patterns, c-hat~514 artifact); collapsed to 4 periods (44 patterns) -> c-hat=8.9 = expected null-model overdispersion (heterogeneity is the research signal), NOT a fallback trigger. SDM fallback not triggered. Forward check pre-registered: covariate-model c-hat must decline. Scripts 08-09 |
 | 2026-08-15 | 5.4 | Bobcat detection histories built (08): 4 variants (3A/3B x precise/all), unit x year 2010-2026, 1/0/NA encoding. Null fits (09): all 4 clear p>0.10 (0.197-0.318), all converged; verdict robust to background + obscured choice |
+| 2026-08-16 | 6 | Decision 28 CLOSED — KDE bandwidth by pre-registered rule (not a fixed value, not a post-hoc look). Three candidates computed + printed (bw.diggle, bw.ppl, home-range prior puma 5,000 m / bobc 1,500 m); choose by fixed rule: reject sub-cell, reject < home/3 (effort-collapse), take smallest survivor, else home prior. Puma: diggle 48.8 + ppl 1,458.1 both rejected -> home 5,000 m (rule 4). Bobc: ppl 1,109.6 m chosen (rule 3). Bobcat effort floor (500) == cell (500) coincided — noted, not two independent guards. Recorded in tbl_09_kde_bandwidth_selection.csv |
+| 2026-08-16 | 6 | Decision 29 CLOSED — KDE obscured-coordinate handling: published surfaces precise-only both species (puma 1,028 / bobc 4,420 points); ~28 km randomised obscured coords excluded from published density. Separate caveated obscured-puma companion (kde_puma_obscured_caveat_1km_3310.tif, 1,003 pts, home bandwidth) for Q5 effort read only — NOT distribution, NOT published KDE. Bobcat no companion (29% obscured, precise-dominant, low-sensitivity); asymmetry deliberate. All puma exports gated via assert_publishable(); no sub-1 km puma intermediate written |
+| 2026-08-16 | 5.2/5.5 | KDE built (script 05_kde_and_hotspots.R PART 1): kde_puma_current_1km_3310.tif (precise-only, sigma 5,000 m), kde_puma_obscured_caveat_1km_3310.tif (T2 companion), kde_bobc_current_500m_3310.tif (precise-only, sigma 1,109.6 m). density.ppp() + Jones-Diggle edge correction, dissolved boundary as owin. Three rasters + tbl_09 added to data-dictionary.md. Gi* + Q5 effort cross-read (PART 2) next |
+| 2026-08-16 | 6 | Decision 30 CLOSED — Gi* hot-spot design. Grain: CPAD unit (matches effort layer; grid impossible, background points not retained). Neighbours: TWO corrections recorded — queen contiguity (stranded 485/1,129 units, 630 sub-graphs, rejected) -> KNN k=8 (distance-blind, diluted dense clusters, bobcat collapsed to 3, rejected) -> fixed distance band 6,342 m (data-sized to ~8 neighbours) + KNN-8 floor (408 units topped, 32 sub-graphs). include_self, binary weights. Band shared across species (one tessellation). Point->unit assignment three-way, grounded in each record's coord_uncert_m (~26-31 m median), NOT a 1-2 km constant (literature: ground snap in positional error). Matrix points retained as occ_<sp>_matrix layers (Q5 + connectivity signal). Q5 effort cross-read first-class (SUSPECT/TRUSTED). 999 perms, BH-FDR, alpha 0.05 |
+| 2026-08-16 | 5.3 | Gi* built (05_kde_and_hotspots.R PART 2). Results: puma 47 hot/430 cold, bobc 6 hot/224 cold, effort 104 hot/112 cold. Point assignment: puma 657 inside/79 snapped/292 matrix; bobc 2,502/396/1,522. Q5: puma 25 suspect/22 trusted, bobc 2 suspect/4 trusted. Outputs hot_puma_gistar_unit_3310.gpkg, hot_bobc_gistar_unit_3310.gpkg, occ_puma_matrix_3310.gpkg (interim), occ_bobc_matrix_3310.gpkg, tbl_10_gistar_q5_crossread.csv. Five entries added to data-dictionary.md |
+| 2026-08-16 | 5.3/7 | Bobcat 6-hot-spot result VERIFIED real (not artifact) via retained Global G QC: both species significant positive Global G (puma z~31, bobc z~9.9, p~0) = real clustering present with intact local structure (puma 47 hot), so no global-gradient artifact, no detrending. Bobcat highs spikier/more isolated (69% zero units, max 519, p99=29) -> fewer jointly-high neighbourhoods. Logged as §7 limitation: low hot count is spatial arrangement, not scarcity |
+| 2026-08-16 | 5.1 | Per-unit summary stats built (05 PART 3): stats_puma_unit_3310.csv + stats_bobc_unit_3310.csv, 1,129 units each, keyed unit_id, never pooled (Decision 3). Fields: occurrence counts (n_occ inside+snapped / n_total incl obscured / n_obscured), obscured_frac (FLAGGED sparse/low-meaning — randomised coords, 163 puma / 322 bobc units with points), effort_years, coverage-weighted kde_mean+kde_max (exactextractr; ~300 units NA = masked KDE cells, not zero), gistar_z/hotspot/q5_flag. Bobcat adds bobc_detected (naive per-unit collapse, NOT modelled psi): 351 detected / 508 surveyed-not-detected / 270 never-surveyed NA. Two entries added to data-dictionary.md |

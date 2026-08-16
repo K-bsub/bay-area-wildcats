@@ -231,6 +231,270 @@ published at finer resolution than puma, still reviewed per policy §3.
 
 ---
 
+### `kde_puma_current_1km_3310.tif`  — puma kernel density (published, precise-only)
+
+**Source:** `occ_puma_clean_3310.gpkg`, filtered `obscured == FALSE` (1,028 points)
+**Geometry:** raster, 1,000 m cell (puma grid template)
+**CRS:** EPSG:3310
+**Records:** single band; land cells only (masked to `grid_puma_1km_3310.tif`)
+**Created by:** `scripts/05_kde_and_hotspots.R`
+**Storage:** `data/processed/`. Tier **T1** — precise points are T2, but the
+published surface is coarsened to the 1 km policy floor; gated through
+`assert_publishable()` on write.
+**Decisions:** 28 (bandwidth rule), 29 (precise-only)
+
+| Field (band) | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `kde_intensity_puma_precise` | numeric (FLT8S) | points·m⁻² | Edge-corrected KDE intensity (`density.ppp`, `diggle = TRUE`), σ = 5,000 m (Decision 28, home-range prior). Precise puma occurrences only | derived | Yes (NA outside land) |
+
+**Notes:**
+- **Bandwidth σ = 5,000 m** — both data-driven selectors (`bw.diggle` 48.8 m,
+  `bw.ppl` 1,458 m) failed the pre-registered rule; home-range prior used
+  (Decision 28). Recorded in `tbl_09_kde_bandwidth_selection.csv`.
+- **Precise-only** (Decision 29): the ~49% obscured puma records (~28 km
+  randomised coords) are excluded to avoid smearing artifact density.
+- **Publish floor:** 1 km native cell satisfies `sensitive-data-policy.md` §3;
+  no finer intermediate exists.
+- **Effort caveat:** intensity reflects detection effort as well as animal
+  density; read against the Q5 effort layer (PART 2), not alone.
+
+---
+
+### `kde_puma_obscured_caveat_1km_3310.tif`  — puma obscured-density companion (CAVEAT, Q5 read only)
+
+**Source:** `occ_puma_clean_3310.gpkg`, filtered `obscured == TRUE` (1,003 points)
+**Geometry:** raster, 1,000 m cell (puma grid template)
+**CRS:** EPSG:3310
+**Records:** single band; land cells only
+**Created by:** `scripts/05_kde_and_hotspots.R`
+**Storage:** `data/processed/`. Tier **T2** — companion for the effort/uncertainty
+cross-read; **not** a distribution surface, **not** the published puma KDE.
+Passes `assert_publishable()` (≥ 1 km; home-range smoothing over already-randomised
+~28 km coords cannot reverse to a camera/den).
+**Decisions:** 29 (obscured handling)
+
+| Field (band) | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `kde_intensity_puma_obscured_CAVEAT` | numeric (FLT8S) | points·m⁻² | KDE of **obscured** (randomised ~28 km) puma coords, σ = 5,000 m. Effort/uncertainty read for proposal Q5 only | derived | Yes (NA outside land) |
+
+**Notes:**
+- **Not a distribution surface.** The underlying coordinates are randomised within
+  ~28 km; this maps where obscured *reporting* concentrates, not where pumas are.
+- Exists because dropping ~49% of puma records would lose a first-class Q5 signal
+  (Decision 29). Bobcat has **no** equivalent companion — the asymmetry is
+  deliberate (bobcat ~29% obscured, precise-dominant, low-sensitivity).
+- `_caveat_` in the filename and this flag are the load-bearing labels; never
+  present it as a puma density map.
+
+---
+
+### `kde_bobc_current_500m_3310.tif`  — bobcat kernel density (published, precise-only)
+
+**Source:** `occ_bobc_clean_3310.gpkg`, filtered `obscured == FALSE` (4,420 points)
+**Geometry:** raster, 500 m cell (bobcat grid template)
+**CRS:** EPSG:3310
+**Records:** single band; land cells only (masked to `grid_bobc_500m_3310.tif`)
+**Created by:** `scripts/05_kde_and_hotspots.R`
+**Storage:** `data/processed/`. Tier **T0/T1** — bobcat is low-sensitivity;
+reviewed before publication like all outputs.
+**Decisions:** 28 (bandwidth rule), 29 (precise-only)
+
+| Field (band) | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `kde_intensity_bobc_precise` | numeric (FLT8S) | points·m⁻² | Edge-corrected KDE intensity (`density.ppp`, `diggle = TRUE`), σ = 1,109.6 m (Decision 28, `bw.ppl`). Precise bobcat occurrences only | derived | Yes (NA outside land) |
+
+**Notes:**
+- **Bandwidth σ = 1,109.6 m** — `bw.ppl` survived the pre-registered rule and was
+  the smallest survivor (`bw.diggle` 36.8 m rejected as sub-cell). Decision 28;
+  recorded in `tbl_09_kde_bandwidth_selection.csv`.
+- **Precise-only** (Decision 29), consistent with puma; bobcat's ~29% obscured
+  records excluded from the published surface.
+- **Effort caveat:** same as puma — intensity is part detection effort; cross-read
+  against the Q5 effort layer (PART 2).
+
+---
+
+### `hot_puma_gistar_unit_3310.gpkg`  — puma Gi* hot spots + Q5 flag (unit grain)
+
+**Source:** `occ_puma_clean_3310.gpkg` (precise) counted per CPAD unit; effort from
+`cov_effort_gbif_mammal_unityear_3310.gpkg`
+**Geometry:** polygon (MULTIPOLYGON) — CPAD unit, one row per unit (1,129)
+**CRS:** EPSG:3310
+**Created by:** `scripts/05_kde_and_hotspots.R` (PART 2)
+**Storage:** `data/processed/`. Tier **T1** — unit-grain, no puma coordinate;
+satisfies policy §3 (geometry is the unit, never a point).
+**Decisions:** 3 (never pooled), 30 (Gi* design)
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `unit_id` | integer | — | CPAD unit key | cpad | No |
+| `unit_name` | character | — | Unit display name (not unique; join on `unit_id`) | cpad | No |
+| `n_occ` | integer | — | Precise puma occurrences assigned to the unit (inside + snapped, Decision 30) | derived | No |
+| `effort_years` | integer | — | Surveyed-year count from the mammal effort layer (Q5 proxy) | derived | No |
+| `gistar_z` | numeric | — | Gi* z-score (`local_gstar_perm`, band 6,342 m + KNN-8 floor, include_self, binary weights) | derived | Yes (NA if no neighbour) |
+| `gistar_p` | numeric | — | Folded permutation p (999 sims) | derived | Yes |
+| `gistar_p_fdr` | numeric | — | Benjamini-Hochberg FDR-adjusted p | derived | Yes |
+| `hotspot` | character | — | `hot` / `cold` / `ns` at FDR ≤ 0.05 (NA if no neighbour) | derived | Yes |
+| `effort_z` | numeric | — | Gi* z of `effort_years` (same neighbours/weights) | derived | Yes |
+| `effort_hotspot` | character | — | Effort hot-spot class (`hot`/`cold`/`ns`) | derived | Yes |
+| `q5_flag` | character | — | For occurrence hot units: `occ_hot_effort_hot_SUSPECT` (also effort-hot) / `occ_hot_effort_not_TRUSTED` (not) / `occ_hot_effort_NA` | derived | Yes |
+
+**Notes:**
+- **Result:** 47 hot / 430 cold units. Q5: 25 suspect / 22 trusted (Decision 30).
+- **Q5 is a label, not a correction.** `SUSPECT` = the occurrence hot spot is also
+  an observer-effort hot spot (may be where people looked); `TRUSTED` = not.
+- Effort proxy is bobcat-shaped; for puma it is a looser mammal-observer proxy
+  (Decision 30 caveat).
+
+---
+
+### `hot_bobc_gistar_unit_3310.gpkg`  — bobcat Gi* hot spots + Q5 flag (unit grain)
+
+**Source:** `occ_bobc_clean_3310.gpkg` (precise) counted per CPAD unit; effort from
+`cov_effort_gbif_mammal_unityear_3310.gpkg`
+**Geometry:** polygon (MULTIPOLYGON) — CPAD unit, one row per unit (1,129)
+**CRS:** EPSG:3310
+**Created by:** `scripts/05_kde_and_hotspots.R` (PART 2)
+**Storage:** `data/processed/`. Tier **T0/T1** — bobcat low-sensitivity.
+**Decisions:** 3 (never pooled), 30 (Gi* design)
+
+Fields are identical to `hot_puma_gistar_unit_3310.gpkg` (same schema, bobcat
+counts).
+
+**Notes:**
+- **Result:** 6 hot / 224 cold units. Q5: 2 suspect / 4 trusted.
+- **The low hot-spot count is spatial arrangement, not scarcity** (§7, Decision
+  30): verified real by Global G QC. Bobcat highs are spikier/more isolated (69%
+  zero units, max 519, p99 = 29), so fewer form the jointly-high neighbourhoods
+  Gi* rewards. Use the bobcat KDE for *distribution*; this layer for *statistical
+  clusters*. Do not read "6 hot spots" as "few bobcats."
+
+---
+
+### `occ_puma_matrix_3310.gpkg`  — puma occurrences outside any CPAD unit (matrix)
+
+**Source:** `occ_puma_clean_3310.gpkg` (precise), points not assigned to a unit
+**Geometry:** point (POINT), 292 rows
+**CRS:** EPSG:3310
+**Created by:** `scripts/05_kde_and_hotspots.R` (PART 2)
+**Storage:** `data/interim/`. Tier **T2** — precise puma coordinates. **Never
+published as points**; only counts/summaries may inform Q5 (policy §2/§3).
+**Decisions:** 29 (precise-only), 30 (matrix retained as finding)
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| (inherits `occ_puma_clean_3310.gpkg` schema) | | | All original occurrence fields carried through | inat/gbif | — |
+| `assign` | character | — | Constant `matrix` (outside all units; incl. NA `coord_uncert_m` not snapped, Decision 30) | derived | No |
+
+**Notes:**
+- **Retained as signal, not error** (Decision 30): puma use of unprotected matrix
+  land is relevant to Q5 (effort) and to the connectivity narrative.
+- 292 of 1,028 precise puma points (28%); 59 had NA uncertainty.
+- **T2-sensitive.** Interim only; no point map, no publication.
+
+---
+
+### `occ_bobc_matrix_3310.gpkg`  — bobcat occurrences outside any CPAD unit (matrix)
+
+**Source:** `occ_bobc_clean_3310.gpkg` (precise), points not assigned to a unit
+**Geometry:** point (POINT), 1,522 rows
+**CRS:** EPSG:3310
+**Created by:** `scripts/05_kde_and_hotspots.R` (PART 2)
+**Storage:** `data/processed/`. Tier **T0/T1** — bobcat low-sensitivity.
+**Decisions:** 30 (matrix retained as finding)
+
+Schema as `occ_puma_matrix_3310.gpkg` (inherits occurrence fields + `assign`).
+
+**Notes:**
+- 1,522 of 4,420 precise bobcat points (34%); 392 had NA uncertainty.
+- The large matrix fraction underlines that the unit-grain Gi* sees a sparse
+  bobcat pattern (§7); the KDE surface is the fuller distribution product.
+
+---
+
+### `tbl_10_gistar_q5_crossread.csv`  — Gi* parameters + Q5 cross-read summary
+
+**Source:** derived (script 05 PART 2)
+**Storage:** `outputs/tables/`
+**Created by:** `scripts/05_kde_and_hotspots.R`
+**Decisions:** 30
+
+One row per species. Columns: `species`, `grain` (cpad_unit), `neighbours`
+(`dist_band_6342m_floor8_include_self`), `band_m` (6342), `min_nb_floor` (8),
+`weights` (binary_B), `nsim` (999), `fdr` (BH), `alpha` (0.05), `n_units` (1129),
+`n_inside_plus_snapped`, `n_matrix`, `n_hot`, `n_cold`,
+`n_occ_hot_effort_suspect`, `n_occ_hot_effort_trusted`.
+
+**Notes:**
+- The parameter record for Decision 30; the neighbour band and floor are logged so
+  the Gi* is reproducible.
+
+---
+
+### `stats_puma_unit_3310.csv`  — puma per-unit summary statistics
+
+**Source:** derived — joins `hot_puma_gistar_unit_3310.gpkg`,
+`occ_puma_clean_3310.gpkg`, `kde_puma_current_1km_3310.tif`,
+`openspace_cpad_bayarea_3310.gpkg`
+**Storage:** `outputs/tables/`. Tier **T1** — unit-grain, no puma coordinate.
+**Records:** 1,129 units (one row per `unit_id`)
+**Created by:** `scripts/05_kde_and_hotspots.R` (PART 3)
+**Decisions:** 3 (never pooled), 28/29 (KDE), 30 (Gi*)
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `unit_id` | integer | — | CPAD unit key | cpad | No |
+| `county` | character | — | County (audit attribute) | cpad | No |
+| `hab_area_km2` | numeric | km² | Habitat area of the unit | derived | No |
+| `unit_name` | character | — | Unit display name (not unique; join on `unit_id`) | cpad | No |
+| `n_occ` | integer | — | Precise puma occurrences assigned to the unit (inside + snapped, Decision 30) | derived | No (0 where none) |
+| `effort_years` | integer | — | Surveyed-year count (mammal effort proxy) | derived | No |
+| `gistar_z` | numeric | — | Gi* z-score (Decision 30) | derived | Yes |
+| `hotspot` | character | — | `hot`/`cold`/`ns` (FDR ≤ 0.05) | derived | Yes |
+| `q5_flag` | character | — | Q5 effort cross-read label (SUSPECT/TRUSTED/NA) for hot units | derived | Yes |
+| `n_total` | integer | — | All puma occurrences in the unit incl. obscured (`st_within` only, no snap) | derived | No (0 where none) |
+| `n_obscured` | integer | — | Obscured puma occurrences in the unit | derived | No |
+| `obscured_frac` | numeric | — | `n_obscured / n_total`. **⚠ Sparse and low-meaning:** only 163 units have any point; obscured coords are randomised (~28 km), so a per-unit fraction reflects where randomisation dropped points, not a unit property. Many values are 0.0 or 1.0 from 1–2 points. **Do not use for unit-level inference** — use study-wide obscured rates. NA where `n_total = 0` | derived | Yes |
+| `kde_mean` | numeric | pts·m⁻² | Coverage-weighted mean of the published puma KDE within the unit (Decision 28/29) | derived | Yes |
+| `kde_max` | numeric | pts·m⁻² | Coverage-weighted max of the published puma KDE within the unit | derived | Yes |
+
+**Notes:**
+- **`kde_mean` / `kde_max` are NA for 303 units** whose polygons fall entirely on
+  KDE cells masked to NA (coastal / boundary / off-land-grid). A NA is "not
+  covered by the surface," **not** "zero density."
+- Study-site popups and methods cross-check feed from this table.
+- Never pooled with bobcat (Decision 3).
+
+---
+
+### `stats_bobc_unit_3310.csv`  — bobcat per-unit summary statistics
+
+**Source:** derived — joins `hot_bobc_gistar_unit_3310.gpkg`,
+`occ_bobc_clean_3310.gpkg`, `kde_bobc_current_500m_3310.tif`,
+`cov_effort_gbif_mammal_unityear_3310.gpkg`, `openspace_cpad_bayarea_3310.gpkg`
+**Storage:** `outputs/tables/`. Tier **T0/T1** — bobcat low-sensitivity.
+**Records:** 1,129 units (one row per `unit_id`)
+**Created by:** `scripts/05_kde_and_hotspots.R` (PART 3)
+**Decisions:** 3 (never pooled), 22/27 (detection), 28/29 (KDE), 30 (Gi*)
+
+Fields as `stats_puma_unit_3310.csv` (bobcat values), **plus** one bobcat-only
+field:
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `bobc_detected` | integer | — | Naive per-unit detection collapse: `1` = a bobcat was recorded in the unit; `0` = surveyed (in effort layer) but no bobcat; `NA` = never surveyed (never a fabricated 0, Decision 22/27). **This is the naive observable, NOT modelled occupancy ψ** (ψ is a study-wide fitted scalar ≈ 0.464, not a per-unit quantity) | derived | Yes (NA = unsurveyed) |
+
+**Notes:**
+- **`bobc_detected` tally:** 351 detected / 508 surveyed-not-detected / 270
+  never-surveyed (NA). Sums to 1,129.
+- `obscured_frac` carries the same sparse/low-meaning caveat as the puma table
+  (322 units have points); bobcat obscuring is also randomised.
+- `kde_mean` / `kde_max` are NA for 301 units (masked KDE cells) — same reading as
+  the puma table.
+- Never pooled with puma (Decision 3).
+
+---
+
 ### `cov_effort_gbif_mammal_unityear_3310.gpkg`  — bobcat detection-history effort (Fork 3A)
 
 **Source:** GBIF all-datasets download (DOI 10.15468/dl.6xzcjt), class Mammalia,

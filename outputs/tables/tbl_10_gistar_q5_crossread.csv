@@ -1,0 +1,3 @@
+"species","grain","neighbours","band_m","min_nb_floor","weights","nsim","fdr","alpha","n_units","n_inside_plus_snapped","n_matrix","n_hot","n_cold","n_occ_hot_effort_suspect","n_occ_hot_effort_trusted"
+"puma","cpad_unit","dist_band_6342m_floor8_include_self",6342,8,"binary_B",999,"BH",0.05,1129,736,292,47,430,25,22
+"bobc","cpad_unit","dist_band_6342m_floor8_include_self",6342,8,"binary_B",999,"BH",0.05,1129,2898,1522,6,224,2,4

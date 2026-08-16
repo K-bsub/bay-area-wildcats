@@ -1,0 +1,3 @@
+"species","n_precise","bw_diggle_m","bw_ppl_m","sigma_home_m","cell_m","chosen_sigma_m","rule_outcome"
+"puma",1028,48.7636922279458,1458.11224246359,5000,1000,5000,"smallest surviving candidate: home.puma (rule 3)"
+"bobc",4420,36.7831613320326,1109.60103910075,1500,500,1109.60103910075,"smallest surviving candidate: ppl (rule 3)"

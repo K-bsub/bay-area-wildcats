@@ -154,12 +154,59 @@ mountain lion.**
   > Doser, J.W., Finley, A.O., Kéry, M., & Zipkin, E.F. (2022). spOccupancy: An R
   > package for single-species, multi-species, and integrated spatial occupancy
   > models. *Methods in Ecology and Evolution*, 13(8), 1670–1678.
+- **Kernel density estimation + bandwidth selection (Decision 28):**
+  > Baddeley, A., Rubak, E., & Turner, R. (2015). *Spatial Point Patterns:
+  > Methodology and Applications with R.* Chapman & Hall/CRC. — the `spatstat`
+  > reference; `density.ppp` with Jones-Diggle edge correction (`diggle = TRUE`).
+
+  Bandwidth-selector primary sources (the three candidates in the Decision 28
+  rule):
+  - `bw.diggle` (Diggle-Berman MSE cross-validation):
+    > Diggle, P.J. (1985). A kernel method for smoothing point process data.
+    > *Applied Statistics (JRSS-C)*, 34(2), 138–147.
+    > Berman, M., & Diggle, P.J. (1989). Estimating weighted integrals of the
+    > second-order intensity of a spatial point process. *JRSS-B*, 51(1), 81–92.
+  - `bw.ppl` (likelihood cross-validation):
+    > Loader, C. (1999). *Local Regression and Likelihood.* Springer, New York.
+    > (Section 5.3 — the LCV criterion `bw.ppl` implements.)
+  - Selector-disagreement support (motivates the pre-registered rule, not a
+    post-hoc pick): Diggle-Berman MSE picks very small bandwidths (small high-count
+    areas), the window rule-of-thumb picks very smooth, LCV lands between — exactly
+    the puma result (diggle 49 m vs home-range 5 km):
+    > Macdonald, J.A., et al. (2025). Bandwidth selection for kernel intensity
+    > estimators for spatial point processes. *Scandinavian Journal of Statistics*.
+    > DOI: 10.1111/sjos.12782.
 - **Getis-Ord Gi\* local statistics:**
   > Getis, A., & Ord, J.K. (1992). The analysis of spatial association by use of
   > distance statistics. *Geographical Analysis*, 24(3), 189–206.
   > Ord, J.K., & Getis, A. (1995). Local spatial autocorrelation statistics:
   > distributional issues and an application. *Geographical Analysis*, 27(4),
   > 286–306.
+
+  Implementation + neighbour-scheme choice (Decision 30):
+  > Parry, J. *sfdep: Spatial Dependence for Simple Features* [R package]. CRAN,
+  > https://cran.r-project.org/package=sfdep. — `local_gstar_perm`,
+  > `st_dist_band`, `st_knn`, `global_g_test`; a piped `sf` interface to `spdep`.
+  > (Cite the installed version from `renv.lock` when converting to `.bib`.)
+  > Bivand, R.S., & Wong, D.W.S. (2018). Comparing implementations of global and
+  > local indicators of spatial association. *TEST*, 27(3), 716–748. DOI:
+  > 10.1007/s11749-018-0599-x. — the `spdep` implementation reference underneath
+  > `sfdep`.
+  - *Neighbour-scheme guidance (grey literature, cited as guidance not a journal
+    source):* Esri, *How Hot Spot Analysis (Getis-Ord Gi\*) works* and *Best
+    practices for selecting a fixed distance band value* (ArcGIS Pro
+    documentation). Basis for Decision 30's fixed distance band sized so the mean
+    feature has ~8 neighbours (the skew-reliability rule of thumb) with a
+    minimum-neighbour floor. The "~8" sizes the band; it is not an endorsement of
+    KNN — the correction recorded in Decision 30.
+- **Point-to-unit assignment / coordinate-uncertainty snap tolerance
+  (Decision 30):**
+  > Johnson, B.A., Pinilla-Buitrago, G.E., & Anderson, R.P. (2025). A neighborhood
+  > approach for using remotely sensed data to estimate current ranges for
+  > conservation assessments. *Ecology and Evolution*, 15(7), e71631. DOI:
+  > 10.1002/ece3.71631. — grounds the tolerance in the record's own coordinate
+  > uncertainty / radius of actual sampling, rather than a fixed distance; basis
+  > for snapping only within each point's `coord_uncert_m`.
 - **Connectivity — least-cost path & circuit theory:**
   > McRae, B.H., Dickson, B.G., Keitt, T.H., & Shah, V.B. (2008). Using circuit
   > theory to model connectivity in ecology, evolution, and conservation.

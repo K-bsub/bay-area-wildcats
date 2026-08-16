@@ -38,8 +38,8 @@
 | **3** | Boundary and study-area preparation | Open-space units defined and filtered; analysis grid built | ✅ Complete |
 | **4** | Occurrence processing | Cleaned, deduplicated, CRS-aligned occurrence layers for both species | ✅ Complete |
 | **5** | Covariate preparation | Land cover, terrain, roads, housing summarised to grid and unit | ✅ Complete |
-| **6** | Descriptive spatial analysis | KDE and Gi\* for both species; unit-level statistics | 🟢 In progress |
-| **7** | Occupancy modelling | Bobcat occupancy fitted and validated; puma feasibility assessed | ⚪ Not started |
+| **6** | Descriptive spatial analysis | KDE and Gi\* for both species; unit-level statistics | ✅ Complete |
+| **7** | Occupancy modelling | Bobcat occupancy fitted and validated; puma feasibility assessed | 🟢 In progress |
 | **8** | Connectivity analysis | Resistance surface, least-cost paths, core-patch linkages | ⚪ Not started |
 | **9** | Story site build | Quarto site, maps, charts, narrative | ⚪ Not started |
 | **10** | Review and publication | QA, accessibility check, GitHub Pages deployment, docs finalised | ⚪ Not started |
@@ -368,7 +368,7 @@ any inferential modelling. Kernel density surfaces + Getis-Ord Gi* hot/cold spot
 for puma and bobcat, plus unit-level summary statistics. This is a descriptive
 layer for the story site and a cross-check on the occupancy/connectivity results —
 NOT a model. Both species; each on its own grid (puma 1 km, bobcat 500 m); never
-pooled (Decision 3). Next Decision number is 28.*
+pooled (Decision 3). Next Decision number is 31.*
 
 *Inputs on hand (from Weeks 4–5)*
 - Occurrence layers: `occ_puma_clean_3310.gpkg` (2,031), `occ_bobc_clean_3310.gpkg`
@@ -379,25 +379,25 @@ pooled (Decision 3). Next Decision number is 28.*
   — for the Q5 effort-bias cross-read, not as KDE input.
 
 *Kernel density estimation (per species, on the right grid)*
-- [ ] Build KDE surfaces with `spatstat.explore::density.ppp()` + edge correction
+- [x] Build KDE surfaces with `spatstat.explore::density.ppp()` + edge correction
       (methodology §5.1). Puma on the 1 km grid, bobcat on the 500 m grid.
       Bandwidth chosen by a stated rule (e.g. `bw.diggle`/`bw.ppl`), recorded — not
       hand-tuned to a look. Outputs `kde_puma_current_1km_3310.tif`,
       `kde_bobc_current_500m_3310.tif`.
-- [ ] **Obscured-coordinate handling for KDE.** Puma is 49% obscured with ~28 km
+- [x] **Obscured-coordinate handling for KDE.** Puma is 49% obscured with ~28 km
       randomised coords (Decision 10/20) — a KDE on randomised points smears
       density. Decide + record: precise-only KDE, or precise + an obscured-density
       caveat. Numbered decision if it changes the published surface.
-- [ ] **Publish-floor compliance (puma).** Any published puma KDE is ≥1 km and
+- [x] **Publish-floor compliance (puma).** Any published puma KDE is ≥1 km and
       generalised per sensitive-data-policy §3 — the 1 km grid already satisfies
       this; confirm no finer intermediate is exported.
 
 *Getis-Ord Gi* hot/cold spots (per species)*
-- [ ] Compute Gi* with `sfdep::local_gstar_perm()` (permutation inference,
+- [x] Compute Gi* with `sfdep::local_gstar_perm()` (permutation inference,
       methodology §5.2) on a unit- or grid-aggregated count. State the
       neighbour/weight definition (`_nb`) and the aggregation grain explicitly.
       Outputs `hot_puma_*_3310.gpkg`, `hot_bobc_*_3310.gpkg`.
-- [ ] **Effort-bias cross-read (Q5, first-class question).** A raw-count hotspot
+- [x] **Effort-bias cross-read (Q5, first-class question).** A raw-count hotspot
       is partly an observer-effort hotspot. Cross the Gi* result against the
       Fork-3 effort layer (or an iNat-observer density) and state, per species,
       how much of the apparent pattern is plausibly effort vs true distribution.
@@ -405,17 +405,23 @@ pooled (Decision 3). Next Decision number is 28.*
       observer-bias finding — carry it as a stated caveat on every hotspot map.
 
 *Unit-level summary statistics*
-- [ ] Per-unit descriptive table: record counts, naive occupancy (bobcat),
-      obscured fraction, effort-year count, KDE mean, Gi* class — keyed on
-      `unit_id`. Feeds the story-site unit popups and the methods cross-check.
+- [x] Per-unit descriptive table: record counts, bobcat naive **detection**
+      (`bobc_detected` = 1/0/NA; the naive observable, NOT modelled ψ), obscured
+      fraction (flagged sparse/low-meaning — randomised coords), effort-year count,
+      KDE mean + max (zonal), Gi* class — keyed on `unit_id`. Two tables, one per
+      species (`stats_puma_unit_3310.csv`, `stats_bobc_unit_3310.csv`). Feeds the
+      story-site unit popups and the methods cross-check.
 
 *Documentation & reproducibility*
-- [ ] Numbered decision(s) for any KDE bandwidth rule / obscured-KDE handling that
+- [x] Numbered decision(s) for any KDE bandwidth rule / obscured-KDE handling that
       affects a published surface; record the chosen bandwidth + weight scheme.
-- [ ] Add `kde_*`, `hot_*`, and the unit-stats table to `docs/data-dictionary.md`.
-- [ ] Update `methodology.md` §5.1–5.2 (methods now executed) + §9 change log.
-- [ ] New packages (`spatstat.explore`, `sfdep`) → `renv::install()` +
-      `renv::snapshot()` before use.
+- [x] Add `kde_*`, `hot_*`, the two matrix layers, and both unit-stats tables to
+      `docs/data-dictionary.md`.
+- [x] Update `methodology.md` §5.1 (unit stats), §5.2 (KDE), §5.3 (Gi*) — methods
+      now executed — + §9 change log. (Gi* is §5.3, not §5.2 as originally planned.)
+- [x] Packages `spatstat.explore`, `spatstat.geom`, `sfdep`, `spdep` were already
+      declared in `00_setup_environment.R` — confirmed present, no fresh
+      `renv::install()` needed; verify against `renv.lock`.
 
 *Carry-ins from Week 5 (pre-registered checks — NOT started here, tracked)*
 - Puma resistance sensitivity checks (Decision 26: road-confidence, chaparral,
@@ -430,6 +436,105 @@ pooled (Decision 3). Next Decision number is 28.*
 - Least-cost paths / corridor extraction + resistance sensitivity checks (Week 8).
 - CROS integration (parked, Decision 11); Felidae partner data (deferred,
   Decision 7).
+
+---
+
+## Week 7 tasks — bobcat covariate occupancy modelling + puma feasibility close
+
+*Goal: fit the bobcat occupancy models with habitat covariates — the inferential
+step the Week-4 gate and the Week-5 null fit were building toward — and resolve
+the pre-registered forward check that Decision 22's close created. Confirm the
+puma track needs no occupancy fit (it stays connectivity/SDM). Bobcat only for
+the occupancy models; puma and bobcat never pooled (Decision 3). Next Decision
+number is 31.*
+
+*Inputs on hand (from Weeks 4–6)*
+- Detection histories: `dh_bobc_{mammal,vertebrate}_{precise,all}_3310.rds`
+  (unit×year, 1/0/NA), plus the null fits in `outputs/models/`.
+- Occupancy covariate stack: `stack_occu_units_3310.gpkg` — per-unit, keyed
+  `unit_id`: `lc_frac_{tree,shrub,grass}`, `elev_mean`/`elev_sd`,
+  `slope_mean`/`slope_sd`, `aspect_north`/`aspect_east`, `ghm_mean`/`ghm_sd`,
+  `housing_logden_mean`/`housing_logden_sd`, `spans_gradient`.
+- Effort layers: `cov_effort_gbif_mammal_unityear_3310.gpkg` (3A, the
+  target-group-correct background per Decision 22), vertebrate (3B) retained for
+  the background-sensitivity read.
+- Descriptive cross-check: `stats_bobc_unit_3310.csv`, `hot_bobc_gistar_unit_3310.gpkg`
+  (Week 6) — the KDE / Gi* pattern to sanity-check the fitted ψ surface against.
+
+*Bobcat covariate occupancy fit (`unmarked::occu()`)*
+- [ ] **Detection sub-model (p).** Fit detection covariates before occupancy
+      covariates (standard `unmarked` order). Candidate detection covariates:
+      per-unit effort (surveyed-year count) and any year/effort-structure term.
+      State the covariate set and the standardisation (centre/scale continuous
+      covariates before fitting). Primary background = 3A mammal_precise
+      (Decision 22); 3B and the `_all` histories carried as the sensitivity set.
+- [ ] **Occupancy sub-model (ψ).** Fit habitat covariates from
+      `stack_occu_units_3310.gpkg`. Respect the Decision 23 keep/drop: bobcat
+      **keeps both gHM and housing** at unit grain (r=0.07 PLA artifact, not
+      collinear at this grain). Land cover as class-fractions, terrain
+      (northness/eastness, not raw aspect), `spans_gradient` as a covariate flag.
+      State the candidate model set and the selection approach (AIC / model
+      averaging) **before** fitting — pre-registration discipline (as with the
+      KDE bandwidth rule and the resistance weights).
+- [ ] **Collinearity + scaling check** on the covariate design matrix before
+      fitting — report VIF or a correlation screen; drop/keep decisions recorded,
+      not silent. The gHM×housing unit-grain r=0.07 is expected (Decision 23) but
+      re-confirm on the actual model matrix.
+
+*Pre-registered forward check (the Decision 22 commitment — DO NOT skip)*
+- [ ] **Covariate-model c-hat decline check.** The null model's c-hat ≈ 8.9
+      (collapsed 4-period MB-GOF) **must decline substantially** once habitat
+      covariates are added — that decline is the evidence the heterogeneity is
+      real modelled signal, not structural misfit. Report the covariate-model
+      c-hat against the null 8.9. **If it does NOT decline**, that is a genuine
+      lack-of-fit problem to face here (candidate causes pre-named in Decision 22:
+      unmodelled spatial autocorrelation, missing detection covariates, or
+      effort-structure bias); report c-hat-inflated SEs and record the diagnosis.
+      This is a declared check, not a post-hoc rescue.
+
+*Prediction + descriptive cross-read*
+- [ ] **ψ prediction surface**, keyed `unit_id`, per the primary model
+      (`occu_bobc_pred_unit_3310.gpkg` or similar, `occu_` theme). Bobcat is
+      low-sensitivity — no publish-floor constraint, but review before publication
+      per policy §3.
+- [ ] **Cross-check fitted ψ against the Week-6 descriptive pattern.** Do the
+      high-ψ units align with the Gi* hot units and the KDE peaks, or diverge?
+      Divergence is informative (Q5: effort-driven descriptive pattern vs
+      covariate-driven modelled pattern) — state it, don't smooth it over.
+
+*Puma feasibility close (milestone-table item)*
+- [ ] **Confirm the puma track needs no occupancy fit.** Puma stays
+      connectivity/SDM (proposal Q3; Decision 22 applies to bobcat only). Record a
+      one-line confirmation that the puma occupancy fork was never opened — the
+      puma deliverables are the resistance surface (done, Decision 26) + Week-8
+      least-cost corridors, plus the Week-6 KDE/Gi* descriptive layer. No new
+      decision needed unless something forces the fork open.
+
+*Documentation & reproducibility*
+- [ ] Numbered decision(s) for the covariate model set + selection approach, and
+      for the c-hat forward-check outcome (a Decision recording pass/fail and any
+      remediation). Record standardisation and the detection/occupancy covariate
+      sets.
+- [ ] Add the ψ prediction surface (and any model-summary table) to
+      `docs/data-dictionary.md`; models to `outputs/models/`.
+- [ ] Update `methodology.md` §5.4 (occupancy — method now executed with
+      covariates), §6 (decisions), §9 (change log). Close the Decision 22 forward
+      check explicitly.
+- [ ] New packages if any (e.g. `AICcmodavg` for GOF/`c-hat`, if not already in
+      the stack) → confirm in `00_setup_environment.R` / `renv.lock`;
+      `renv::install()` + `renv::snapshot()` only if genuinely absent.
+
+*Carry-ins / parked (tracked, NOT started here)*
+- Puma resistance sensitivity checks (Decision 26: road-confidence, chaparral,
+  ±10% weight) — Week 8 least-cost work.
+- CROS still parked (Decision 11, awaiting F. Shilling); Felidae deferred
+  (Decision 7). CAL FIRE FVEG chaparral supplement only if WorldCover shrub
+  under-mapping proves material at fit.
+
+*Explicitly NOT this week (Risk 4 — scope guard)*
+- Least-cost paths / corridor extraction + puma resistance sensitivity (Week 8).
+- Story-site build (Week 9); CROS integration (parked); Felidae (deferred).
+- Any puma occupancy model — the puma track is connectivity/SDM by design.
 
 ---
 
@@ -807,3 +912,67 @@ is broken — use the WorldCover AWS COGs already in the script.
 - **Blockers:** none.
 - **Next:** Week 5 — covariate stacking to unit/grid, puma resistance surface, and
   the bobcat detection-history build + null occupancy fit that closes Decision 22.
+
+### Week 5 closeout — August 15, 2026
+- **Progress:** ✅ **Week 5 complete** — covariate stacks, puma resistance surface,
+  bobcat detection histories + null occupancy fit. Decisions 22–27 closed.
+- **Summary:** covariate stacks built (`stack_occu_units_3310.gpkg`,
+  `stack_puma_grid_1km_3310.gpkg`, `stack_bobc_grid_500m_3310.gpkg`); SILVIS
+  HUDEN2020 winsorized at p99=10,415 then log1p (Decision 23); gHM×housing
+  collinearity resolved per species (Decision 23 — puma drops housing, bobcat
+  keeps both); roads/traffic finalised (Decisions 24–25); puma resistance surface
+  `resist_puma_baseline_3310.tif` pre-registered + built (Decision 26); bobcat
+  occupancy confirmed on the null fit (Decision 22 closed — fitted p=0.295, ψ=0.464;
+  detected-cell upgrade Decision 27). Two pre-registered forward checks carried:
+  puma resistance sensitivity (Week 8) and bobcat covariate-model c-hat decline
+  (Week 7).
+
+### Week 6 closeout — August 16, 2026
+- **Progress:** ✅ **Week 6 complete** — KDE + Gi* descriptive analysis and
+  per-unit summary statistics for both species. Decisions 28–30 closed. Single
+  script `05_kde_and_hotspots.R` (three parts). Next Decision number is 31.
+- **KDE (Decision 28/29, PART 1).** `density.ppp` + Jones-Diggle edge correction,
+  precise-only surfaces. Bandwidth by a pre-registered rule (compute three
+  candidates, choose by a fixed rule, record the value): puma → home-range prior
+  **5,000 m** (both data-driven selectors rejected as effort-collapsed), bobcat →
+  `bw.ppl` **1,109.6 m**. Obscured handling: published surfaces precise-only both
+  species; a separate caveated obscured-puma companion for the Q5 read only
+  (Decision 29). Outputs `kde_puma_current_1km_3310.tif`,
+  `kde_puma_obscured_caveat_1km_3310.tif`, `kde_bobc_current_500m_3310.tif`,
+  `tbl_09_kde_bandwidth_selection.csv`. Every puma export gated through
+  `assert_publishable()`; no sub-1 km puma intermediate.
+- **Gi* (Decision 30, PART 2).** Grain: CPAD unit (matches the effort layer; grid
+  impossible — background points not retained). Neighbours: **two corrections
+  recorded** — queen contiguity (stranded 43% of units) → KNN k=8 (distance-blind,
+  diluted dense clusters, bobcat collapsed to 3) → **fixed distance band 6,342 m**
+  (data-sized to ~8 neighbours) **+ KNN-8 floor**. Point→unit assignment three-way,
+  grounded in each record's `coord_uncert_m` (~26–31 m median), not a 1–2 km
+  constant; matrix points **retained** as `occ_<sp>_matrix_3310.gpkg` (Q5 +
+  connectivity signal). Q5 effort cross-read first-class (SUSPECT/TRUSTED).
+  Results: puma 47 hot / 430 cold, bobcat 6 hot / 224 cold, effort 104 hot. Bobcat
+  6-hot verified real (not artifact) via Global G QC — a spatial-arrangement
+  finding, not scarcity (§7). Outputs `hot_puma_gistar_unit_3310.gpkg`,
+  `hot_bobc_gistar_unit_3310.gpkg`, `tbl_10_gistar_q5_crossread.csv`.
+- **Unit stats (PART 3).** Two per-species tables `stats_puma_unit_3310.csv` /
+  `stats_bobc_unit_3310.csv` (1,129 units, keyed `unit_id`): occurrence counts,
+  obscured fraction (flagged sparse/low-meaning), effort-years, zonal KDE mean+max,
+  Gi* class + Q5 flag; bobcat adds `bobc_detected` (naive observable, 351/508/270
+  = detected/surveyed-not/never-surveyed — NOT modelled ψ). Both validated against
+  the run numbers.
+- **Literature.** Neighbour scheme and bandwidth rule grounded in a literature
+  survey (ESRI Gi* best practice; Diggle 1985 / Berman & Diggle 1989 / Loader 1999
+  for the selectors; Johnson et al. 2025 for the uncertainty-grounded snap). Added
+  to `references.md`.
+- **Docs updated:** Decisions 28–30 in `methodology.md` §6 + §5.1/5.2/5.3 + change
+  log §9; five layers + two stats tables in `data-dictionary.md`; Week-6
+  citations in `references.md`.
+- **Carry-ins to Week 7:** bobcat covariate occupancy fit + the pre-registered
+  **c-hat decline check** (Decision 22 forward commitment — the null's c-hat=8.9
+  must drop substantially once habitat covariates are added). CROS still parked
+  (Decision 11).
+- **Minor open note (non-blocking):** 32 residual sub-graphs in the Gi* neighbour
+  graph after the KNN floor — did not affect results (Global G confirms
+  clustering); flag only if hot-spot mapping later shows odd isolated units.
+- **Blockers:** none.
+- **Next:** Week 7 — covariate occupancy model fitting for bobcat (the null fit is
+  done; covariate models close the Decision 22 forward check).
