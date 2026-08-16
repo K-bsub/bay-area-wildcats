@@ -96,6 +96,30 @@ mountain lion.**
 - **Santa Cruz Mountains puma isolation and genetic connectivity** literature
   (UC Santa Cruz — Wilmers / Ernest lab lineage). Directly supports the puma
   isolation narrative and the Central Coast North ESU/DPS framing above.
+  > Hansen, K.W., Morgan, J.J., De Alfaro, L., Wilmers, C.C., & Ocampo-Peñuela, N.
+  > (2025). *Variation in anthropogenic tolerance alters dispersal capacity of a
+  > large carnivore.* bioRxiv 2025.09.29.677867 (not peer-reviewed as of retrieval,
+  > 2026-08-15). iSSF habitat-selection models for **84 GPS-collared pumas in the
+  > Santa Cruz Mountains** (2009–2024), fed into the EcoScape connectivity
+  > algorithm. **Directly used in Decision 26** as the local calibration source for
+  > (a) covariate selection — slope, vegetation/cover, housing density, land cover,
+  > distance-to-urban-edge; (b) effect directions — pumas select for cover, against
+  > slope, building density, urban centres, anthropogenic land cover; (c) the
+  > **log-inverse traffic transform** for road resistance (compresses the
+  > high-traffic tail / mortality-risk weighting). Note the study weights covariates
+  > from step-selection coefficients (collar data this project lacks), and uses
+  > housing density where this project substitutes gHM (Decision 23 divergence).
+  > Data/code: Dryad 10.5061/dryad.44j0zpctn; github.com/WhitneyH1317/puma_permeability_calibration.
+
+  Related same-lab context already worth citing (referenced within Hansen 2025 and
+  relevant to the coexistence/mortality framing):
+  - Wilmers, C.C., Wang, Y., Nickel, B., et al. (2013). Scale-dependent behavioral
+    responses to human development by a large predator, the puma. *PLoS ONE* 8(4),
+    e60590. — housing-density-as-covariate precedent for Santa Cruz pumas.
+  - Nisi, A.C., Benson, J.F., King, R., & Wilmers, C.C. (2023). Habitat
+    fragmentation reduces survival and drives source–sink dynamics for a large
+    carnivore. *Ecological Applications* 33(4), e2822. — mortality-risk basis for
+    weighting roads/traffic as barrier.
 - **Coyote Valley linkage** and broader Bay Area connectivity assessments (the
   Coyote Valley pinch point between the Santa Cruz Mountains and Diablo Range —
   the key connectivity feature in the study area).

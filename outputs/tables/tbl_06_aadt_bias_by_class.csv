@@ -1,0 +1,9 @@
+"road_class","aadt_source","n","aadt_med"
+"arterial","measured",545,27000
+"arterial","modelled",33677,8000
+"arterial","name_fill",17067,34000
+"arterial","spatial_fill",8893,41000
+"highway","measured",1311,117000
+"highway","modelled",1915,40000
+"highway","name_fill",5438,106000
+"highway","spatial_fill",10958,142000

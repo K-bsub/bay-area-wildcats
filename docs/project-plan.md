@@ -37,8 +37,8 @@
 | **2** | Data acquisition | All open datasets downloaded and documented | ✅ Complete (CROS parked) |
 | **3** | Boundary and study-area preparation | Open-space units defined and filtered; analysis grid built | ✅ Complete |
 | **4** | Occurrence processing | Cleaned, deduplicated, CRS-aligned occurrence layers for both species | ✅ Complete |
-| **5** | Covariate preparation | Land cover, terrain, roads, housing summarised to grid and unit | ⚪ Not started |
-| **6** | Descriptive spatial analysis | KDE and Gi* for both species; unit-level statistics | ⚪ Not started |
+| **5** | Covariate preparation | Land cover, terrain, roads, housing summarised to grid and unit | ✅ Complete |
+| **6** | Descriptive spatial analysis | KDE and Gi\* for both species; unit-level statistics | 🟢 In progress |
 | **7** | Occupancy modelling | Bobcat occupancy fitted and validated; puma feasibility assessed | ⚪ Not started |
 | **8** | Connectivity analysis | Resistance surface, least-cost paths, core-patch linkages | ⚪ Not started |
 | **9** | Story site build | Quarto site, maps, charts, narrative | ⚪ Not started |
@@ -292,65 +292,65 @@ covariates stay on their own grids (puma 1 km, bobcat 500 m); never pooled
   `cov_effort_gbif_vertebrate_unityear_3310.gpkg` (3B).
 
 *Covariate transforms (pre-registered — apply as specified, record the observed values)*
-- [ ] **SILVIS `HUDEN2020` transform** (pre-registered Week-2 QC): `log1p` +
+- [x] **SILVIS `HUDEN2020` transform** (pre-registered Week-2 QC): `log1p` +
       p99/hard cap **before** rasterization, to tame the sliver-block artifact
       (max 2,263,007 units/km², ~765× p90). Record the exact cap value and the
       number of blocks affected when run — this was pre-registered to prevent a
       post-hoc transform choice.
-- [ ] **gHM × housing-density collinearity check** (flagged Week 2): both carry
+- [x] **gHM × housing-density collinearity check** (flagged Week 2): both carry
       the urban-intensity gradient (Decision 12) and will correlate. Compute the
       correlation at unit/grid summary level and decide — before stacking — which
       to keep, or whether to keep both with the collinearity documented. Numbered
       decision if one is dropped.
 
 *Covariate summarisation to unit + grid (per species, on the right grid)*
-- [ ] Summarise each covariate to (a) CPAD units (occupancy frame) and (b) the
+- [x] Summarise each covariate to (a) CPAD units (occupancy frame) and (b) the
       species grid (puma 1 km, bobcat 500 m). Categorical → `near`, continuous →
       `bilinear` on any reprojection; filenames end in `_3310`.
-- [ ] **`spans_gradient` handling** (192 units, `hab_area_km2 > 5 km²`): it is a
+- [x] **`spans_gradient` handling** (192 units, `hab_area_km2 > 5 km²`): it is a
       **covariate pre-flag, not a filter** (Decision 17). For these large units a
       whole-unit covariate mean is unsafe — summarise by sub-cell, or carry the
       within-unit covariate heterogeneity as a flag, per the pre-registered
       intent. Do not drop them.
-- [ ] Write stacked covariate tables keyed on `unit_id` (occupancy) and
+- [x] Write stacked covariate tables keyed on `unit_id` (occupancy) and
       `cell_id` (grid), with a data-dictionary entry per output.
 
 *Roads / traffic finalisation (deferred from Week 2, Decision 14 open items)*
-- [ ] **Tracks/paths permeability decision, per species** — whether OSM
+- [x] **Tracks/paths permeability decision, per species** — whether OSM
       `track`/`path` classes count as barriers, neutral, or permeable, and
       differently for puma vs bobcat. Numbered decision.
-- [ ] **AADT → road-segment join** — attach Caltrans `AHEAD_AADT`/`BACK_AADT`
+- [x] **AADT → road-segment join** — attach Caltrans `AHEAD_AADT`/`BACK_AADT`
       (currently point stations, stored as strings) to road segments so traffic
       *volume* (not just road presence) drives the puma barrier effect (proposal
       Q3). Parse the string AADT to numeric here.
 
 *Puma resistance surface (connectivity track)*
-- [ ] Build `resist_puma_baseline_3310.tif` on the 1 km grid from the stacked
+- [x] Build `resist_puma_baseline_3310.tif` on the 1 km grid from the stacked
       covariates (land cover, terrain, human modification/housing, road+traffic
       barrier). Pre-register the resistance assignment before building — no
       post-hoc weight tuning. Publishable at 1 km (sensitive-data-policy §3).
 
 *Bobcat detection history — closes Decision 22*
-- [ ] Build the unit × year detection history by crossing `occ_bobc_clean_3310`
+- [x] Build the unit × year detection history by crossing `occ_bobc_clean_3310`
       (detections) against the Fork-3 effort layer (surveyed cells). Surveyed +
       no bobcat = 0; unsurveyed = NA (never a fabricated 0). Calendar-year
       replicate, 2010–2026 window (Decision 22 draft).
-- [ ] Build it under **both** backgrounds (3A mammal / 3B vertebrate) — the A-vs-B
+- [x] Build it under **both** backgrounds (3A mammal / 3B vertebrate) — the A-vs-B
       choice is held to the fit (Decision 22).
-- [ ] Fit the **null** occupancy model (`unmarked`) under each background and
+- [x] Fit the **null** occupancy model (`unmarked`) under each background and
       read the Week-7-deferred §5.4 criteria that are now testable: fitted
       detection probability `p`, parameter stability, MacKenzie-Bailey GOF.
-- [ ] **Close Decision 22** on the result: occupancy confirmed (and which
+- [x] **Close Decision 22** on the result: occupancy confirmed (and which
       background), or SDM fallback re-triggered. Record which background won and
       the fitted `p` under each.
 
 *Documentation & reproducibility*
-- [ ] Numbered decisions for: gHM/housing collinearity outcome (if a drop),
+- [x] Numbered decisions for: gHM/housing collinearity outcome (if a drop),
       tracks/paths permeability, resistance assignment, and the Decision 22
       close. Record the observed SILVIS cap value + affected-block count.
-- [ ] Add every stacked covariate + resistance + detection-history output to
+- [x] Add every stacked covariate + resistance + detection-history output to
       `docs/data-dictionary.md`.
-- [ ] Update `methodology.md` §5 (methods now executed, not just defined) + §6 +
+- [x] Update `methodology.md` §5 (methods now executed, not just defined) + §6 +
       change-log §9. Update Risk 1 status once Decision 22 closes.
 
 *Explicitly NOT this week*
@@ -358,6 +358,78 @@ covariates stay on their own grids (puma 1 km, bobcat 500 m); never pooled
 - Least-cost paths / corridor extraction from the resistance surface (Week 6+).
 - CROS integration (parked, Decision 11).
 - Felidae partner data (deferred, Decision 7).
+
+---
+
+## Week 6 tasks — descriptive spatial analysis (KDE + Gi*, both species)
+
+*Goal: characterise WHERE each species' records concentrate, descriptively, before
+any inferential modelling. Kernel density surfaces + Getis-Ord Gi* hot/cold spots
+for puma and bobcat, plus unit-level summary statistics. This is a descriptive
+layer for the story site and a cross-check on the occupancy/connectivity results —
+NOT a model. Both species; each on its own grid (puma 1 km, bobcat 500 m); never
+pooled (Decision 3). Next Decision number is 28.*
+
+*Inputs on hand (from Weeks 4–5)*
+- Occurrence layers: `occ_puma_clean_3310.gpkg` (2,031), `occ_bobc_clean_3310.gpkg`
+  (6,232) — both carry the `obscured` flag (Decision 20/21).
+- Frames/grids: `openspace_cpad_bayarea_3310.gpkg` (1,129 units),
+  `grid_puma_1km_3310.tif`, `grid_bobc_500m_3310.tif`.
+- Effort context: the Fork-3 effort layers + the detection histories (`dh_bobc_*`)
+  — for the Q5 effort-bias cross-read, not as KDE input.
+
+*Kernel density estimation (per species, on the right grid)*
+- [ ] Build KDE surfaces with `spatstat.explore::density.ppp()` + edge correction
+      (methodology §5.1). Puma on the 1 km grid, bobcat on the 500 m grid.
+      Bandwidth chosen by a stated rule (e.g. `bw.diggle`/`bw.ppl`), recorded — not
+      hand-tuned to a look. Outputs `kde_puma_current_1km_3310.tif`,
+      `kde_bobc_current_500m_3310.tif`.
+- [ ] **Obscured-coordinate handling for KDE.** Puma is 49% obscured with ~28 km
+      randomised coords (Decision 10/20) — a KDE on randomised points smears
+      density. Decide + record: precise-only KDE, or precise + an obscured-density
+      caveat. Numbered decision if it changes the published surface.
+- [ ] **Publish-floor compliance (puma).** Any published puma KDE is ≥1 km and
+      generalised per sensitive-data-policy §3 — the 1 km grid already satisfies
+      this; confirm no finer intermediate is exported.
+
+*Getis-Ord Gi* hot/cold spots (per species)*
+- [ ] Compute Gi* with `sfdep::local_gstar_perm()` (permutation inference,
+      methodology §5.2) on a unit- or grid-aggregated count. State the
+      neighbour/weight definition (`_nb`) and the aggregation grain explicitly.
+      Outputs `hot_puma_*_3310.gpkg`, `hot_bobc_*_3310.gpkg`.
+- [ ] **Effort-bias cross-read (Q5, first-class question).** A raw-count hotspot
+      is partly an observer-effort hotspot. Cross the Gi* result against the
+      Fork-3 effort layer (or an iNat-observer density) and state, per species,
+      how much of the apparent pattern is plausibly effort vs true distribution.
+      This is the descriptive analogue of the tiger project's Ranthambore
+      observer-bias finding — carry it as a stated caveat on every hotspot map.
+
+*Unit-level summary statistics*
+- [ ] Per-unit descriptive table: record counts, naive occupancy (bobcat),
+      obscured fraction, effort-year count, KDE mean, Gi* class — keyed on
+      `unit_id`. Feeds the story-site unit popups and the methods cross-check.
+
+*Documentation & reproducibility*
+- [ ] Numbered decision(s) for any KDE bandwidth rule / obscured-KDE handling that
+      affects a published surface; record the chosen bandwidth + weight scheme.
+- [ ] Add `kde_*`, `hot_*`, and the unit-stats table to `docs/data-dictionary.md`.
+- [ ] Update `methodology.md` §5.1–5.2 (methods now executed) + §9 change log.
+- [ ] New packages (`spatstat.explore`, `sfdep`) → `renv::install()` +
+      `renv::snapshot()` before use.
+
+*Carry-ins from Week 5 (pre-registered checks — NOT started here, tracked)*
+- Puma resistance sensitivity checks (Decision 26: road-confidence, chaparral,
+  ±10% weight) — judged on corridor stability, so they run with the Week-8
+  least-cost work, not here.
+- Bobcat covariate-model c-hat decline check (Decision 22) — belongs to Week-7
+  covariate occupancy fitting.
+
+*Explicitly NOT this week (Risk 4 — scope guard)*
+- Covariate occupancy model fitting (Week 7 — the null fit is done; covariate
+  models are next week).
+- Least-cost paths / corridor extraction + resistance sensitivity checks (Week 8).
+- CROS integration (parked, Decision 11); Felidae partner data (deferred,
+  Decision 7).
 
 ---
 

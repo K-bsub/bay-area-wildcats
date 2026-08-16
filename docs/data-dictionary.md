@@ -290,6 +290,394 @@ unit × year
   naive detection rate to 0.083. More 0s, each individually weaker.
 - **Fork 3B.** Retained for the Week-7 fit comparison; not yet selected.
 
+### `cov_unit_footprint_3310.gpkg`  — per-unit human-footprint covariates (occupancy)
+
+**Source:** gHM (Theobald 2024) + SILVIS housing density (HUDEN2020), summarised to CPAD units
+**Geometry:** polygon (MULTIPOLYGON), one row per open-space unit (mirrors the site layer)
+**CRS:** EPSG:3310
+**Records:** 1,129 units
+**Created by:** `scripts/04_prepare_covariates.R`
+**Storage:** `data/interim/` (T0 open)
+**Decisions:** 15 (gHM source), 16 (SILVIS PLA), 17 (unit as site / spans_gradient), 23 (transform + keep-both for bobcat)
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `unit_id` | integer | — | CPAD `UNIT_ID`; join key to `openspace_cpad_bayarea_3310.gpkg` | cpad | No |
+| `spans_gradient` | logical | — | Carried from site layer; `TRUE` = large unit summarised by sub-cell (Decision 17) | derived | No |
+| `ghm_mean` | numeric | 0–1 | Area-weighted mean gHM over the unit (native 300 m source) | derived (gHM) | No |
+| `ghm_sd` | numeric | 0–1 | Within-unit SD of gHM; gradient check for `spans_gradient` units | derived (gHM) | No |
+| `housing_logden_mean` | numeric | log1p(units/km²) | Area-weighted mean of block `log1p(capped HUDEN2020)` over the unit | derived (silvis) | No (0 NAs observed) |
+| `housing_logden_sd` | numeric | log1p(units/km²) | Within-unit SD of housing log-density | derived (silvis) | No |
+
+**Notes:**
+- **PLA caveat (load-bearing, Decision 16):** housing density is public-land-adjusted,
+  so `housing_logden_mean` inside a unit reflects **edge/matrix pressure around** the
+  unit, near-zero **within** it by construction — not housing inside open space.
+  State this wherever the bobcat housing coefficient is interpreted.
+- gHM and housing are both kept for the **bobcat occupancy** model: at unit grain
+  they are effectively uncorrelated (r=0.07), but that is a PLA artifact, not true
+  independence (Decision 23). Not collinear in the fitted model matrix.
+- Housing summarised from the block layer directly (area-weighted intersection),
+  gHM from its native 300 m raster — each at its own grain, not off a coarsened grid.
+- 0 units had no overlapping SILVIS block (no housing NAs). A no-overlap unit would
+  carry housing = NA (true missing), never a filled 0.
+
+---
+
+### `cov_ghm_puma_1km_3310.tif`  — gHM on the puma grid
+
+**Source:** Global Human Modification v3 2022 (Theobald et al. 2024), resampled
+**Geometry:** raster, 1,000 m cell (puma grid)
+**CRS:** EPSG:3310
+**Records:** 19,260 land cells (non-NA)
+**Created by:** `scripts/04_prepare_covariates.R`
+**Storage:** `data/interim/` (T0 open)
+**Decisions:** 15 (gHM source), 23 (kept for puma resistance)
+
+| Field (band) | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `ghm` | numeric (FLT4S) | 0–1 | Human modification, bilinear-resampled from 300 m source to the 1 km grid | ghm | Yes (NA outside boundary) |
+
+**Notes:**
+- Continuous metric → **bilinear** resample (contrast `near` for categorical, Decision 15).
+- **This is the human-footprint carrier the puma resistance surface uses.** Housing
+  was dropped from the puma stack (r=0.78 at 1 km, Decision 23).
+
+---
+
+### `cov_ghm_bobc_500m_3310.tif`  — gHM on the bobcat grid
+
+**Source:** Global Human Modification v3 2022 (Theobald et al. 2024), resampled
+**Geometry:** raster, 500 m cell (bobcat grid)
+**CRS:** EPSG:3310
+**Records:** 76,437 land cells (non-NA)
+**Created by:** `scripts/04_prepare_covariates.R`
+**Storage:** `data/interim/` (T0 open)
+**Decisions:** 15 (gHM source), 23
+
+| Field (band) | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `ghm` | numeric (FLT4S) | 0–1 | Human modification, bilinear-resampled from 300 m source to the 500 m grid | ghm | Yes (NA outside boundary) |
+
+**Notes:**
+- Bobcat occupancy uses the **unit-grain** summary (`cov_unit_footprint`) as the
+  model covariate; this grid raster is the 500 m gridded form for stacking / display,
+  not itself the occupancy design matrix.
+- Never pooled with the puma grid (Decision 3).
+
+---
+
+### `cov_housing_logden_puma_1km_3310.tif`  — housing log-density on the puma grid
+
+**Source:** SILVIS block-level HUDEN2020 (PLA v4), transformed + rasterized
+**Geometry:** raster, 1,000 m cell (puma grid)
+**CRS:** EPSG:3310
+**Records:** puma land cells (non-NA)
+**Created by:** `scripts/04_prepare_covariates.R`
+**Storage:** `data/interim/` (T0 open)
+**Decisions:** 16 (SILVIS PLA), 23 (transform; **dropped** from puma resistance)
+
+| Field (band) | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `housing_logden` | numeric (FLT4S) | log1p(units/km²) | `log1p(pmin(HUDEN2020, p99=10,415))`; fine-burn (block→~50 m)→aggregate mean to 1 km | silvis | Yes (NA outside boundary) |
+
+**Notes:**
+- **Retained on disk but NOT carried into the puma resistance stack** (Decision 23):
+  r=0.78 with gHM at 1 km; SILVIS PLA makes it unsuitable as a resistance input
+  (near-zero inside the protected patches that are corridor endpoints).
+- Transform pre-registered (§4.9): cap at study-area p99 = 10,415 units/km²
+  (913 blocks, 1.00%, capped), then log1p. PLA public-land zeros left as-is.
+
+---
+
+### `cov_housing_logden_bobc_500m_3310.tif`  — housing log-density on the bobcat grid
+
+**Source:** SILVIS block-level HUDEN2020 (PLA v4), transformed + rasterized
+**Geometry:** raster, 500 m cell (bobcat grid)
+**CRS:** EPSG:3310
+**Records:** bobcat land cells (non-NA)
+**Created by:** `scripts/04_prepare_covariates.R`
+**Storage:** `data/interim/` (T0 open)
+**Decisions:** 16 (SILVIS PLA), 23 (transform; kept for bobcat via unit-grain summary)
+
+| Field (band) | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `housing_logden` | numeric (FLT4S) | log1p(units/km²) | `log1p(pmin(HUDEN2020, p99=10,415))`; fine-burn (block→~50 m)→aggregate mean to 500 m | silvis | Yes (NA outside boundary) |
+
+**Notes:**
+- Bobcat occupancy uses the **unit-grain** housing summary (`cov_unit_footprint`)
+  as the model covariate (kept alongside gHM, Decision 23). This 500 m raster is
+  the gridded form for stacking / display.
+- Same pre-registered transform as the puma raster (p99 = 10,415, log1p).
+- **PLA caveat applies** (Decision 16) — see `cov_unit_footprint_3310.gpkg` notes.
+
+### `stack_occu_units_3310.gpkg`  — occupancy covariate stack (bobcat track)
+
+**Source:** all covariates summarised to CPAD units (script 04a)
+**Geometry:** polygon (MULTIPOLYGON), one row per unit
+**CRS:** EPSG:3310
+**Records:** 1,129 units
+**Created by:** `scripts/04a_summarise_covariates.R`
+**Storage:** `data/interim/` (T0 open)
+**Decisions:** 3 (never pooled), 12 (WorldCover + chaparral caveat), 13 (terrain), 15/16 (footprint), 17 (spans_gradient), 23 (keep both footprint layers)
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `unit_id` | integer | — | Site key; join to `openspace_cpad_bayarea_3310.gpkg` | cpad | No |
+| `spans_gradient` | logical | — | `TRUE` = large unit (Decision 17); its whole-unit means HIDE within-unit heterogeneity — treat with the SD columns, do not drop | derived | No |
+| `elev_mean` | numeric | m | Area-weighted mean elevation | derived (terrain) | No |
+| `elev_sd` | numeric | m | Within-unit SD of elevation | derived (terrain) | No |
+| `slope_mean` | numeric | degrees | Area-weighted mean slope | derived (terrain) | No |
+| `slope_sd` | numeric | degrees | Within-unit SD of slope | derived (terrain) | No |
+| `aspect_north` | numeric | −1..1 | Mean northness = mean(cos(aspect)); circular-safe, NOT mean-degrees | derived (terrain) | No |
+| `aspect_east` | numeric | −1..1 | Mean eastness = mean(sin(aspect)) | derived (terrain) | No |
+| `lc_frac_*` (×8) | numeric | 0–1 | Coverage-weighted fraction of each WorldCover class; the 8 sum ~1 | derived (worldcover) | No |
+| `ghm_mean` | numeric | 0–1 | From script 04 (joined, not recomputed) | derived (ghm) | No |
+| `ghm_sd` | numeric | 0–1 | From script 04 | derived (ghm) | No |
+| `housing_logden_mean` | numeric | log1p(units/km²) | From script 04; **PLA — edge/matrix pressure, not housing inside the unit** (Decision 16) | derived (silvis) | No |
+| `housing_logden_sd` | numeric | log1p(units/km²) | From script 04 | derived (silvis) | No |
+
+**Notes:**
+- **Chaparral caveat (Decision 12):** WorldCover under-maps CA shrub ~26×;
+  `lc_frac_shrub` is systematically low and chaparral is folded into `lc_frac_tree`
+  / `lc_frac_grass`. If bobcat occupancy leans on shrub, supplement with CAL FIRE FVEG.
+- Both footprint layers retained (bobcat, Decision 23): gHM + housing are
+  effectively uncorrelated at unit grain (r=0.07 PLA artifact, not independence).
+- Aspect decomposed to north/east because a mean of compass degrees is invalid.
+
+---
+
+### `stack_puma_grid_1km_3310.gpkg`  — puma covariate stack (1 km grid)
+
+**Source:** all covariates summarised to the puma 1 km grid (script 04a)
+**Geometry:** point (cell centroids), one row per land cell
+**CRS:** EPSG:3310
+**Records:** puma land cells (non-NA; see grid_puma)
+**Created by:** `scripts/04a_summarise_covariates.R`
+**Storage:** `data/interim/` (T0 open)
+**Decisions:** 3, 12, 13, 15, 23 (**housing dropped** from puma stack)
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `cell_id` | integer | — | Grid cell key; join to `grid_puma_1km_3310.tif` | derived | No |
+| `elev_mean` | numeric | m | Bilinear-resampled elevation | derived (terrain) | No |
+| `slope_mean` | numeric | degrees | Bilinear-resampled slope | derived (terrain) | No |
+| `aspect_north` | numeric | −1..1 | cos(aspect), bilinear | derived (terrain) | No |
+| `aspect_east` | numeric | −1..1 | sin(aspect), bilinear | derived (terrain) | No |
+| `lc_frac_*` (×8) | numeric | 0–1 | Coverage-weighted class fraction per cell | derived (worldcover) | No |
+| `ghm` | numeric | 0–1 | gHM on the 1 km grid (script 04) | derived (ghm) | No |
+
+**Notes:**
+- **No `housing_logden` column** — housing dropped from the puma stack (r=0.78
+  at 1 km, Decision 23; PLA makes it unsuitable as a resistance input). The
+  raster `cov_housing_logden_puma_1km_3310.tif` stays on disk but is not stacked here.
+- Grid cells are the puma publish floor (1 km, sensitive-data-policy §3).
+- Companion fraction rasters: `cov_lcfrac_puma_grid_1km_3310.tif` (8 bands).
+
+---
+
+### `stack_bobc_grid_500m_3310.gpkg`  — bobcat covariate stack (500 m grid)
+
+**Source:** all covariates summarised to the bobcat 500 m grid (script 04a)
+**Geometry:** point (cell centroids), one row per land cell
+**CRS:** EPSG:3310
+**Records:** bobcat land cells (non-NA; see grid_bobc)
+**Created by:** `scripts/04a_summarise_covariates.R`
+**Storage:** `data/interim/` (T0 open)
+**Decisions:** 3, 12, 13, 15, 16, 23 (housing kept)
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `cell_id` | integer | — | Grid cell key; join to `grid_bobc_500m_3310.tif` | derived | No |
+| `elev_mean` | numeric | m | Bilinear-resampled elevation | derived (terrain) | No |
+| `slope_mean` | numeric | degrees | Bilinear-resampled slope | derived (terrain) | No |
+| `aspect_north` | numeric | −1..1 | cos(aspect), bilinear | derived (terrain) | No |
+| `aspect_east` | numeric | −1..1 | sin(aspect), bilinear | derived (terrain) | No |
+| `lc_frac_*` (×8) | numeric | 0–1 | Coverage-weighted class fraction per cell | derived (worldcover) | No |
+| `ghm` | numeric | 0–1 | gHM on the 500 m grid (script 04) | derived (ghm) | No |
+| `housing_logden` | numeric | log1p(units/km²) | Housing log-density on the 500 m grid (script 04) | derived (silvis) | No |
+
+**Notes:**
+- Housing kept for the bobcat grid stack (Decision 23). PLA caveat applies (Decision 16).
+- Companion fraction rasters: `cov_lcfrac_bobc_grid_500m_3310.tif` (8 bands).
+- Bobcat may publish finer than puma (policy §3), still reviewed before publication.
+
+---
+
+### `cov_roads_classed_3310.gpkg`  — all roads, classified + per-species permeability
+
+**Source:** OSM roads (Geofabrik NorCal) reclassified (script 04b)
+**Geometry:** line (LINESTRING), one row per OSM segment
+**CRS:** EPSG:3310
+**Records:** 936,784 segments
+**Created by:** `scripts/04b_roads_traffic.R`
+**Storage:** `data/interim/` (T0 open)
+**Decisions:** 3 (never pooled), 14 (roads source), 24 (permeability)
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `osm_id` | character | — | OSM feature id | osm | No |
+| `fclass` | character | — | OSM road class (motorway…path) | osm | No |
+| `name` | character | — | Road/route name; blank on many segments | osm | Yes |
+| `road_class` | character | — | Grouped class: highway / arterial / local / permeable / other | derived | No |
+| `barrier_puma` | logical | — | `TRUE` for highway+arterial (puma traffic barrier, Decision 24) | derived | No |
+| `barrier_bobc` | logical | — | `TRUE` for highway only (bobcat; arterials semi-permeable, Decision 24) | derived | No |
+
+**Notes:**
+- Tracks/paths (`permeable`, 45,482 km / 341,737 features) are barriers for
+  neither species (Decision 24). `permeable` is broader than D14's track+path-only
+  ~18,800 km — it also covers footway/cycleway/steps/bridleway; supersedes the D14
+  count, not an error.
+- `road_class` breakdown: local 74,605 km, permeable 45,482 km, arterial 7,366 km,
+  highway 4,526 km, other 1,543 km.
+
+---
+
+### `cov_roads_traffic_3310.gpkg`  — major roads + AADT (traffic-weighted barrier)
+
+**Source:** major-road subset + Caltrans AADT join (script 04b)
+**Geometry:** line (LINESTRING), one row per major OSM segment
+**CRS:** EPSG:3310
+**Records:** 79,804 major segments
+**Created by:** `scripts/04b_roads_traffic.R`
+**Storage:** `data/interim/` (T0 open)
+**Decisions:** 14 (traffic source), 24 (barrier flags), 25 (AADT join + floor + bias)
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `osm_id` | character | — | OSM feature id | osm | No |
+| `fclass` | character | — | OSM road class | osm | No |
+| `name` | character | — | Road/route name | osm | Yes |
+| `road_class` | character | — | highway / arterial (major subset) | derived | No |
+| `aadt` | numeric | vehicles/day | Working AADT used downstream (measured or filled or floored) | derived | No |
+| `aadt_source` | character | — | Provenance: `measured` / `name_fill` / `spatial_fill` / `modelled` | derived | No |
+| `aadt_measured` | numeric | vehicles/day | Station-median where a station snapped to this segment; else NA | caltrans | Yes |
+| `aadt_floor` | numeric | vehicles/day | fclass-derived floor (modelled placeholder, Decision 25) | derived | No |
+| `n_stations` | integer | — | Count of AADT stations snapped to this segment | derived | Yes |
+| `spatial_donor_dist_m` | numeric | m | Distance to the measured donor segment (spatial_fill rows only) | derived | Yes |
+| `barrier_puma` | logical | — | highway+arterial (Decision 24) | derived | No |
+| `barrier_bobc` | logical | — | highway only (Decision 24) | derived | No |
+
+**Notes:**
+- **`aadt_source` is load-bearing (Decision 25).** Coverage: measured 1,856 (2.3%),
+  name_fill 22,505, spatial_fill 19,851 → 55.4% station-traceable; modelled floor
+  35,592 (44.6%).
+- **Known data property — interpolated AADT skews HIGH.** name_fill/spatial_fill
+  medians exceed measured (arterial spatial_fill ~41k vs measured 27k) because
+  Caltrans stations sample busy locations; the measured network is a volume-biased
+  sample. Not a join bug, not correctable by interpolation. The resistance step
+  keys on `aadt_source` to treat tiers at different confidence (AADT→resistance
+  treatment deferred to the puma resistance pre-registration).
+- Parse: `AHEAD_AADT`/`BACK_AADT` strings → numeric, per-station volume = max leg.
+- Diagnostics: `tbl_06_aadt_join.csv`, `tbl_06_aadt_bias_by_class.csv`,
+  `tbl_06_road_class_summary.csv`.
+
+### `resist_puma_baseline_3310.tif`  — puma movement resistance surface
+
+**Source:** stacked puma covariates + road/traffic barrier, assigned per Decision 26
+**Geometry:** raster, 1,000 m cell (puma grid)
+**CRS:** EPSG:3310
+**Records:** 20,410 land cells (non-NA)
+**Created by:** `scripts/04c_puma_resistance.R`
+**Storage:** `outputs/rasters/` (T0 open — publishable at 1 km, sensitive-data-policy §3)
+**Decisions:** 3 (never pooled), 12 (WorldCover shrub caveat), 13 (terrain), 15 (gHM), 23 (housing dropped), 24 (barrier_puma), 25 (AADT), 26 (assignment)
+
+| Field (band) | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `resist_puma` | numeric (FLT4S) | 1–100 | Movement resistance; 1 = freely permeable, 100 = impassable. `R = max(R_land, R_road)` on barrier-road cells, else `R_land` | derived | Yes (NA off land grid) |
+
+**Notes:**
+- `R_land = 0.45*r_ghm + 0.40*r_lc + 0.15*r_slope`. r_ghm convex (`1+99*gHM^2`);
+  r_lc coverage-weighted per-class (tree 5 … built 95); r_slope linear to 45°.
+- `R_road` = log-inverse AADT transform, p1/p99 winsorised (4,000/237,000),
+  applied only on `barrier_puma` cells (Decision 24/26). Log compresses the
+  high-traffic tail and the Decision-25 spatial_fill bias.
+- Distribution: min 5.4, median 17.2, mean 29.7, p75 38.7, max 100;
+  `pct_barrier ≥80` = 7.4%; ~27% of cells touched by a barrier road.
+- Aspect and housing (Decision 23) excluded; conspecific density excluded
+  (considered-and-excluded, Decision 26).
+- Publishable at 1 km per sensitive-data-policy §3. Weights are author priors;
+  covariate structure/effect-directions sourced to Hansen et al. 2025 (these exact
+  pumas), Zeller et al. 2016, Wilmers et al. 2013.
+- **Baseline only** — three pre-registered sensitivity variants (road-confidence,
+  chaparral, ±10% weight) are judged on corridor stability, not yet run.
+
+---
+
+### `resist_puma_aadt_conf_3310.tif`  — AADT-confidence companion band
+
+**Source:** `aadt_source` tier rasterised alongside the resistance surface (script 04c)
+**Geometry:** raster, 1,000 m cell (puma grid)
+**CRS:** EPSG:3310
+**Records:** barrier-road cells (non-NA only where a barrier road crosses)
+**Created by:** `scripts/04c_puma_resistance.R`
+**Storage:** `outputs/rasters/` (T0 open)
+**Decisions:** 25 (aadt_source), 26 (sensitivity check 1)
+
+| Field (band) | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `aadt_conf` | integer (INT1U) | — | 1 = station-traceable road cell (measured/name_fill); 0 = modelled/spatial_fill; NA = no barrier road | derived | Yes |
+
+**Notes:**
+- Audit companion, not a resistance input. Drives sensitivity check 1 (Decision 26):
+  rebuild with `aadt_conf = 0` cells dropped to `R_land`; stable corridors confirm
+  the AADT bias is immaterial.
+- Per-cell value is the worst (min) confidence among roads crossing the cell.
+
+---
+
+### `dh_bobc_<background>_<detset>_3310.rds`  — bobcat detection histories (4 files)
+
+**Files:** `dh_bobc_mammal_precise_3310.rds` (PRIMARY),
+`dh_bobc_mammal_all_3310.rds`, `dh_bobc_vertebrate_precise_3310.rds`,
+`dh_bobc_vertebrate_all_3310.rds`
+**Type:** R `.rds` — integer matrix (site × occasion), not a spatial layer
+**CRS:** n/a (unit_id keys back to `openspace_cpad_bayarea_3310.gpkg`)
+**Dimensions:** 1,129 rows (units) × 17 cols (years 2010–2026); rows with all-NA
+dropped at fit time
+**Created by:** `scripts/04d_bobcat_detection_history.R`
+**Storage:** `data/interim/` (T0 open — presence/absence at unit level, policy §3)
+**Decisions:** 17 (unit as site), 20/21 (obscured handling), 22 (encoding + close), 27 (detection implies effort)
+
+| Element | Value | Description |
+|---|---|---|
+| cell = `1` | detected | Unit-year surveyed AND ≥1 bobcat detection |
+| cell = `0` | non-detection | Unit-year surveyed, no bobcat (a REAL 0) |
+| cell = `NA` | unsurveyed | Unit-year absent from effort layer — never a fabricated 0 |
+| rownames | `unit_id` | Join key to the occupancy frame |
+| colnames | `2010`…`2026` | Calendar-year occasions |
+
+**Notes:**
+- `background`: `mammal` (Fork 3A, target-group-correct) or `vertebrate` (3B,
+  bird-deflated). `detset`: `precise` (obscured dropped) or `all` (obscured
+  included by randomised coord, Decision 20/21).
+- **Primary = `mammal_precise`** — drives the Decision 22 close.
+- Decision 27: detected unit-years the target-group background missed are upgraded
+  to surveyed+detected (1); logged in `tbl_08_detections_upgraded_d27.csv`.
+- Null-fit results: `tbl_09_null_fit_criteria.csv`, `tbl_09_decision22_close.csv`.
+
+---
+
+### `bobc_occu_null_<history>_<date>.rds`  — fitted null occupancy models
+
+**Files:** `bobc_occu_null_<history>_<YYYYMMDD>.rds` (annual fit) and
+`bobc_occu_null_<history>_collapsed_<YYYYMMDD>.rds` (4-period fit, for GOF), per
+history
+**Type:** R `.rds` — fitted `unmarked::unmarkedFitOccu` object
+**Created by:** `scripts/04e_bobcat_null_fit.R`
+**Storage:** `outputs/models/` (T0 open — model object, no coordinates)
+**Decisions:** 22 (close), 27 (encoding)
+
+| Object | Description |
+|---|---|
+| `unmarkedFitOccu` | Null occupancy fit (`~1 ~1`); back-transform for ψ, p |
+
+**Notes:**
+- Annual fit gives the per-visit `p` read against the §5.4 fallback line (0.10);
+  collapsed (4-period) fit gives the tractable MacKenzie-Bailey GOF.
+- Primary `bobc_occu_null_mammal_precise_*`: ψ=0.464, p=0.295 (clears 0.10),
+  converged; collapsed c-hat=8.9 = expected null-model overdispersion (Decision 22).
+
 ---
 
 ## Deferred layers (future phase — Decision 7)

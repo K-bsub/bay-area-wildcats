@@ -1,0 +1,5 @@
+"history","background","detection_set","n_sites_total","n_sites_surveyed","n_sites_ge2_yr","n_sites_occupied","surveyed_cells","detection_cells","n_upgraded_d27","naive_psi","naive_p","fallback_p_flag"
+"mammal_precise","3A_mammal","precise",1129,845,702,276,5499,906,98,0.327,0.165,"ok"
+"mammal_all","3A_mammal","all_incl_obscured",1129,853,707,321,5539,1063,138,0.376,0.192,"ok"
+"vertebrate_precise","3B_vertebrate","precise",1129,1072,1022,276,12511,906,6,0.257,0.072,"BELOW_0.10_SDM_RISK"
+"vertebrate_all","3B_vertebrate","all_incl_obscured",1129,1074,1026,321,12526,1063,21,0.299,0.085,"BELOW_0.10_SDM_RISK"

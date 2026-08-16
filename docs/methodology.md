@@ -581,24 +581,42 @@ and housing is SILVIS not a Census/`tidycensus` build; rationale in Decisions 15
 - **No WUI classification** in the housing product — intermix/interface flags are
   a separate SILVIS dataset (Decision 16), not acquired.
 
-**Deferred to Week 5 (covariate construction, not acquisition):**
-- Rasterise `HUDEN2020` (and optionally the 1990→2020 change) onto the puma/bobcat
-  grids. **Pre-registered density handling (fixed before rasterization, to avoid
-  a post-hoc transform choice):**
-  1. **Log-transform** the density: `log1p(HUDEN2020)`. Justified by the heavy
-     right-skew independent of the outliers, and it compresses the small-area
-     artifact into the body of the distribution. This is the primary handling.
-  2. **Cap before burning to grid.** Winsorize at a defensible ceiling
-     (p99 within the study area, or a hard "no plausible block density exceeds
-     ~10⁴–10⁵ units/km²" threshold) so a handful of sliver blocks cannot dominate
-     the rasterized cell values. Applied in addition to the log where any single
-     block would otherwise occupy a grid cell at full (artifact) density.
-  Record the exact cap value and count of affected blocks in the change log when
-  run. The near-zero `PUBFLAG=1` density is *not* treated as an error — it is the
-  PLA design (Decision 16) and is left as-is.
-- Decide whether gHM and housing density are both carried into the resistance
-  surface or one is dropped for collinearity (they will correlate at the urban
-  edge; check before stacking — per species, never pooled, Decision 3).
+**Week 5 — covariate construction (script `04_prepare_covariates.R`):** OK Complete
+(2026-08-10). HUDEN2020 transform applied and rasterized; gHM×housing collinearity
+measured; layer keep/drop = Decision 23.
+
+- **HUDEN2020 transform (pre-registered, applied exactly as specified above).**
+  Raw density winsorized at the study-area **p99 = 10,415 units/km²**, then
+  `log1p` (cap-then-log, so the recorded ceiling stays in native units/km²).
+  **913 of 91,223 blocks capped (1.00%).** The p99 landed essentially on the
+  hard-10^4 line (988 blocks exceed 10^4), so the data-driven cap and the "no
+  plausible block density exceeds ~10^4" reasoning converged — the pre-registered
+  ceiling was not arbitrary. Reference hard-ceiling counts recorded, **not**
+  applied (>10^4 = 988, >10^5 = 1, >10^6 = 1). `pubflag=1` near-zero density left
+  as-is (PLA design, Decision 16), included in the distribution the p99 is
+  computed over. Rasterized to both grids
+  (`cov_housing_logden_puma_1km_3310.tif`, `cov_housing_logden_bobc_500m_3310.tif`)
+  via a fine-burn-then-aggregate (block value -> ~50 m sub-grid -> mean to target
+  cell; version-safe, seam-bias-free) and summarised per CPAD unit (area-weighted
+  block->unit mean + within-unit SD; the area-weighted mean is the correct
+  sub-cell summary for `spans_gradient` units, Decision 17). **0 units** had no
+  overlapping block (no housing NAs).
+- **gHM rasterized to both grids** (`cov_ghm_puma_1km_3310.tif`,
+  `cov_ghm_bobc_500m_3310.tif`, `bilinear`, Decision 15) and summarised per unit
+  (area-weighted mean + SD from the native 300 m source). **Edge-fill applied:**
+  bilinear resampling left thin boundary-underlap NAs on land cells (source was
+  cropped to the 5 km buffer) — 1,140 puma / 3,578 bobcat land cells. Filled from
+  nearest valid neighbours, land-mask-bounded (never into water/off-study-area),
+  leaving 6 puma / 3 bobcat isolated residual NAs (<0.03%). Surface extension to
+  the analysis boundary, not interior gap-fill (0 interior holes confirmed).
+  Per-unit gHM has 0 NAs (5 km buffer covers every in-study unit).
+- **Per-unit footprint layer:** `data/interim/cov_unit_footprint_3310.gpkg`
+  (`unit_id`, `spans_gradient`, `ghm_mean`, `ghm_sd`, `housing_logden_mean`,
+  `housing_logden_sd`).
+- **Collinearity (Decision 23):** gHM × housing log-density, per species (never
+  pooled, Decision 3), at three grains — CPAD unit r=0.07, bobcat 500 m r=0.73,
+  puma 1 km r=0.75 (post gHM edge-fill). Grains disagree because of the PLA design (below). Values in
+  `outputs/tables/tbl_04_collinearity_footprint.csv`.
 
 ---
 
@@ -890,6 +908,11 @@ dataset).
   2. **AADT-to-segment join.** AADT points must be spatially joined / snapped to
      road segments to turn "road present" into "road weighted by traffic." This is
      a covariate-construction step, not a download step.
+  *Resolution (Week 5):* both open items closed — tracks/paths permeability =
+  **Decision 24** (not barriers, per-species reasoning); AADT→segment join =
+  **Decision 25** (4-tier parse/snap/propagate + fclass floor; spatial_fill bias
+documented as a data property). See those decisions and the 2026-08-11 change-log
+rows.
 *Impact:* `data/interim/cov_roads_osm_3310.gpkg`, `cov_roads_osm_major_3310.gpkg`,
 `cov_aadt_caltrans_points_3310.gpkg`. `osmdata` added to renv (kept available for
 surgical follow-up queries even though the bulk pull is Geofabrik).
@@ -1190,10 +1213,10 @@ time per sensitive-data-policy.md §3, not by cutting the raw interim layer.
 *Impact:* Downstream steps filter on `obscured` as needed; the raw layer stays
 complete.
 
-**Decision 22 (DRAFT — provisional, not closed): Bobcat track = occupancy
+**Decision 22: Bobcat track = occupancy
 modelling, not SDM fallback**
-*Date drafted:* 2026-08-09
-*Status:* **DRAFT.** The Risk 1 feasibility gate (methodology §5.4) is assessed,
+*Status:* **CLOSED (2026-08-15) — occupancy confirmed on the 3A mammal
+The Risk 1 feasibility gate (methodology §5.4) is assessed,
 the pre-fit-testable criteria pass, and the Fork-3 background-effort layers are
 now built (script 03b) — so a fittable detection history demonstrably exists.
 The decision is **held open only on the pre-fit-unevaluable criteria** (fitted
@@ -1261,6 +1284,447 @@ preview statistic.
 *If the gate had failed:* fall back to `maxnet`/ENMeval SDM (presence +
 background, no repeat visits needed); proposal Q2 stands, only the method
 changes. Recorded so the fallback path is not re-litigated.
+
+*Close — the three fit-time criteria (null fit, scripts 04d–04e).*
+
+Detection history: site = CPAD unit, occasion = calendar year 2010–2026, encoded
+1 = surveyed+detected, 0 = surveyed+non-detected, NA = unsurveyed (Decision 22
+draft; detected-cell upgrade per Decision 27). Built under both backgrounds ×
+two detection sets; null `unmarked::occu(~1 ~1)` fit to each. Primary =
+**mammal_precise** (3A target-group-correct, precise detections).
+
+| Criterion (§5.4) | Result (mammal_precise) | Verdict |
+|---|---|---|
+| (1) Fitted detection p | **p = 0.295** (annual, per-visit) vs fallback line 0.10 | **CLEARS** (3×) |
+| (2) Parameter stability | Converged; finite SEs; ψ = 0.464 identifiable | **PASS** |
+| (3) MacKenzie-Bailey GOF | see below — null-model overdispersion | **not a fallback trigger** |
+
+*On the GOF (the one that needs explaining).* Annual (17-occasion) MB-GOF was
+**degenerate** — 590 unique detection-history patterns, mostly singletons, on
+sparse opportunistic data inflate the Pearson statistic to a meaningless
+c-hat ≈ 514 (a test artifact, not lack of fit). Collapsing occasions into **4
+multi-year periods** (2010–13 / 14–17 / 18–21 / 22–26) cut the pattern space to
+44 and made the test evaluable: **c-hat = 8.9, GOF p = 0.**
+
+This c-hat is **expected null-model overdispersion, not a reason to reject
+occupancy**, for a specific reason: the null model (`~1 ~1`) forces every unit to
+share one occupancy and one detection probability. On data known to be
+heterogeneous — occupancy varies with habitat, which IS the research question
+(Q2) — a null model *must* show overdispersion; c-hat ≈ 1 would instead imply no
+habitat signal to model and would undercut the occupancy premise. The §5.4 GOF
+criterion asks whether a usable occupancy model can be built and estimated from
+this history, not whether the intercept-only null fits well. It can: p estimates
+cleanly, the model converges, ψ is identifiable, and 697 units carry ≥2 surveyed
+years of repeat-visit structure.
+
+*What the SDM fallback was for, and why it is not triggered.* The §5.4 fallback
+(maxnet/ENMeval) is for the case where a defensible detection history cannot be
+built or detection is too low to estimate. Neither holds: the history exists, is
+correctly encoded (real 0s vs NA), and yields p = 0.295 with a stable, identifi-
+able fit. The occupancy track (proposal Q2) proceeds.
+
+*Background selected: 3A mammal.* Confirmed target-group-correct. 3B vertebrate
+is bird-deflated — it marks nearly every unit surveyed nearly every year (1,072
+sites, patterns dominated by Aves effort), giving a lower, less bobcat-relevant
+detection signal (annual p = 0.197 vs mammal 0.295). Both were fit; 3A is retained
+as the occupancy background. All four histories converged with p well above 0.10
+(0.197–0.318), so the occupancy-vs-SDM verdict is robust to both the background
+and the obscured-detection choice — the fork does not change the outcome.
+
+*Pre-registered forward check (the commitment this close creates).* Null-model
+overdispersion (c-hat ≈ 8.9) **must decline substantially once habitat covariates
+are added** — that decline is the evidence the heterogeneity is real, modelled
+signal rather than structural misfit. If covariate occupancy models still show
+c-hat of this magnitude, that is a genuine lack-of-fit problem to be addressed
+then (candidate causes: unmodelled spatial autocorrelation, detection covariates,
+or effort-structure bias), and c-hat-inflated SEs would be reported. This is
+logged now so the covariate-model GOF is a declared check, not a post-hoc rescue.
+
+*Sensitivity results (all four histories, tbl_09_null_fit_criteria.csv):*
+mammal_precise p=0.295 / mammal_all p=0.318 / vertebrate_precise p=0.197 /
+vertebrate_all p=0.208 — all clear 0.10; all converged; all collapsed c-hat 8.6–10.1
+(same expected null overdispersion). Obscured-detection inclusion (Decision 20/21)
+lifts p ~0.02 and ψ ~0.05, changing no threshold — obscured records are immaterial
+to the close, as designed.
+
+**Decision 23 — Human-footprint pair: HUDEN2020 transform + gHM×housing keep/drop,
+per species**
+*Date:* 2026-08-10
+*Status:* **CLOSED** (both parts).
+
+*Part A — HUDEN2020 transform.* Applied the pre-registered §4.9 handling with no
+post-hoc change: winsorize raw `HUDEN2020` at **study-area p99 = 10,415 units/km²**,
+then `log1p`. **913 blocks (1.00%)** pulled to the cap. p99 chosen over the hard
+10^4/10^5 alternatives because it is defined by the observed distribution, not an
+asserted threshold — consistent with the project's "cutoffs from observed
+distributions" standard. The p99 landing on the 10^4 line (988 blocks > 10^4)
+confirms the two rationales converge; the sliver-block artifact (raw max
+2,263,007 units/km², ~765× p90) is compressed into the distribution body before
+rasterization. Cap-then-log keeps the recorded ceiling in native units. PLA
+public-land zeros untouched (Decision 16).
+
+*Part B — gHM × housing collinearity, resolved per species (Decision 3).*
+Measured at the grain each track actually uses:
+
+| Grain | Track | n | Pearson r | Spearman rho |
+|---|---|---|---|---|
+| CPAD unit | bobcat (occupancy) | 1,129 | 0.07 | -0.07 |
+| grid 500 m | bobcat | 79,928 | 0.73 | 0.60 |
+| grid 1 km | puma (resistance) | 20,372 | 0.75 | 0.64 |
+
+*Why the grains disagree — the unit r~0 is a PLA artifact, not independence.*
+SILVIS is public-land-adjusted (Decision 16): housing is moved *out* of protected
+areas, so `housing_logden` is near-zero **inside** CPAD units by construction,
+while gHM varies freely inside units. At the unit grain the two are therefore
+**forced apart** by the adjustment (visible as a flat row of housing~0 across all
+gHM in `fig_04_ghm_housing_scatter.png`), not genuinely decorrelated. Off
+protected land — the grid grains — both track the urban gradient as Decision 12
+predicted, giving the honest r~0.73–0.75.
+
+*Resolution:*
+- **Bobcat (occupancy):** covariate enters at the **unit** grain (r=0.07). **Keep
+  both** gHM and housing — they are not collinear in the model matrix that is
+  actually fit. **PLA caveat carried:** the per-unit housing covariate measures
+  edge/matrix pressure around the unit, not housing within it (Decision 16); this
+  is its intended coexistence reading, but must be stated wherever the bobcat
+  housing coefficient is interpreted.
+- **Puma (resistance/connectivity):** covariate enters at the **1 km** grain
+  (r=0.75 >= 0.7). **Drop housing, keep gHM.** Rationale: (1) at r=0.75 both
+  layers would double-weight the same urban penalty in the resistance surface;
+  (2) gHM is the broader all-threats index, DOI-pinned, bounded 0–1, continuous
+  Bay-wide; (3) SILVIS PLA makes housing actively unsuitable as a *resistance*
+  input — it is near-zero inside the protected patches that are the corridor
+  endpoints, precisely where a resistance artifact would distort least-cost paths.
+
+*Impact:*
+- Bobcat occupancy covariate set: gHM + housing (both, unit grain).
+- Puma resistance stack: gHM only (housing dropped). `cov_housing_logden_puma_1km_3310.tif`
+  remains on disk (not deleted) but is not carried into the resistance surface.
+- No acquisition change; both source layers retained.
+
+**Decision 24 — Tracks/paths permeability, per species**
+*Date:* 2026-08-11
+*Status:* CLOSED.
+
+*Decision:* OSM `track` (12,375 km) and `path` (6,452 km) are **not barriers**
+for either felid. The operational call converges but the reasoning is
+per-species (Decision 3 — never pooled):
+- **Puma (resistance/connectivity):** functionally crossable — a wide-ranging
+  puma crosses an unpaved fire road or trail without measurable resistance.
+  Encoding tracks/paths as barriers would sever corridors that are actually
+  connected, biasing least-cost paths. -> permeable, background resistance.
+- **Bobcat (occupancy):** also not a movement barrier. Any human-recreation
+  *disturbance* signal a trail carries is already captured by gHM + housing
+  density (Decision 23); re-encoding trails as barriers would double-count the
+  same anthropogenic gradient. -> neutral.
+
+*Operationalisation (`04b_roads_traffic.R`):* a `road_class` grouping
+(highway / arterial / local / permeable) plus per-species barrier flags:
+- `barrier_puma = road_class in {highway, arterial}` — arterials (primary/
+  secondary) are traffic barriers for a dispersing puma.
+- `barrier_bobc = road_class in {highway}` only — at the 500 m occupancy grain
+  arterials are semi-permeable and their disturbance is carried elsewhere.
+Tracks/paths (`permeable` class) are barriers for neither.
+
+*Scope note — `permeable` supersedes the Decision 14 track+path figures.* The
+`permeable` class here is broader than D14's "track (12,375 km) + path (6,452 km)
+= ~18,800 km": it also includes `footway`, `cycleway`, `steps`, `bridleway`, all
+equally non-barriers. Observed permeable total = **45,482 km / 341,737 features**.
+This supersedes the D14 track+path-only count; the larger figure is the full set
+of non-barrier ways, not an error.
+
+*Impact:* the permeability flags feed the puma resistance surface (barrier_puma)
+and are available as a bobcat occupancy covariate (barrier_bobc) without
+re-deriving road class. No road segment dropped.
+
+**Decision 25 — AADT -> road-segment join; fclass floor for off-network segments**
+*Date:* 2026-08-11
+*Status:* **CLOSED.** Join method, 4-tier propagation, spatial_fill bias (data
+property), and fclass floor all resolved. AADT→resistance treatment deferred to
+the resistance pre-registration.
+
+*Problem.* Caltrans AADT is 2,423 POINT count stations, **state-highway network
+only**, with volumes stored as STRINGS (`AHEAD_AADT` / `BACK_AADT` per leg,
+commas + ~8% blank). The roads pull dropped `ref` (route number), so there is no
+attribute key linking a station to a named route — the join must be spatial.
+
+*Join method (CLOSED).*
+1. Parse both leg strings -> numeric (strip commas/whitespace; blanks -> NA).
+   All 2,423 stations parsed to a finite volume (0% blank in this vintage).
+2. Per-station volume = **max(AHEAD, BACK)** — the peak traffic a crossing animal
+   faces; the conservative barrier choice (vs mean).
+3. Snap each station to the nearest MAJOR segment within **100 m** — 2,413 of
+   2,423 snapped (99.6%).
+
+*Why a single snap is not enough — and the propagation fix.* The 2,413 snapped
+stations land on only ~1,856 of 79,804 OSM segments (**2.3%**), because OSM chops
+each highway into hundreds of short segments and a point station only stabs the
+one it sits on. Assigning traffic to just those segments would leave a resistance
+surface ~98% driven by the fclass floor, gutting proposal Q3 (volume, not
+presence, drives the barrier). AADT is therefore propagated in tiers, each
+recorded in `aadt_source`:
+
+- **measured** — a station snapped directly to the segment (median of stations).
+- **name_fill** — unmeasured segment inherits the median measured AADT of all
+  same-`name` segments (traffic is ~constant along a named route between
+  interchanges). Named routes only.
+- **spatial_fill** — remaining unmeasured segments take AADT from the nearest
+  already-resolved segment of the **same `road_class`** within **2 km** (catches
+  unnamed / name-mismatched state-highway segments without bleeding across road
+  classes).
+- **modelled** — only segments still unresolved fall to the fclass floor.
+
+*Off-network floor (accepted).* Segments never resolved to a station receive an
+**fclass-derived floor**, flagged `aadt_source = "modelled"`. Floor values
+reviewed and **accepted** (2026-08-11) — after the measured-only donor rule
+below, the floor carries 44.6% of major segments, but the resistance mapping bins
+AADT so class-scaled floors are adequate. Coverage after propagation:
+station-traceable = 55.4% of major segments (measured 1,856 / name_fill 22,505 /
+spatial_fill 19,851); modelled floor = 44.6% (35,592 segments).
+
+*Known data property — AADT station placement biases interpolated volume HIGH.*
+The spatial_fill tier was found to skew high (arterial spatial_fill median ~41k
+vs measured 27k; highway ~142k vs 117k) **even after** restricting donors to
+`measured` segments only and tightening the donor cap to 1 km (observed donor
+distance: median 197 m, p90 843 m). The cause is not the join method but the
+**sampling design of AADT itself**: Caltrans places count stations on
+high-traffic locations (interchanges, urban arterials, chokepoints), so the
+measured network is a volume-biased sample of the road network, and any
+measured→unmeasured inference (name_fill or spatial_fill) inherits that upward
+bias. This is documented as a **data property, not a correctable join error** —
+no interpolation removes a biased sample. The `aadt_source` flag
+(measured / name_fill / spatial_fill / modelled) is retained on every segment so
+the **resistance-assignment decision** can treat each tier at a different
+confidence (e.g. bin AADT to barrier classes before use, so a 41k-vs-27k arterial
+difference need not cross a resistance bin). *The AADT→resistance treatment is
+deferred to the puma resistance-assignment pre-registration, where it belongs.*
+
+*Donor rule (recorded).* spatial_fill donates ONLY from `measured` segments
+(never from name_fill or a prior spatial_fill) to prevent inflated route-medians
+chaining outward; cap 1 km. This dropped station-traceable coverage from an
+earlier 88.7% (2 km, any-resolved donor) to 55.4% — the lost coverage was the
+biased coverage, so the reduction is an honesty gain, not a regression.
+
+First-pass floor (vehicles/day, order-of-magnitude by class, all below the
+state-highway measured median ~68,000):
+
+| fclass | floor | fclass | floor |
+|---|---|---|---|
+| motorway | 80,000 | tertiary | 3,000 |
+| trunk | 40,000 | residential | 1,000 |
+| primary | 20,000 | living_street | 300 |
+| secondary | 8,000 | service | 200 |
+
+*Why held:* the floor is MODELLED data entering the puma resistance surface. Per
+project discipline (cutoffs/inputs pre-registered before they feed a model), the
+values need explicit sign-off before Decision 25 closes fully. The `aadt_source`
+flag means a later change to the floor does not touch any measured value.
+
+*Rationale for a floor at all (vs NA):* a resistance surface cannot carry NA on a
+road cell — an unmeasured local road still has SOME barrier effect. The floor
+gives a defensible, class-scaled minimum; the flag keeps it honest.
+
+*Impact:* `cov_roads_traffic_3310.gpkg` (major roads + `aadt`, `aadt_source`,
+`aadt_measured`, `aadt_floor`, per-species barrier flags). Feeds the puma
+resistance surface (traffic-weighted barrier, proposal Q3).
+
+**Decision 26 — Puma resistance-surface assignment (pre-registration)**
+*Date:* 2026-08-15
+*Status:* **CLOSED.** Pre-registration approved 2026-08-15; surface built and
+verified the same day (`04c_puma_resistance.R`). No post-hoc weight tuning: the
+assignment below was locked and signed off *before* the raster existed, and was
+not changed after inspection. The one pre-build change (road transform: bins →
+log-inverse) was a method-match to the local calibration study found during
+literature review, not an output-driven adjustment.
+
+*Build result (verification, not tuning).* `resist_puma_baseline_3310.tif`,
+20,410 land cells, 1 km, 1–100. Distribution: min 5.4, median 17.2, mean 29.7,
+p75 38.7, max 100; `pct_barrier ≥80` = 7.4%; 5,507 cells (~27%) touched by a
+barrier road. AADT log scale a_min(p1)=4,000, a_max(p99)=237,000. The surface
+reads correctly against known connectivity: Santa Cruz Mountains and Diablo Range
+low-resistance (permeable), the urban bayshore a continuous high-resistance band,
+freeways as linear barriers, and the Coyote Valley / US-101 pinch point resolved
+as a barrier between the two ranges. Right-skewed toward permeable with a thin
+hard-barrier tail — the correct shape. Robustness is tested by the three
+pre-registered sensitivity checks below (judged on corridor stability), NOT by
+adjusting the surface.
+
+*Scope.* Defines how each stacked puma covariate (1 km grid) and the road/traffic
+layer maps to a movement-resistance value for `resist_puma_baseline_3310.tif`.
+Puma track only (Decision 3). Output publishable at 1 km (sensitive-data-policy §3).
+
+*Scale and combination rule.* Resistance is scored **1–100** (1 = freely
+permeable ideal movement habitat, 100 = effectively impassable; standard
+Circuitscape/least-cost convention, McRae et al. 2008). The landscape base is a
+**weighted additive** sum of land cover, gHM and slope, rescaled to 1–100. Roads
+are **not** summed in — a freeway barrier must not be diluted by surrounding good
+habitat — so the final value takes `R = max(R_land, R_road)` on cells a barrier
+road crosses. Additive base keeps the landscape terms interpretable and stops one
+moderate covariate silently dominating; the road `max()` override supplies the one
+place where domination is ecologically wanted.
+
+*Input weights (landscape base, sum = 100%).* **Provenance: structure sourced, magnitudes are author priors.** The covariate SET and the DIRECTION of each effect are taken from the local calibration study (Hansen et al. 2025: pumas select for vegetation cover, against steep slopes, building density, urban centres and anthropogenic land cover). The relative WEIGHTS below cannot be calibrated here — that study derives them from 84 GPS-collared pumas' step-selection coefficients, and this project has no collar data (Q5) — so the 45/40/15 split is an explicit author prior, bounded by sensitivity check 3 (±10% weight perturbation). Human modification leads because this is a fragmentation study at the urban edge (proposal §1); land cover second; terrain a minor modifier.
+- **gHM — 45%.** Primary fragmentation axis for a wide-ranging carnivore at the
+  urban edge; broad all-threats index (Decision 23, housing dropped). *Divergence from the local reference:* Hansen et al. 2025 and Wilmers et al. 2013 use **housing density** (Microsoft building-footprint KDE) as the core anthropogenic covariate and do not use gHM. This project drops housing at the 1 km grain (Decision 23, gHM×housing r=0.78) and keeps gHM as the human-modification axis — gHM carries the same urban-intensity signal the reference attributes to housing, plus roads/land-use, so it is a defensible substitute at this grain. Recorded as a divergence, not an oversight.
+- **Land cover — 40%.** Cover type strongly conditions movement (forest/shrub
+  permeable; built/crop/bare hostile).
+- **Slope — 15%.** Minor modifier — pumas handle steep terrain well; only extreme
+  slope mildly resists.
+
+Aspect (northness/eastness) is **excluded** from resistance — it is a
+habitat-selection covariate with no defensible mechanism as a movement barrier for
+pumas. It remains on the occupancy/habitat stacks, not here.
+
+*Considered and excluded — conspecific (puma) density.* Territoriality is a real
+secondary effect: resident pumas, especially males, exclude other males, and a
+disperser genuinely threads between occupied territories. It is nonetheless
+**excluded from the resistance weights**, for three reasons. (1) It is an *outcome,
+not a landscape property* — conspecific density is produced by the movement the
+surface is meant to predict, so including it makes the surface partly a function of
+its own output (circular in a way gHM/land cover/slope are not). (2) *No defensible
+density layer exists* — there is no Bay Area puma abundance surface (references.md:
+no repeated regional census, only a statewide 3,200–4,500 estimate); deriving one
+from this project's sparse, obscured, effort-biased puma points (Q5) would import
+that error into the surface, and the weight could not be honestly pre-registered.
+(3) It changes what the surface *means* — a structural resistance surface answers
+"how permeable is the ground?", whereas a conspecific term shifts it to "where can
+this population's pumas go right now?", a dynamic question that makes corridors
+non-reproducible as the population shifts. The effect is better handled later as a
+*modifier on least-cost paths* (social resistance layered on landscape resistance)
+once a real density proxy exists — a natural fit for the deferred Felidae
+camera-trap data (Decision 7). Recorded here as considered, not overlooked.
+
+*Per-input value maps (before weighting).*
+
+gHM → resistance, convex so light exurban modification is cheap and dense urban
+rises steeply: `r_ghm = 1 + 99 * (gHM^2)` (gHM 0.0→1, 0.3→~10, 0.5→~26, 0.7→~49,
+0.9→~81, 1.0→100). Convex because the movement cost of the urban gradient is
+non-linear — light modification is crossable, dense urban is a wall.
+
+Land cover → resistance, per class, then fraction-weighted per cell
+(`r_lc = Σ lc_frac_class × resistance_class`):
+
+| WorldCover class | Resistance | Rationale |
+|---|---|---|
+| tree (10) | 5 | Best puma movement cover |
+| shrub (20) | 10 | Excellent (chaparral); under-mapped, Decision 12 |
+| grass (30) | 25 | Crossable, some exposure |
+| wetland (90) | 40 | Passable but slows/deflects |
+| crop (40) | 55 | Open, exposed, human-associated |
+| bare (60) | 60 | Exposed, little cover |
+| water (80) | 90 | Major water bodies deflect movement |
+| built (50) | 95 | Near-barrier |
+
+Slope → resistance, linear to a 45° ceiling: `r_slope = 1 + 99 * pmin(slope,45)/45`
+(0°→1, 10°→~23, 20°→~45, ≥45°→100). Mild — terrain is a weak modifier.
+
+*Roads / traffic → resistance (closes the AADT→resistance question deferred from
+Decision 25).* **Method changed from bins to a log transform to match the local
+calibration study.** Hansen et al. 2025 (these exact pumas) weight roads by a
+**log-inverse transformation of average daily traffic**, explicitly to compress
+the dynamic range and reduce the disproportionate influence of high-traffic
+pixels. That compression is also the correct treatment for the Decision-25
+spatial_fill upward bias: a log scale flattens the inflated high-AADT tail, so the
+biased interpolation cannot dominate the surface. This supersedes the earlier
+4-bin proposal (bins were a cruder version of the same intent; the published
+log transform is preferred).
+
+Road resistance applies only to cells a `barrier_puma` road crosses (highway +
+arterial, Decision 24). Continuous log map, rescaled to 1–100:
+```
+R_road = 1 + 99 * ( log1p(aadt) - log1p(a_min) ) / ( log1p(a_max) - log1p(a_min) )
+```
+with `a_min`/`a_max` = the 1st/99th percentile of `aadt` over barrier-road cells
+(winsorised so a single extreme station cannot set the scale). Effect: a quiet
+5k arterial ≈ 40, a 50k highway ≈ 80, a 200k+ freeway → ~100, with the steep part
+of the curve at low volumes where a puma's crossing decision actually changes —
+the log compresses differences among already-busy roads, exactly the bias fix.
+
+`spatial_fill`/`modelled` cells are flagged in a companion band (`aadt_conf`) so
+sensitivity check 1 can drop them to `R_land`; the log transform already absorbs
+the volume bias, so no value change is made — only auditability. Non-barrier roads
+(`local`/`permeable`, `barrier_puma = FALSE`) contribute no override; tracks/paths
+are not barriers (Decision 24).
+
+*Assembly.*
+```
+R_land = 0.45*r_ghm + 0.40*r_lc + 0.15*r_slope          # 1..100
+R      = ifelse(barrier_puma_cell, pmax(R_land, R_road), R_land)
+R      = clamp(R, 1, 100)
+```
+Output: `resist_puma_baseline_3310.tif` (1 km, EPSG:3310, Float32, 1–100), plus an
+`aadt_conf` companion band for the sensitivity run.
+
+*Pre-registered sensitivity checks (run AFTER build; declared now so they cannot
+reverse-engineer weights).* (1) Road-confidence: rebuild with spatial_fill/modelled
+road cells dropped to `R_land`; if corridor least-cost paths are stable, the AADT
+bias is immaterial (expected). (2) Chaparral (Decision 12): rebuild with shrub
+resistance = tree (5) to bound WorldCover shrub under-mapping; if corridors move
+materially, flag CAL FIRE FVEG supplement. (3) Weight perturbation: ±10% on the
+gHM/land-cover split, reported as a robustness statement, not a tuning loop.
+
+*Known limitations (carried, not fixed).* gHM 300 m→1 km bilinear + edge-fill
+(Decision 23) extends boundary cells rather than measuring them; AADT interpolation
+biased high (Decision 25), compressed by the log-inverse road transform and bounded by sensitivity check
+1; WorldCover shrub under-mapping (Decision 12) bounded by sensitivity check 2;
+1 km grain is coarse for pinch-points (e.g. Coyote Valley) — the baseline surface
+is regional, not site-scale.
+
+*References added (references.md, Bay Area felid research + Methods):* Hansen, K.W., Morgan, J.J., De Alfaro, L., Wilmers, C.C., & Ocampo-Peñuela, N. (2025). *Variation in anthropogenic tolerance alters dispersal capacity of a large carnivore.* bioRxiv 2025.09.29.677867 — local iSSF/EcoScape calibration for 84 Santa Cruz Mountains pumas; source for covariate selection, effect directions, and the log-inverse traffic transform. Zeller, K.A., McGarigal, K., Cushman, S.A., Beier, P., Vickers, T.W., & Boyce, W.M. (2016). *Using step and path selection functions for estimating resistance to movement: pumas as a case study.* Landscape Ecology 31(6), 1319–1335 — foundational puma resistance-from-step-selection method.
+
+*Signed off (2026-08-15, all approved as written):* (1) weights 45/40/15
+(gHM/land-cover/slope; author priors, structure sourced, bounded by sensitivity
+check 3); (2) gHM convex (squared) curve; (3) the eight land-cover class values;
+(4) AADT log-inverse transform (Hansen 2025 method) + p1/p99 winsorising,
+replacing the earlier bins; (5) `max()` road override vs an additive road term;
+(6) aspect excluded from resistance; (7) conspecific density excluded
+(considered-and-excluded note above). No item was altered after the build.
+
+**Decision 27 — A bobcat detection implies observation effort (detection-history encoding)**
+*Date:* 2026-08-15
+*Status:* CLOSED.
+
+*Context.* The bobcat detection history (script 04d) marks a unit-year "surveyed"
+from the Fork-3 target-group background effort layer (Decision 22): a unit-year is
+surveyed if the background feed recorded ≥1 non-bobcat mammal (3A) there that year.
+Crossing the detections against 3A revealed **98 detection unit-years (85 distinct
+units, spread evenly across 2010–2026) where a bobcat WAS detected but the
+background did NOT mark the unit-year surveyed.** These arise because the
+target-group proxy registers effort only from *other* mammals; a unit-year whose
+only mammal observation was the bobcat itself has no background record, so a real
+bobcat detection would fall in an "unsurveyed" (NA) cell.
+
+*Decision.* A verifiable bobcat detection is **direct evidence that observation
+effort occurred** in that unit-year — not a proxy for it. Therefore a detected
+unit-year is encoded **surveyed + detected (1)** even when the target-group
+background did not independently mark it surveyed. This overrides the
+"unsurveyed → NA" rule for **detected cells only**; non-detected unsurveyed cells
+remain NA (never a fabricated 0, per Decision 22).
+
+*Justification.* (a) The alternative — leaving these cells NA — discards ~11% of
+real bobcat detections (98 of ~808 mammal-precise detection cells) purely because
+an imperfect proxy missed them. (b) That discard biases naive detection
+probability *downward* (it removes 1s while retaining the 0s), which is precisely
+the wrong error for Decision 22: the occupancy-vs-SDM fork turns on whether fitted
+p clears the §5.4 line (p < 0.10 → SDM), so systematically deflating p could push a
+genuinely viable occupancy case into a false fallback. (c) An observation record IS
+observation effort by definition; letting a background proxy override ground-truth
+detection inverts the evidence hierarchy. (d) The upgraded cells are logged
+(`tbl_08_detections_upgraded_d27.csv`) so the choice is fully auditable and
+reversible.
+
+*Scope / cost.* Effort is now defined from two sources: the target-group background
+(primary) plus the detections themselves (for detected cells only). This is a
+deliberate, bounded departure from a strictly background-defined design. It cannot
+create false non-detections (0s are still background-defined) and cannot fabricate
+occupancy at unsurveyed sites (only detected cells upgrade). The obscured-coordinate
+caveat (Decision 20/21) is unaffected — obscured detections still only enter the
+"all" sensitivity histories, not the precise-primary one.
+
+*Impact.* Applied in `04d_bobcat_detection_history.R` to all four histories.
+Mammal-precise (the primary for the Decision 22 close) gains 98 detection cells;
+the null fit (script 04e) and Decision 22 close run on the upgraded histories. Effect
+on naive_p is upward (toward honest), recorded in the fit.
 
 ---
 
@@ -1354,3 +1818,16 @@ is not redistributable.
 | 2026-08-09 | 6 | Decision 20 amended — no coord_uncert_m cutoff at layer stage; `coord_uncert_m` preserved on every record, coordinate-quality filtering deferred per-analysis (occupancy/connectivity/KDE tolerate different error); flag-not-cut, consistent with Decision 21 |
 | 2026-08-09 | 5.4/6 | Risk 1 occupancy gate assessed (script 03a, diagnostic only); pre-fit §5.4 criteria PASS on 2010–2026 window — 321 site histories, 194 units ≥2 detection-years, naive ψ 0.284; site=CPAD unit, replicate=calendar year. Decision 22 DRAFTED (occupancy proceeds, not SDM) but HELD OPEN pending Fork-3 background-effort pull that supplies real non-detections; p/instability/GOF deferred to Week-7 fit |
 | 2026-08-09 | 4.3/6 | Fork-3 background effort built (script 03b) — reframed rinat→GBIF async download (iNat 10k cap unworkable, capped even at month/week for City Nature Challenge); GBIF all-datasets vertebrate, dissolved-boundary WKT footprint, 2010–2026, bobcat excluded (DOI 10.15468/dl.6xzcjt; 33.0M pulled, 17.2M in-unit). Two effort layers written (mammal 3A / vertebrate 3B). Fork-3 dependency for Decision 22 SATISFIED; A-vs-B held to Week-7 fit (mammal naive p 0.171 vs vertebrate 0.083 — 3B deflated by bird effort) |
+| 2026-08-10 | 4.9 | HUDEN2020 transform applied (script 04): raw winsorized at study-area p99 = 10,415 units/km² then log1p; 913 blocks capped (1.00%); PLA zeros untouched; hard-ceiling counts recorded not applied (>1e4 988, >1e5 1, >1e6 1). Rasterized to puma 1 km + bobcat 500 m (fine-burn to aggregate); per-unit footprint layer cov_unit_footprint_3310.gpkg written (0 housing NAs) |
+| 2026-08-10 | 4.9 | gHM rasterized to both grids (bilinear) + summarised per unit (area-weighted, native 300 m). Edge-fill: bilinear left land-cell boundary-underlap NAs (1,140 puma / 3,578 bobcat, source cropped to 5 km buffer); filled from nearest valid neighbours, land-bounded, 6 puma / 3 bobcat residual (<0.03%); 0 interior holes; per-unit gHM 0 NA |
+| 2026-08-10 | 6 | Decision 23 Part A CLOSED — HUDEN2020 p99 cap (10,415 units/km²) + log1p applied as pre-registered; p99 converged on the 1e4 hard line (988 blocks), confirming the ceiling non-arbitrary; artifact compressed pre-rasterization |
+| 2026-08-10 | 6 | Decision 23 Part B CLOSED — gHM×housing collinearity per species (unit r=0.07 PLA artifact, bobc 500 m r=0.73, puma 1 km r=0.75, post gHM edge-fill). Bobcat occupancy (unit grain): keep both, PLA caveat carried. Puma resistance (1 km grain, r=0.75): drop housing, keep gHM. Both source layers retained on disk |
+| 2026-08-12 | 6 | Decision 24 CLOSED — tracks/paths NOT barriers for either species (per-species reasoning: puma functionally crossable; bobcat disturbance carried by gHM/housing). road_class + barrier_puma/barrier_bobc flags on cov_roads_classed_3310.gpkg |
+| 2026-08-12 | 6 | Decision 25 CLOSED — AADT string parse (max leg) + 4-tier propagation (measured -> name_fill -> spatial_fill[measured-donor only, 1 km] -> fclass floor), each flagged in aadt_source. spatial_fill skews high (arterial 41k vs measured 27k) = documented DATA PROPERTY (stations sample busy roads), not a join bug; not correctable by interpolation. Station-traceable 55.4%, floor 44.6%; floor accepted. AADT→resistance treatment (bin vs value, per-tier confidence) deferred to resistance pre-reg. cov_roads_traffic_3310.gpkg |
+| 2026-08-12 | 4.8 | Roads/traffic finalised (Decision 14 open items 1+2 closed): cov_roads_classed_3310.gpkg, cov_roads_traffic_3310.gpkg |
+| 2026-08-15 | 6 | Decision 26 CLOSED — puma resistance-surface assignment pre-registered, approved, and built (04c_puma_resistance.R). R_land = 0.45*r_ghm(convex) + 0.40*r_lc(class-fraction) + 0.15*r_slope; R = max(R_land, R_road) on barrier_puma cells; R_road = log-inverse AADT transform (Hansen 2025 method for these pumas, p1/p99=4,000/237,000), replacing the earlier bins after literature review. Aspect + housing (Decision 23) excluded; conspecific density considered-and-excluded. Weights are author priors (no collar data); structure/effect-directions sourced to Hansen 2025 / Zeller 2016 / Wilmers 2013 |
+| 2026-08-15 | 5.5 | resist_puma_baseline_3310.tif built — 1 km, 20,410 cells, 1-100; median 17.2, mean 29.7, pct_barrier>=80 7.4%, 5,507 road cells. Verified against known connectivity (SC Mtns + Diablo permeable, urban bayshore barrier, Coyote Valley/US-101 pinch resolved). aadt_conf companion band written. 3 pre-registered sensitivity checks pending (run on corridor stability) |
+| 2026-08-15 | refs | Added Hansen et al. 2025 (bioRxiv, 84-puma SC Mtns iSSF/EcoScape calibration) + Zeller et al. 2016 (puma resistance-from-step-selection) to references.md — covariate selection, effect directions, log traffic transform |
+| 2026-08-15 | 6 | Decision 27 CLOSED — a bobcat detection implies observation effort; detected unit-years encode surveyed+detected (1) even where the target-group background missed them (98 cells, 85 units, mammal_precise). Prevents a proxy miss from discarding real detections / deflating p. Non-detected unsurveyed cells stay NA. Logged in tbl_08_detections_upgraded_d27.csv |
+| 2026-08-15 | 6/5.4 | Decision 22 CLOSED — occupancy confirmed on 3A mammal background. Null occu(~1 ~1): fitted p=0.295 (annual, clears 0.10 line 3x), converged, psi=0.464 identifiable. Annual MB-GOF degenerate on sparse histories (590 patterns, c-hat~514 artifact); collapsed to 4 periods (44 patterns) -> c-hat=8.9 = expected null-model overdispersion (heterogeneity is the research signal), NOT a fallback trigger. SDM fallback not triggered. Forward check pre-registered: covariate-model c-hat must decline. Scripts 08-09 |
+| 2026-08-15 | 5.4 | Bobcat detection histories built (08): 4 variants (3A/3B x precise/all), unit x year 2010-2026, 1/0/NA encoding. Null fits (09): all 4 clear p>0.10 (0.197-0.318), all converged; verdict robust to background + obscured choice |

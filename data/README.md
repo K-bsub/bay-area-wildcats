@@ -171,10 +171,14 @@ everything after it.
   - `cov_roads_osm_3310.gpkg` — all classes, 936,784 features
   - `cov_roads_osm_major_3310.gpkg` — motorway→secondary + links
   - `cov_aadt_caltrans_points_3310.gpkg` — 2,423 count stations
-- **Caveats:** AADT is **state-highway only** (local roads get an `fclass`-derived
-  floor in Week 5); AADT volumes are **strings** (coerce/clean); Geofabrik has
-  **no DOI** — pin by download date + server timestamp. Tracks/paths permeability
-  and the AADT→segment join are **Week-5** covariate steps. Decision 14.
+- **Caveats:** AADT is **state-highway only**; AADT volumes are **strings**
+  (coerce/clean); Geofabrik has **no DOI** — pin by download date + server
+  timestamp. Decision 14. **Week-5 covariate steps now done (script 04b):**
+  tracks/paths are not barriers for either species (Decision 24); the
+  AADT→segment join parses the strings and propagates volume in 4 tiers
+  (measured → name_fill → spatial_fill → fclass floor), 55.4% station-traceable,
+  the spatial_fill upward bias documented as a data property (Decision 25).
+  Outputs: `cov_roads_classed_3310.gpkg`, `cov_roads_traffic_3310.gpkg`.
 
 ### 9. Human footprint — gHM v3 + SILVIS housing
 > Load-bearing pair carrying the urban-**intensity** gradient WorldCover's single
@@ -197,24 +201,25 @@ everything after it.
 - **Outputs (`data/interim/`):**
   - `cov_ghm_v3_2022_3310.tif` (300 m continuous 0–1)
   - `cov_housing_silvis_blocks_3310.gpkg` (blocks, density + `PUBFLAG`)
-- **Caveats / pre-registered Week-5 handling:**
+- **Caveats / Week-5 handling (now done, script 04):**
   - **PLA** moves houses *out* of protected areas → density inside CPAD units is
     near-zero **by construction** (reads as "edge pressure, not phantom houses";
     QC: `HUDEN2020` median by `PUBFLAG`, public-land median 0 confirmed).
   - **Sliver-block artifact:** `HUDEN2020` max ~2.26M units/km² (p90 ~3k) — tiny
-    blocks with nonzero counts. Handling fixed = **`log1p` + p99/hard cap before
-    rasterization**, not at download.
+    blocks with nonzero counts. Handling applied (Decision 23): winsorize at
+    **study-area p99 = 10,415 units/km²** (913 blocks, 1.00%) then `log1p`,
+    before rasterization.
   - **No WUI flags** in this product (separate SILVIS WUI dataset; not acquired).
-  - **gHM × housing collinearity** check per species before stacking the
-    resistance surface (Week 5).
+  - **gHM × housing collinearity** resolved per species (Decision 23): unit grain
+    r=0.07 (PLA artifact), grid grains r≈0.73–0.75. Puma resistance drops housing
+    (keeps gHM); bobcat occupancy keeps both. gHM boundary-underlap edge-filled.
   - Citation swap: Kennedy et al. 2019 → **Theobald et al. 2024** (Decision 15).
   - Decisions 15 (gHM) and 16 (housing).
 
 ### 10. GBIF background effort — bobcat occupancy non-detections
 > Acquired **Week 4** (script `03b`), not Week 2. This is not focal-species
 > occurrence data — it is the **target-group effort layer** that supplies
-> non-detection 0s for the bobcat occupancy detection history (Fork 3,
-> Decision 22 draft). A unit×year with any non-bobcat vertebrate record = the
+> non-detection 0s for the bobcat occupancy detection history (Fork 3, Decision 22). A unit×year with any non-bobcat vertebrate record = the
 > unit was surveyed; a bobcat absent from a surveyed cell = a real non-detection.
 
 - **Source:** GBIF, **all datasets** (broad effort proxy — museum, eBird-via-GBIF,
@@ -239,10 +244,13 @@ everything after it.
 - **Counts:** 33.0M pulled → 17.2M inside a CPAD unit; bird-dominated (32.7M Aves).
 - **Caveats:** bird effort ≠ bobcat detectability → vertebrate-background naive
   detection rate 0.083 vs mammal 0.171, so the **mammal layer (3A) is
-  target-group-correct**; A-vs-B held to the Week-5 fit (Decision 22 draft).
+  target-group-correct** — confirmed at the Week-5 null fit: mammal (3A) fitted
+  p=0.295 clears the §5.4 line; vertebrate (3B) lower. **Decision 22 CLOSED —
+  occupancy confirmed on the 3A mammal background** (scripts 08–09).
   Boundary-simplification edge fuzz is negligible (the Part-B spatial join clips
   precisely to unit polygons). Absence of a unit×year row = not surveyed = NA,
-  **never a fabricated 0.** Decision 22 (draft).
+  **never a fabricated 0.** Decision 22 (CLOSED); detected-but-unsurveyed cells
+  upgraded per Decision 27 (a detection implies effort).
 
 ---
 

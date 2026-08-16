@@ -1,0 +1,2 @@
+"field","cap_rule","cap_value_per_km2","n_blocks_total","n_blocks_capped","pct_blocks_capped","huden_median","huden_p90","huden_max_raw","ref_ceiling_1e4_n","ref_ceiling_1e5_n","ref_ceiling_1e6_n","transform"
+"HUDEN2020","p99_study_area",10414.96,91223,913,1.001,846.2,2958.6,2263007.3,988,1,1,"log1p(pmin(HUDEN2020, cap))"

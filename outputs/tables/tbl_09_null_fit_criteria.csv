@@ -1,0 +1,5 @@
+"history","background","detection_set","n_sites_fit","psi_hat","p_annual","p_period","p_se_finite","converged","patterns_annual","patterns_collapsed","mb_chat","mb_gof_p","p_below_fallback"
+"mammal_precise","3A_mammal","precise",845,0.464,0.295,0.461,TRUE,TRUE,590,44,8.855,0,FALSE
+"mammal_all","3A_mammal","all_incl_obscured",853,0.52,0.318,0.486,TRUE,TRUE,609,48,8.628,0,FALSE
+"vertebrate_precise","3B_vertebrate","precise",1072,0.317,0.197,0.378,TRUE,TRUE,681,38,9.07,0,FALSE
+"vertebrate_all","3B_vertebrate","all_incl_obscured",1074,0.363,0.208,0.391,TRUE,TRUE,705,43,10.097,0,FALSE
