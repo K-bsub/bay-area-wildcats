@@ -39,8 +39,8 @@
 | **4** | Occurrence processing | Cleaned, deduplicated, CRS-aligned occurrence layers for both species | ✅ Complete |
 | **5** | Covariate preparation | Land cover, terrain, roads, housing summarised to grid and unit | ✅ Complete |
 | **6** | Descriptive spatial analysis | KDE and Gi\* for both species; unit-level statistics | ✅ Complete |
-| **7** | Occupancy modelling | Bobcat occupancy fitted and validated; puma feasibility assessed | 🟢 In progress |
-| **8** | Connectivity analysis | Resistance surface, least-cost paths, core-patch linkages | ⚪ Not started |
+| **7** | Occupancy modelling | Bobcat occupancy fitted and validated; puma feasibility assessed | ✅ Complete |
+| **8** | Connectivity analysis | Least-cost paths + core-patch linkages; three pre-registered sensitivity checks | ✅ Complete — core patches (D32), primary LCP + swath + AADT-tiered crossings (D33), AADT route-PM correction + full re-run (D34), 3 sensitivity checks STABLE / FVEG contingency closed (D35), Q5 KDE-Gi* cross-read (D36), Gabriel connectivity network + weak links (D37). All documented; sensitive-data gated. |
 | **9** | Story site build | Quarto site, maps, charts, narrative | ⚪ Not started |
 | **10** | Review and publication | QA, accessibility check, GitHub Pages deployment, docs finalised | ⚪ Not started |
 
@@ -85,7 +85,7 @@
 - [x] Housing / human footprint: **SILVIS block-level housing density** (PLA v4, CA extract; density baked in — Decision 16, not a Census/tigris build) + **Global Human Modification v3, 2022** (Theobald 2024 COG via /vsicurl — Decision 15, not Kennedy 2019). Per Decision 12 these carry the urban-intensity gradient. `cov_ghm_v3_2022_3310.tif`, `cov_housing_silvis_blocks_3310.gpkg`
 
 *Population context (context only — no time series)*
-- [x] Gather CA Mountain Lion Project abundance estimate + CDFW CESA status review as reference material (not a trend) — in `docs/references.md` §population-and-status. **Flag:** the SC/CC population was **listed threatened (April 2026)**, no longer merely a candidate/status-review — the inherited "status review supporting listing" wording is now stale; verify against the primary FGC notice before public use, and reconcile `data-sources.md` §5
+- [x] Gather CA Mountain Lion Project abundance estimate + CDFW CESA status review as reference material (not a trend) — in `docs/references.md` §population-and-status. **Resolved (2026-08-17):** the SC/CC DPS was **listed threatened by Commission vote on February 12, 2026** (not April — that was the next scheduled meeting), on the CDFW status-review report dated December 2025; verified against the FGC/CDFW release. `references.md` and `data-sources.md` §5 reconciled to match.
 
 *Documentation & reproducibility*
 - [x] Write `scripts/01_download_open_data.R` (scripted downloads where possible: `rgbif`, `rinat`, `elevatr`, `tigris`, `osmdata`) — all blocks written: CPAD/CCED/boundary/GBIF/iNat/WorldCover/terrain/roads+AADT/gHM/SILVIS
@@ -178,9 +178,9 @@ Target output: `openspace_cpad_bayarea_3310.gpkg`. Next Decision number is 17.*
 - [x] `naming-conventions.md` §2 — already using `cov_landcover_worldcover2021_3310.tif`
       (NLCD example was already fixed; no change needed).
 - [x] Reconcile `data-sources.md` §5 CESA framing: corrected "status review"
-      (candidate) → **listed threatened April 2026** (SC/CC DPS; Central Coast
-      North = Santa Cruz Mountains). Verify against primary FGC notice before any
-      public-facing claim.
+      (candidate) → **listed threatened by Commission vote February 12, 2026**
+      (SC/CC DPS; Central Coast North = Santa Cruz Mountains). Verified 2026-08-17
+      against the FGC/CDFW release; `references.md` and `data-sources.md` §5 match.
 
 *Explicitly NOT this week (guard against scope creep — Risk 4)*
 - Occurrence dedupe/clip (Week 4) — including the puma unique-count confirmation.
@@ -462,13 +462,17 @@ number is 31.*
   (Week 6) — the KDE / Gi* pattern to sanity-check the fitted ψ surface against.
 
 *Bobcat covariate occupancy fit (`unmarked::occu()`)*
-- [ ] **Detection sub-model (p).** Fit detection covariates before occupancy
+- [x] **Detection sub-model (p).** Fit detection covariates before occupancy
       covariates (standard `unmarked` order). Candidate detection covariates:
       per-unit effort (surveyed-year count) and any year/effort-structure term.
       State the covariate set and the standardisation (centre/scale continuous
       covariates before fitting). Primary background = 3A mammal_precise
       (Decision 22); 3B and the `_all` histories carried as the sensitivity set.
-- [ ] **Occupancy sub-model (ψ).** Fit habitat covariates from
+      *Done (Decision 31): the effort term was upgraded from binary `surveyed` to a
+      graded per-occasion `eff_nrec` (record count, 03b re-emitted) entering as
+      `scale(log1p(eff_nrec))` (transform chosen from observed deciles). Best model
+      p1 `~eff_nrec_s`, ΔAICc 408 over null; year term adds nothing.*
+- [x] **Occupancy sub-model (ψ).** Fit habitat covariates from
       `stack_occu_units_3310.gpkg`. Respect the Decision 23 keep/drop: bobcat
       **keeps both gHM and housing** at unit grain (r=0.07 PLA artifact, not
       collinear at this grain). Land cover as class-fractions, terrain
@@ -476,13 +480,21 @@ number is 31.*
       State the candidate model set and the selection approach (AIC / model
       averaging) **before** fitting — pre-registration discipline (as with the
       KDE bandwidth rule and the resistance weights).
-- [ ] **Collinearity + scaling check** on the covariate design matrix before
+      *Done (Decision 31): 7-model nested set pre-registered; best `m_full`
+      (terrain + land + human), confidence set {m_full, m_fullgrad} ΔAICc 1.37,
+      psi model-averaged over that set. `lc_frac_shrub` excluded (Decision 12).
+      Effect directions: elevation +, tree +, gHM − — all expected.*
+- [x] **Collinearity + scaling check** on the covariate design matrix before
       fitting — report VIF or a correlation screen; drop/keep decisions recorded,
       not silent. The gHM×housing unit-grain r=0.07 is expected (Decision 23) but
       re-confirm on the actual model matrix.
+      *Done (Decision 31, `tbl_12`): gHM×housing r=0.094 on the model matrix
+      (keep-both re-confirmed). VIF computed two ways — manual `lm()` and
+      `usdm::vif` agree to 3 dp. All < 4 except `lc_frac_tree`=5.18: flagged and
+      KEPT with recorded justification (marginal vs VIF≥10, primary habitat axis).*
 
 *Pre-registered forward check (the Decision 22 commitment — DO NOT skip)*
-- [ ] **Covariate-model c-hat decline check.** The null model's c-hat ≈ 8.9
+- [x] **Covariate-model c-hat decline check.** The null model's c-hat ≈ 8.9
       (collapsed 4-period MB-GOF) **must decline substantially** once habitat
       covariates are added — that decline is the evidence the heterogeneity is
       real modelled signal, not structural misfit. Report the covariate-model
@@ -491,38 +503,63 @@ number is 31.*
       unmodelled spatial autocorrelation, missing detection covariates, or
       effort-structure bias); report c-hat-inflated SEs and record the diagnosis.
       This is a declared check, not a post-hoc rescue.
+      *PASSED (Decision 22 close, `tbl_14`): c-hat 8.9 → **1.47** (GOF p=0.052).
+      Substantial decline — null overdispersion was real habitat heterogeneity the
+      covariates absorbed. No lack-of-fit branch triggered. (GOF p is a hair above
+      0.05 — noted; c-hat is unambiguous.) A parboot namespace bug that first
+      returned NA was found and fixed; error now surfaced not swallowed.*
 
 *Prediction + descriptive cross-read*
-- [ ] **ψ prediction surface**, keyed `unit_id`, per the primary model
+- [x] **ψ prediction surface**, keyed `unit_id`, per the primary model
       (`occu_bobc_pred_unit_3310.gpkg` or similar, `occu_` theme). Bobcat is
       low-sensitivity — no publish-floor constraint, but review before publication
       per policy §3.
-- [ ] **Cross-check fitted ψ against the Week-6 descriptive pattern.** Do the
+      *Done: `occu_bobc_pred_unit_3310.gpkg` written (1,129 units, 845 modelled /
+      284 NA), model-averaged psi over the confidence set. psi 0.035–1.000, median
+      0.669. Dictionary entry added; policy §3 review note carried.*
+- [x] **Cross-check fitted ψ against the Week-6 descriptive pattern.** Do the
       high-ψ units align with the Gi* hot units and the KDE peaks, or diverge?
       Divergence is informative (Q5: effort-driven descriptive pattern vs
       covariate-driven modelled pattern) — state it, don't smooth it over.
+      *Done (`tbl_15`): they DIVERGE. psi vs KDE-mean r=0.075 (near-zero). All 5
+      Gi* hot units fall in the top-two psi quintiles (agreement where clusters
+      exist), but the broad descriptive pattern is effort-shaped, not
+      habitat-shaped — the Q5 signal, stated as a finding. (Correlation is over
+      units with non-NA KDE; ~301 units are masked-NA.)*
 
 *Puma feasibility close (milestone-table item)*
-- [ ] **Confirm the puma track needs no occupancy fit.** Puma stays
+- [x] **Confirm the puma track needs no occupancy fit.** Puma stays
       connectivity/SDM (proposal Q3; Decision 22 applies to bobcat only). Record a
       one-line confirmation that the puma occupancy fork was never opened — the
       puma deliverables are the resistance surface (done, Decision 26) + Week-8
       least-cost corridors, plus the Week-6 KDE/Gi* descriptive layer. No new
       decision needed unless something forces the fork open.
+      *Confirmed (recorded in Decision 31, "Puma feasibility close" sub-block): the
+      puma occupancy fork was never opened; deliverables are resistance (Decision
+      26) + Week-8 corridors + Week-6 KDE/Gi*. No new decision.*
 
 *Documentation & reproducibility*
-- [ ] Numbered decision(s) for the covariate model set + selection approach, and
+- [x] Numbered decision(s) for the covariate model set + selection approach, and
       for the c-hat forward-check outcome (a Decision recording pass/fail and any
       remediation). Record standardisation and the detection/occupancy covariate
-      sets.
-- [ ] Add the ψ prediction surface (and any model-summary table) to
-      `docs/data-dictionary.md`; models to `outputs/models/`.
-- [ ] Update `methodology.md` §5.4 (occupancy — method now executed with
+      sets. *Done: Decision 31 (covariate sets, log1p/scale standardisation, AICc +
+      averaging, VIF keep sub-decision) and the forward-check pass folded into it +
+      the Decision 22 close in §5.4/§9.*
+- [x] Add the ψ prediction surface (and any model-summary table) to
+      `docs/data-dictionary.md`; models to `outputs/models/`. *Done: ψ-surface
+      entry + `eff_nrec` rows added; `tbl_11`–`tbl_16` and the `.rds` models
+      referenced from the surface entry (per convention, tables/models are not
+      given per-file field entries — the data dictionary documents spatial layers;
+      cf. `tbl_09`/`tbl_10` referenced the same way).*
+- [x] Update `methodology.md` §5.4 (occupancy — method now executed with
       covariates), §6 (decisions), §9 (change log). Close the Decision 22 forward
-      check explicitly.
-- [ ] New packages if any (e.g. `AICcmodavg` for GOF/`c-hat`, if not already in
+      check explicitly. *Done: §5.4 as-built + forward-check close; Decision 31 in
+      §6; three change-log rows in §9; Decision 22 forward check closed explicitly.*
+- [x] New packages if any (e.g. `AICcmodavg` for GOF/`c-hat`, if not already in
       the stack) → confirm in `00_setup_environment.R` / `renv.lock`;
       `renv::install()` + `renv::snapshot()` only if genuinely absent.
+      *Done: `AICcmodavg` confirmed already in `renv.lock` (was undeclared in the
+      setup script — added, no install). `usdm` added for the VIF cross-check.*
 
 *Carry-ins / parked (tracked, NOT started here)*
 - Puma resistance sensitivity checks (Decision 26: road-confidence, chaparral,
@@ -535,6 +572,189 @@ number is 31.*
 - Least-cost paths / corridor extraction + puma resistance sensitivity (Week 8).
 - Story-site build (Week 9); CROS integration (parked); Felidae (deferred).
 - Any puma occupancy model — the puma track is connectivity/SDM by design.
+
+---
+
+## Week 8 tasks — puma connectivity: least-cost corridors + resistance sensitivity
+
+*Goal: turn the built resistance surface into the puma connectivity deliverable —
+least-cost paths and corridor swaths between core habitat patches — and run the
+three pre-registered Decision-26 sensitivity checks (judged on corridor stability,
+not by tuning the surface). Puma track only; puma and bobcat never pooled
+(Decision 3). The resistance surface itself is already built and verified
+(Decision 26, `04c_puma_resistance.R`) — Week 8 consumes it, does not rebuild it.
+Next Decision number is 32.*
+
+*Inputs on hand (from Weeks 5–7)*
+- Resistance surface: `resist_puma_baseline_3310.tif` (1 km, 1–100, 20,410 land
+  cells; `outputs/rasters/`) + its `resist_puma_aadt_conf_3310.tif` companion band
+  (drives sensitivity check 1).
+- Corridor patch input: the **CPAD∪CCED union** `protected_union_bayarea_3310.gpkg`
+  (Decision 19), dissolved into habitat patches — **not** CPAD Units (Units are the
+  occupancy frame; the connectivity track does not use any CPAD level as its unit,
+  methodology §3 per-track note).
+- Named endpoints / features: **Santa Cruz Mountains ↔ Diablo Range** the primary
+  linkage; **Coyote Valley / US-101** the key pinch point (Decision 26 verification
+  already reads it as a barrier between the two ranges).
+- Packages: `leastcostpath`, `gdistance` — declared in `00_setup_environment.R` but
+  flagged "not needed until connectivity; revisit if install fails." **First Week-8
+  step is to confirm both install and are in `renv.lock`** before any corridor code.
+
+*Pre-work — packages + endpoints (do before any least-cost code)*
+- [x] Confirm `leastcostpath` + `gdistance` install cleanly and are in `renv.lock`. **Done (2026-08-18):** both installed (leastcostpath 2.0.13, gdistance 1.6.5); leastcostpath uses the terra `create_cs` API (≥2.0), so gdistance is not on the corridor path. Both snapshotted into `renv.lock`.
+- [x] **Define core habitat patches** from `protected_union_bayarea_3310.gpkg`. **Done (Decision 32):** fork-A dissolve, 5 km² home-range floor (from the observed area distribution; 1 km²/mid-curve rejected). **164 cores**, 3,512 stepping-stones retained, 591 sub-100 m² dust dropped. Named endpoints verified + two seed labels corrected: SC Mtns = patch 1727, southern Diablo = patch 3972 (`patch_id 220` = Marin/Mt Tam, NOT an endpoint).
+
+*Least-cost paths + corridors (`lcp_` theme)*
+- [x] **Build the transition/conductance object.** **Done (Decision 33):** `create_cs`, `cond = 1/R` inversion (required — package reads high = permeable), 16-neighbour (Antikainen 2013/Shirabe 2016), no DEM/max_slope (slope already in R).
+- [x] **Least-cost paths between core patches.** **Done (Decision 33):** SC Mtns (1727) → southern Diablo (3972), 37.2 km through Coyote Valley, 1.6 km from the verified US-101 pinch. `lcp_puma_scmtns_to_diablo_3310.gpkg`. (Secondary flanking-core pairs deferred to the next step.)
+- [x] **Corridor swaths, not just centre-lines.** **Done (Decision 33):** two-tier band from the observed cost distribution (below the q25→q50 cliff) — core q2% (409 km²) / context q5% (1,021 km²). q10% rejected (would erase the narrow pinch). `lcp_puma_scmtns_to_diablo_swath_3310.gpkg`.
+- [x] **Identify road/barrier intersections.** **Done (Decision 33/34):** crossings ranked WITHIN `aadt_source` confidence tiers; US-101 (142k, `measured_route_pm`, `in_core`) the top measured crossing. `lcp_puma_scmtns_to_diablo_crossings_3310.gpkg`, `tbl_20`.
+
+*Pre-registered sensitivity checks (Decision 26 — declared before the build, run now)*
+- [x] **(1) Road-confidence.** **Done (Decision 34) — STABLE.** The AADT route-PM correction (US-101 80k modelled → 142k measured) triggered a full re-run (`04b`→`04c`→`07`); the v1(80k)-vs-v2(142k) corridor comparison IS this check. Corridor fully robust: LCP identical (Hausdorff 0 m), core swath IoU 1.000, context 0.990, cost Spearman 1.000; accumulated cost +4.4%. Rank-preserving (both AADT values in the log-inverse high-resistance tail). Material for crossing SEVERITY ranking, immaterial for corridor GEOMETRY. `tbl_21`, `fig_20`. **Note:** implemented as the AADT-correction comparison, not the originally-planned `aadt_conf = 0` rebuild — the route-PM fix superseded it (both test the same thing: is the corridor sensitive to AADT confidence).
+- [x] **(2) Chaparral (Decision 12).** Rebuild with shrub resistance = tree (5) to
+      bound WorldCover shrub under-mapping; re-extract. **If corridors move
+      materially, flag the CAL FIRE FVEG supplement**; if not, the under-mapping is
+      immaterial to connectivity.
+- [x] **(3) Weight perturbation.** ±10% on the gHM / land-cover split (45/40 →
+      bounds), re-extract, and **report corridor stability as a robustness
+      statement — not a tuning loop.** The weights are author priors (Decision 26);
+      this bounds them, it does not re-fit them.
+- [x] **Judge all three on corridor stability**, and record the verdict as a
+      numbered Decision (pass = corridors robust to the known data limitations;
+      fail = name which check moved the corridor and what supplement it triggers).
+
+*Prediction + cross-read*
+- [x] **Cross-read corridors against the Week-6 puma KDE / Gi\* descriptive layer.**
+      Do the modelled corridors run through the puma KDE peaks and Gi\* hot units, or
+      diverge? Divergence is the Q5 signal for the puma track (effort-driven
+      descriptive vs structure-driven modelled) — state it, as with the bobcat ψ
+      cross-read.
+- [x] **Sensitive-data check before any export.** Puma outputs are gated: every
+      published puma surface ≥1 km through `assert_publishable()`; corridors are
+      generalised line/swath geometry (no precise points), reviewed per
+      sensitive-data-policy §3 before they reach the story site.
+
+*Documentation & reproducibility*
+- [x] Numbered decision(s) for: the core-patch definition rule; the
+      transition/neighbourhood choice; the corridor-swath band rule; and the
+      sensitivity-check verdict (pass/fail + any supplement triggered).
+- [x] Add the corridor / LCP layers to `docs/data-dictionary.md` (`lcp_` theme);
+      any figures to `outputs/figures/`.
+- [x] Update `methodology.md` §5.5 (connectivity — method now executed), §6
+      (decisions), §9 (change log).
+- [x] **Flag to reconcile (not Week-8-blocking):** the Decision 26 header in
+      `methodology.md` / the pre-registration file names the build script
+      `07_puma_resistance.R`, but the actual script and the data-dictionary say
+      `04c_puma_resistance.R`. A stale script-number reference like the `04d`/`04e`
+      case — correct the Decision-26 wording in the doc-cleanup pass; do not rename
+      the script.
+
+*Carry-ins / parked (tracked, NOT started here)*
+- CROS road-mortality overlay (Decision 11) — still parked, awaiting F. Shilling
+  reply. It is the Q4 threat overlay (corridors vs roadkill), a Week-8+ item only
+  **if** terms are granted; do not block corridor extraction on it.
+- Felidae partner data (Decision 7) — deferred; the conspecific-density corridor
+  modifier (considered-and-excluded, Decision 26) waits on it, not Week 8.
+- Circuit-theory (Omniscape/Circuitscape) — an *optional* extension in §5.5, not a
+  Week-8 commitment; least-cost is the backbone deliverable.
+
+*Explicitly NOT this week (Risk 4 — scope guard)*
+- Rebuilding or re-tuning the resistance surface — it is built and pre-registered
+  (Decision 26); the sensitivity checks are diagnostics, not a new baseline.
+- Story-site build (Week 9); CROS integration (parked); Felidae (deferred).
+- Any bobcat connectivity work — the bobcat track is occupancy, closed in Week 7.
+
+---
+
+## Week 9 tasks — story site build (Quarto → GitHub Pages)
+
+*Goal: turn the completed two-track analysis (bobcat occupancy + puma connectivity,
+plus the shared KDE/Gi* descriptive layer and the Q5 effort thread) into the
+published story site. Content only — the analysis is DONE; Week 9 writes narrative,
+builds maps/charts from the existing processed layers, and deploys. No new
+analysis, no new Decisions unless a genuine choice arises. Sister-project parity:
+match the tiger story-site structure. Next Decision number is 38 (only if needed).*
+
+*Inputs on hand (Weeks 3–8 — all built, documented, sensitive-data gated)*
+- Bobcat: `occu_bobc_pred_unit_3310.gpkg` (ψ surface), `kde_bobc_current_500m_3310.tif`,
+  `hot_bobc_gistar_unit_3310.gpkg`, occupancy model tables (tbl_11–16).
+- Puma: `resist_puma_baseline_3310.tif`, the `lcp_` corridor/swath/crossing/network
+  layers, `kde_puma_current_1km_3310.tif`, `hot_puma_gistar_unit_3310.gpkg`.
+- Cross-cutting Q5: bobcat ψ-vs-KDE divergence (D31/tbl_15) + puma corridor
+  convergence (D36/tbl_23) — the effort thread that ties both tracks.
+- Site skeleton already live at k-bsub.github.io/bay-area-wildcats (README).
+
+*Publishing infrastructure (confirm before content)*
+- [ ] Confirm the Quarto site builds locally (`quarto render site`) and the
+      `site/_freeze/` freeze commits; the publish Action needs only Quarto, not the
+      R spatial stack (README "Notes on publishing"). Verify GitHub Pages serves
+      from the `gh-pages` branch / root, NOT `/docs`.
+- [ ] `renv::snapshot()` to bank the Week-8 additions (`leastcostpath`, `gdistance`,
+      `igraph`) into `renv.lock` before the site references any of it.
+
+*Narrative structure (match the tiger story site; one page/section per question)*
+- [ ] **Framing / landing.** The urban-edge distribution-and-coexistence framing
+      (NOT recovery — no census; proposal §1, README). State the parallel-tracks
+      design and the puma/bobcat data asymmetry up front.
+- [ ] **Q1 Landscape.** Protected-open-space distribution + fragmentation from a
+      wide-ranging-carnivore view. Uses the CPAD∪CCED union + the core-patch layer.
+- [ ] **Q2 Bobcat.** Occupancy (ψ) surface + covariate story (terrain/land/human;
+      gHM+housing kept), KDE, Gi* hot units. Every map states its detection-bias
+      caveat (success criterion).
+- [ ] **Q3 Puma connectivity (lead deliverable).** Resistance surface → SC Mtns ↔
+      Diablo corridor. **Lead with the two-tier SWATH, not the centre-line** (the
+      LCP centre-line is the least-accurate connectivity form — D36 literature).
+      Barrier crossings ranked by AADT (US-101 / Coyote Valley the top barrier,
+      142k — D34). The Gabriel network + the traffic-pinch-vs-structural-weak-link
+      distinction (D37): Coyote Valley = traffic priority, cross-bay links =
+      structural fragility (with the artifact caveat — do not present cross-bay
+      links as protectable corridors).
+- [ ] **Q4 Road mortality.** CROS is PARKED (Decision 11, awaiting F. Shilling; no
+      scraping). Present the corridor × barrier-crossing result as the mortality-
+      RISK proxy in the interim, and state the CROS overlay as pending/future.
+      Do NOT fabricate a mortality layer.
+- [ ] **Q5 Effort (cross-cutting, first-class).** The effort thread: bobcat ψ
+      DIVERGES from effort-shaped KDE (model corrects effort); puma corridor
+      CONVERGES with observed density (no effort term, lands on real signal). State
+      both, and the shared caveat that descriptive layers are effort-shaped.
+
+*Maps + charts (from existing layers — no new analysis)*
+- [ ] Leaflet/interactive maps for the published surfaces (all puma rasters ≥1 km,
+      corridors as generalised geometry — sensitive-data-policy §3; re-confirm no
+      precise puma points reach any figure/popup/caption).
+- [ ] Static figures already exist (fig_01–23) — reuse; regenerate any that need
+      story-site styling.
+- [ ] Every published puma/bobcat map carries its **detection-bias caveat**
+      (success criterion) and the connectivity maps carry the "hypothesis, not
+      telemetry-validated" ceiling (D36/D37).
+
+*Honesty / limitations page (carry the ceilings forward — do not bury)*
+- [ ] Single limitations section stating: corridors are author-prior-weighted
+      hypotheses, not telemetry-validated (D36/D37); the ~1.5 km gHM-weight route
+      play (D35); the WorldCover chaparral under-mapping (immaterial to
+      connectivity, D35, but stated); the AADT spatial-fill upward bias for
+      local/arterial roads (D25); the cross-bay network artifact (D37); the Q5
+      effort-shaping of all descriptive layers.
+
+*Deploy*
+- [ ] `quarto render site` locally, commit `site/_freeze/`, push; the Action
+      deploys to `gh-pages`. Confirm the live site renders and no sensitive data
+      is exposed (final §3 review before the site goes public).
+
+*Explicitly NOT in Week 9*
+- CROS road-mortality integration (parked, Decision 11) — future phase.
+- Felidae camera-trap data (deferred, Decision 7) — future phase.
+- Circuit-theory (Omniscape/Circuitscape) connectivity — optional §5.5 extension,
+  not a Phase-1 deliverable.
+- `ref`-field recovery (Decision 34 follow-up) — non-blocking, future.
+- Any new analysis: Week 9 is content + deploy only.
+
+*Documentation*
+- [ ] Update `methodology.md` §9 with the site-build entry; `README.md` status →
+      "Week 9 complete / site live"; `project-plan.md` milestone row 9 → ✅.
+- [ ] End-of-week: generate the Week-9 handoff (or a project-complete summary if
+      Phase 1 closes at the published site).
 
 ---
 
@@ -780,13 +1000,16 @@ is broken — use the WorldCover AWS COGs already in the script.
   Mountain Lion Project census report marked *to locate* (not invented).
 - **⚠️ Stale-framing flag (the real find):** the inherited docs describe the
   SC/CC population as under a "status review supporting CESA listing" — i.e.
-  *candidate*. As of **April 2026 it was formally listed as threatened** (the
+  *candidate*. It was in fact **formally listed as threatened** (the
   SC/CC **DPS**, SF Bay Area south to the Mexico border). **Central Coast North =
   the Santa Cruz Mountains pumas** — the exact population the puma connectivity
   narrative is built on. Flagged inline in `references.md`; `data-sources.md` §5
   left for Kiran to reconcile. Listing post-dates training cutoff; confirmed by
   web search 2026-08-03 via legal-alert secondary sources — **verify against the
-  primary FGC notice before any public-facing claim.**
+  primary FGC notice before any public-facing claim.** *[Resolved 2026-08-17: the
+  vote was **February 12, 2026** (an earlier draft's "April 2026" was the next
+  scheduled meeting, not the vote); corrected and reconciled across
+  `references.md` and `data-sources.md` §5.]*
 - **`data/README.md` (task 2):** per-layer acquisition spine — source / how /
   output for every open layer in `01_download_open_data.R` order, plus CROS and
   Felidae documented as gated/parked. Encodes the two-CRS discipline and the
@@ -845,8 +1068,9 @@ is broken — use the WorldCover AWS COGs already in the script.
 - **Docs updated:** Decisions 17–19 in `methodology.md` §6 + change log §9; four
   layers in `data-dictionary.md`; `data-sources.md` CPAD/CCED derived-output
   notes + feature counts; `data-sources.md` §5 CESA framing corrected to the
-  April 2026 threatened listing. `data/interim/**` + `data/restricted/**`
-  gitignore confirmed clean.
+  threatened listing (dated to the **February 12, 2026** Commission vote after the
+  2026-08-17 verification; an interim draft had said "April 2026").
+  `data/interim/**` + `data/restricted/**` gitignore confirmed clean.
 - **Two area definitions coexist by design:** occupancy `hab_area_km2`
   (4,660.4 km², habitat only) vs union raw `area_km2` (fee 4,720.8 km²) — the
   ~61 km² gap is flagged interior non-habitat, documented in the data dictionary
@@ -976,3 +1200,62 @@ is broken — use the WorldCover AWS COGs already in the script.
 - **Blockers:** none.
 - **Next:** Week 7 — covariate occupancy model fitting for bobcat (the null fit is
   done; covariate models close the Decision 22 forward check).
+
+### Week 7 closeout — August 17, 2026
+- **Progress:** ✅ **Week 7 complete** — bobcat covariate occupancy model fitted;
+  the Decision 22 forward check passed; puma feasibility closed. Decision 31
+  closed. Main script `06_occupancy_models.R`; effort builder `03b` re-emitted with
+  graded intensity. Next Decision number is 32.
+- **Graded effort (03b re-run).** The effort layers were re-emitted with a graded
+  per-occasion `eff_nrec` (count of non-bobcat background records per surveyed
+  unit×year) alongside the retained binary `surveyed` — the binary marker could
+  not carry a detection sub-model. `eff_nrec` is an observer-intensity **proxy**
+  (background volume, not bobcat survey effort); caveat carried. 3A deciles
+  1/1/1/1/2/3/4/6/10/21/1238 (heavy right skew) drove the `log1p` transform choice.
+- **Detection sub-model (Decision 31).** Pre-registered p0–p3 with
+  `eff_nrec_s = scale(log1p(eff_nrec))` and a scaled year term. Best **p1
+  `~eff_nrec_s`**, ΔAICc 408 over the null; year adds nothing. Detection is
+  effort-driven and nothing else.
+- **Occupancy sub-model (Decision 31).** Pre-registered 7-model nested set; best
+  **`m_full`** (terrain + land cover + human footprint), confidence set {m_full,
+  m_fullgrad} (ΔAICc 1.37, `spans_gradient` weak). psi **model-averaged** over the
+  confidence set. `lc_frac_shrub` excluded (Decision 12). Effect directions
+  ecologically expected (elevation +, tree +, gHM −, effort +).
+- **Collinearity (Decision 31, `tbl_12`).** gHM×housing r=**0.094** on the model
+  matrix (Decision 23 keep-both re-confirmed). VIF two ways — manual `lm()` and
+  `usdm::vif` agree to 3 dp; all < 4 except `lc_frac_tree`=**5.18**, flagged and
+  **kept** with a recorded justification (marginal vs the VIF≥10 action threshold;
+  primary bobcat-habitat axis; stable finite-SE fit).
+- **Forward check — PASSED (Decision 22 close, `tbl_14`).** Covariate-model
+  collapsed 4-period MB-GOF **c-hat = 1.47** (GOF p=0.052), down from the null
+  8.9 — a substantial decline. The null overdispersion was real habitat
+  heterogeneity the covariates absorbed, not misfit; SDM fallback stays
+  untriggered. GOF p sits a hair above 0.05 (noted, not reopened). A parboot
+  namespace bug (`object 'unmarked' not found`) first returned c-hat=NA; fixed
+  (attached `unmarked`, `do.call`-inlined formula, `parallel=FALSE`) and the error
+  is now surfaced, not swallowed.
+- **ψ surface + Q5 cross-read.** `occu_bobc_pred_unit_3310.gpkg` written (1,129
+  units, 845 modelled / 284 NA; psi median 0.669). Cross-read (`tbl_15`): fitted
+  psi and the Week-6 descriptive pattern **diverge** — psi vs KDE-mean r=**0.075**;
+  all 5 Gi* hot units sit in the top-two psi quintiles (agreement where clusters
+  exist) but the broad descriptive surface is effort-shaped. Stated as the Q5
+  finding, not smoothed over.
+- **Sensitivity (`tbl_16`).** `m_full` refit on all four histories: all converge,
+  finite SEs, mean psi 0.49 (3B) – 0.62 (3A). Background/obscured fork does not
+  change the model or the story.
+- **Puma feasibility closed.** Confirmed the puma track needs no occupancy fit
+  (connectivity/SDM by design; Decision 22 is bobcat-only). Recorded in Decision
+  31. Puma deliverables: resistance surface (Decision 26) + Week-8 corridors +
+  Week-6 KDE/Gi*.
+- **Packages.** `AICcmodavg` confirmed already in `renv.lock` (was undeclared in
+  `00_setup_environment.R` — added; no install). `usdm` added for the VIF
+  cross-check.
+- **Docs updated:** Decision 31 + §5.4 + §9 in `methodology.md`; ψ surface +
+  `eff_nrec` + `tbl_11`–`tbl_16` in `data-dictionary.md`; script-numbering headers
+  in `04d`/`04e` corrected (output `tbl_08`/`tbl_09` names deliberately unchanged);
+  CESA wording corrected to the Feb 12, 2026 vote across `references.md`,
+  `data-sources.md` §5, and this plan (was stale "April 2026").
+- **Blockers:** none.
+- **Next:** Week 8 — puma least-cost corridors from `resist_puma_baseline_3310.tif`
+  (Decision 26 sensitivity checks: road-confidence, chaparral, ±10% weight).
+  CROS still parked (Decision 11, awaiting F. Shilling).

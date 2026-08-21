@@ -1,0 +1,12 @@
+"metric","value"
+"lcp_len_v1_km",37.19
+"lcp_len_v2_km",37.19
+"lcp_hausdorff_m",0
+"lcp_mean_sep_m",0
+"lcp_max_sep_m",0
+"lcp_p90_sep_m",0
+"core_swath_iou",1
+"context_swath_iou",0.99
+"core_frac_v1_kept",1
+"context_frac_v1_kept",0.995
+"cost_surface_spearman",1

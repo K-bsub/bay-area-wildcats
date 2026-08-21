@@ -512,6 +512,7 @@ unit × year
 | `unit_id` | integer | — | CPAD unit key (join to occupancy frame) | cpad | No |
 | `yr` | integer | year | Calendar year of background effort (2010–2026) | derived | No |
 | `surveyed` | integer | — | Constant `1` — presence of ≥1 non-bobcat mammal record in this unit × year (effort marker). **Absence of a row = not surveyed = NA, never a 0** | derived | No |
+| `eff_nrec` | integer | records | **Graded** observer-intensity proxy: count of non-bobcat mammal records in this unit × year (≥1 by construction). The per-occasion detection covariate for the occupancy fit; enters as `scale(log1p(eff_nrec))` (Decision 31). Deciles 1/1/1/1/2/3/4/6/10/21/1238 (heavy right skew). **PROXY — background volume, not bobcat survey effort** | derived | No |
 
 **Notes:**
 - **This is the non-detection basis for bobcat occupancy** (Decision 22 draft).
@@ -545,6 +546,7 @@ unit × year
 | `unit_id` | integer | — | CPAD unit key | cpad | No |
 | `yr` | integer | year | Calendar year of background effort (2010–2026) | derived | No |
 | `surveyed` | integer | — | Constant `1` — presence of ≥1 non-bobcat **vertebrate** record in this unit × year. Absence of a row = not surveyed = NA, never a 0 | derived | No |
+| `eff_nrec` | integer | records | **Graded** observer-intensity proxy: count of non-bobcat vertebrate records in this unit × year (≥1 by construction). Same role as in 3A; bird-dominated, so far more skewed — median 106, max 158,123. Enters as `scale(log1p(eff_nrec))` (Decision 31). **PROXY — background volume, not bobcat survey effort** | derived | No |
 
 **Notes:**
 - Same structure and role as the mammal layer (3A), broader taxon net.
@@ -708,6 +710,43 @@ unit × year
 - Both footprint layers retained (bobcat, Decision 23): gHM + housing are
   effectively uncorrelated at unit grain (r=0.07 PLA artifact, not independence).
 - Aspect decomposed to north/east because a mean of compass degrees is invalid.
+
+---
+
+### `occu_bobc_pred_unit_3310.gpkg`  — bobcat modelled occupancy (ψ) surface
+
+**Source:** model-averaged prediction from the bobcat covariate occupancy fit
+**Geometry:** polygon (MULTIPOLYGON) — CPAD unit, one row per unit (1,129)
+**CRS:** EPSG:3310
+**Records:** 1,129 units (845 modelled; 284 NA — not in the fitted history)
+**Created by:** `scripts/06_occupancy_models.R` (PART 6)
+**Storage:** `data/processed/`. Tier **T0/T1** — bobcat low-sensitivity; review
+before publication per policy §3.
+**Decisions:** 3 (never pooled), 22 (occupancy track + forward check), 23 (keep
+both footprint layers), 31 (covariate set + selection rule)
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `unit_id` | integer | — | CPAD unit key (join to occupancy frame) | cpad | No |
+| `psi_pred` | numeric | 0–1 | Model-averaged occupancy probability across the ΔAICc ≤ 2 confidence set {m_full, m_fullgrad}; **NA where the unit was not in the fitted detection history** (never surveyed / no covariates) | derived | Yes (NA = unmodelled) |
+| `psi_se` | numeric | 0–1 | Unconditional SE of the model-averaged ψ (`modavgPred` `uncond.se`) | derived | Yes |
+| `psi_src` | character | — | Provenance of the estimate: `modavg[m_full+m_fullgrad]` (or the single model name if the confidence set collapsed to one) | derived | No |
+
+**Notes:**
+- **This is modelled ψ**, distinct from the naive `bobc_detected` collapse in
+  `stats_bobc_unit_3310.csv` — do not conflate. ψ range 0.035–1.000, median 0.669.
+- **Q5 divergence (Decision 31):** ψ correlates only r=0.075 with the Week-6 KDE
+  mean — the modelled habitat surface and the effort-shaped descriptive surface
+  diverge; that divergence is the Q5 finding, not an error. Gi* hot units do fall
+  in the top-two ψ quintiles where they exist. See `tbl_15_psi_gistar_kde_crossread.csv`.
+- **PLA caveat (Decision 16/23):** the housing term in the model reads
+  edge/matrix pressure around a unit, not housing within it — carry that reading
+  wherever the housing coefficient is interpreted.
+- Companion tables (`outputs/tables/`): `tbl_11_detection_selection.csv`,
+  `tbl_12_collinearity_screen.csv`, `tbl_13_occupancy_selection.csv`,
+  `tbl_14_forward_check_chat.csv`, `tbl_15_psi_gistar_kde_crossread.csv`,
+  `tbl_16_sensitivity_histories.csv`. Fitted models in `outputs/models/`
+  (`bobc_occu_det_*`, `bobc_occu_psi_*`).
 
 ---
 
@@ -941,6 +980,224 @@ history
   collapsed (4-period) fit gives the tractable MacKenzie-Bailey GOF.
 - Primary `bobc_occu_null_mammal_precise_*`: ψ=0.464, p=0.295 (clears 0.10),
   converged; collapsed c-hat=8.9 = expected null-model overdispersion (Decision 22).
+
+---
+
+### `lcp_puma_core_patches_3310.gpkg`  — puma corridor endpoints (core habitat patches)
+
+**Source:** `protected_union_bayarea_3310.gpkg` (Decision 19), dissolved across tenure (fork A) and floored at 5 km²
+**Geometry:** polygon (MULTIPOLYGON), one row per core patch
+**CRS:** EPSG:3310
+**Records:** 164 core patches (≥ 5 km²)
+**Created by:** `scripts/07_connectivity.R` (Part 1 + Part 2)
+**Storage:** `data/processed/` (T0 open — protected-area boundaries, not puma detections)
+**Decision:** 32 (dissolve rule, 5 km² home-range floor, named endpoints)
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `patch_id` | integer | — | Stable patch key, assigned at dissolve (`st_cast` row order); join key for corridors | derived | No |
+| `area_km2` | numeric | km² | Patch area (`st_area`); all ≥ 5.0 in this layer | derived | No |
+| `area_fee` | numeric | km² | Fee-tenure area within the patch (`protection_type == "fee"` overlap) | derived | No |
+| `area_easement` | numeric | km² | Easement-tenure area within the patch (`protection_type == "easement"` overlap) | derived | No |
+| `patch_class` | character | — | Always `core` in this layer (≥ 5 km²) | derived | No |
+| `range_name` | character | — | Named range label for the two linkage endpoints only: `Santa Cruz Mountains` (patch 1727), `Diablo Range (southern)` (patch 3972); `NA` for all other cores | derived | Yes |
+| `linkage_role` | character | — | `primary_west` (SC Mtns, 1727), `primary_east` (southern Diablo, 3972); `NA` otherwise | derived | Yes |
+
+**Notes:**
+- **These are corridor ENDPOINTS, not the resistance frame.** The floor drops
+  patches from the endpoint set only; it does not alter
+  `resist_puma_baseline_3310.tif` — least-cost movement still crosses
+  stepping-stones and matrix.
+- **Tenure preserved per patch.** `area_fee` + `area_easement` ≈ `area_km2`
+  (small differences are sub-cell rounding at the tenure intersection). Fork A
+  melts tenure geometrically but keeps the split queryable (Decision 19 caveat).
+- **SC Mountains fragmentation.** `patch_id 1727` is the largest of ~8 SC-range
+  cores (split by Highways 92/35/9/17); it is the dominant core, used as the
+  west linkage seed (Decision 32 option a). Other SC-side cores carry `range_name`
+  = `NA` but are real SC-range habitat.
+- **Endpoint labels were verified, not assumed** — county centroids + a south-Bay
+  west→east scan. Two initial seed labels were wrong and corrected (Decision 32);
+  `patch_id 220` (Marin/Mt Tam) is **not** an endpoint despite being the
+  second-largest core.
+- Derived from the union built by `02d`; the 3,773 union features dissolve to
+  4,267 raw patches, of which 591 sub-100 m² `st_difference` dust are excluded and
+  164 clear the 5 km² floor.
+
+---
+
+### `lcp_puma_stepping_stones_3310.gpkg`  — retained sub-floor patches (not endpoints)
+
+**Source:** same dissolve as the core layer; patches in `[1e-4 km², 5 km²)`
+**Geometry:** polygon (MULTIPOLYGON), one row per patch
+**CRS:** EPSG:3310
+**Records:** 3,512 patches (≥ 100 m², < 5 km²)
+**Created by:** `scripts/07_connectivity.R` (Part 1 + Part 2)
+**Storage:** `data/processed/` (T0 open)
+**Decision:** 32 (retained, not deleted — matrix-retention principle)
+
+| Field | Type | Units | Description | Source | Nulls allowed |
+|---|---|---|---|---|---|
+| `patch_id` | integer | — | Stable patch key (same numbering as the core layer; ids are unique across both) | derived | No |
+| `area_km2` | numeric | km² | Patch area (`st_area`); all in `[1e-4, 5.0)` in this layer | derived | No |
+| `area_fee` | numeric | km² | Fee-tenure area within the patch | derived | No |
+| `area_easement` | numeric | km² | Easement-tenure area within the patch | derived | No |
+| `patch_class` | character | — | Always `stepping_stone` in this layer | derived | No |
+| `range_name` | character | — | Always `NA` (no named range is below the 5 km² floor) | derived | Yes |
+| `linkage_role` | character | — | Always `NA` | derived | Yes |
+
+**Notes:**
+- **Retained, not discarded.** Sub-floor patches are kept for a possible
+  stepping-stone connectivity variant and the story-site narrative — consistent
+  with the project's matrix-retention pattern (matrix occurrence layers, Q5).
+  They are **not** corridor endpoints in the baseline run.
+- **Dust excluded.** 591 patches below 100 m² (`< 1e-4 km²`) are the Decision-19
+  `st_difference` topological artifact and are in **neither** layer.
+- `range_name` / `linkage_role` are structurally `NA` here (kept for schema parity
+  with the core layer so the two can be row-bound).
+
+---
+
+### `lcp_puma_core_patches_3310.gpkg`  — puma corridor endpoints (core habitat patches)
+**Source:** `protected_union_bayarea_3310.gpkg` (Decision 19), dissolved across tenure (fork A), floored at 5 km² · **Geometry:** MULTIPOLYGON, one row per core · **CRS:** EPSG:3310 · **Records:** 164 · **By:** `07_connectivity.R` Parts 1–2 · **Storage:** `data/processed/` (T0) · **Decision:** 32
+
+| Field | Type | Units | Description | Source | Nulls |
+|---|---|---|---|---|---|
+| `patch_id` | integer | — | Stable patch key (st_cast order); corridor join key | derived | No |
+| `area_km2` | numeric | km² | Patch area (≥ 5.0 here) | derived | No |
+| `area_fee` | numeric | km² | Fee-tenure area within the patch | derived | No |
+| `area_easement` | numeric | km² | Easement-tenure area within the patch | derived | No |
+| `patch_class` | character | — | Always `core` (≥ 5 km²) | derived | No |
+| `range_name` | character | — | Named range for the two endpoints only: `Santa Cruz Mountains` (1727), `Diablo Range (southern)` (3972); else NA | derived | Yes |
+| `linkage_role` | character | — | `primary_west` (1727) / `primary_east` (3972); else NA | derived | Yes |
+
+Notes: endpoints, NOT the resistance frame (floor drops from the endpoint set only; the raster is unchanged). `area_fee + area_easement ≈ area_km2` (sub-cell rounding). SC Mtns split into ~8 cores by highways; 1727 is the dominant core (west linkage seed, Decision 32 option a). Endpoint labels VERIFIED (county + west→east scan); two seeds corrected; `patch_id 220` (Marin/Mt Tam, 438 km²) is NOT an endpoint despite being second-largest.
+
+---
+
+### `lcp_puma_stepping_stones_3310.gpkg`  — retained sub-floor patches (not endpoints)
+**Source:** same dissolve; patches in `[1e-4, 5) km²` · **Geometry:** MULTIPOLYGON · **CRS:** EPSG:3310 · **Records:** 3,512 · **By:** `07_connectivity.R` Parts 1–2 · **Storage:** `data/processed/` (T0) · **Decision:** 32
+
+| Field | Type | Units | Description | Source | Nulls |
+|---|---|---|---|---|---|
+| `patch_id` | integer | — | Stable patch key (unique across both patch layers) | derived | No |
+| `area_km2` | numeric | km² | Patch area (`[1e-4, 5.0)` here) | derived | No |
+| `area_fee` | numeric | km² | Fee-tenure area | derived | No |
+| `area_easement` | numeric | km² | Easement-tenure area | derived | No |
+| `patch_class` | character | — | Always `stepping_stone` | derived | No |
+| `range_name` | character | — | Always NA (no named range below 5 km²) | derived | Yes |
+| `linkage_role` | character | — | Always NA | derived | Yes |
+
+Notes: retained for a possible stepping-stone connectivity variant / story narrative (matrix-retention principle), NOT baseline endpoints. 591 sub-100 m² dust (`< 1e-4 km²`, st_difference artifact) is in NEITHER layer. `range_name`/`linkage_role` kept for schema parity (row-bindable with the core layer).
+
+---
+
+### `lcp_puma_scmtns_to_diablo_3310.gpkg`  — primary least-cost path (centre-line)
+**Source:** `create_lcp` on the conductance object (Decision 33) · **Geometry:** LINESTRING, 1 feature · **CRS:** EPSG:3310 · **By:** `07_connectivity.R` Part 3 · **Storage:** `data/processed/` (generalised line, policy §3) · **Decision:** 33
+
+| Field | Type | Units | Description | Source | Nulls |
+|---|---|---|---|---|---|
+| `from_patch` / `to_patch` | integer | — | Endpoint patch ids (1727 → 3972) | derived | No |
+| `from_name` / `to_name` | character | — | `Santa Cruz Mountains` / `Diablo Range (southern)` | derived | No |
+| `cost` (or `cost_distance`) | numeric | cost units | Accumulated least-cost distance along the path | leastcostpath | Yes |
+
+Notes: 37.2 km; 16-neighbour; endpoints nearest-boundary-points snapped to traversable cells. Centre-line only — corridor WIDTH is the swath layer.
+
+---
+
+### `lcp_puma_scmtns_to_diablo_costcorr_3310.tif`  — cost-corridor surface
+**Source:** `create_cost_corridor` (both directions averaged, raw accumulated cost) · **Type:** FLT4S, 1 km · **CRS:** EPSG:3310 · **By:** `07_connectivity.R` Part 3 · **Storage:** `outputs/rasters/` · **Decision:** 33
+
+| Band | Type | Units | Description |
+|---|---|---|---|
+| `cost_corridor` | numeric (FLT4S) | accumulated cost | Averaged bidirectional accumulated cost; low = preferential movement, high = off-route. Swath bands are quantiles of this (q2%/q5%). NA off land grid. |
+
+Notes: puma-derived surface, gated `assert_publishable(sensitive=TRUE)` (≥1 km). The swath polygons are thresholds of this raster.
+
+---
+
+### `lcp_puma_scmtns_to_diablo_swath_3310.gpkg`  — two-tier corridor swath
+**Source:** thresholds of the cost-corridor surface (Decision 33) · **Geometry:** MULTIPOLYGON, 2 features (core, context) · **CRS:** EPSG:3310 · **By:** `07_connectivity.R` Part 4 · **Storage:** `data/processed/` (generalised, policy §3) · **Decision:** 33
+
+| Field | Type | Units | Description | Source | Nulls |
+|---|---|---|---|---|---|
+| `tier` | character | — | `core` (≤ q2%) or `context` (≤ q5%) | derived | No |
+| `q` | numeric | — | Quantile band (0.02 / 0.05) | derived | No |
+| `cost_max` | numeric | cost units | Accumulated-cost threshold for the tier | derived | No |
+| `area_km2` | numeric | km² | Tier area after land-clip (core ~409, context ~1,021) | derived | No |
+
+Notes: regional corridor CONTEXT at 1 km grain, NOT a site-scale pinch map (the sub-1 km Coyote Valley pinch is below one cell — Decision 26/33). CRS is stamped explicitly (polygonise via st_union drops it).
+
+---
+
+### `lcp_puma_scmtns_to_diablo_crossings_3310.gpkg`  — barrier-road crossings (AADT, tiered)
+**Source:** `barrier_puma` roads ∩ context swath, carrying `cov_roads_traffic` AADT (Decisions 24/25/34) · **Geometry:** LINESTRING, one per crossing segment · **CRS:** EPSG:3310 · **By:** `07_connectivity.R` Part 4 · **Storage:** `data/processed/` · **Decision:** 33/34
+
+| Field | Type | Units | Description | Source | Nulls |
+|---|---|---|---|---|---|
+| `road_label` | character | — | Road name, else `route <n> (motorway)` for freeways, else `(fclass)` (freeways are name=NA) | derived | No |
+| `fclass` | character | — | OSM road class | osm | No |
+| `aadt` | numeric | veh/day | AADT of the crossed segment | Caltrans/derived | Yes |
+| `aadt_source` | character | — | `measured_route_pm` / `measured` / `name_fill` / `spatial_fill` / `modelled` | derived | No |
+| `aadt_tier` | factor | — | Ordered confidence tier (1 = measured_route_pm) | derived | No |
+| `aadt_is_estimate` | logical | — | TRUE for name_fill / modelled (not station-traceable) | derived | No |
+| `in_core` | logical | — | Crossing also intersects the core (q2%) band | derived | No |
+| `cross_len_m` | numeric | m | Length of the crossing segment inside the swath | derived | No |
+| `rank_overall` / `rank_in_tier` | integer | — | Rank by tier then AADT; rank within tier | derived | No |
+
+Notes: ranked WITHIN `aadt_source` tiers (Decision 34) so US-101 (`measured_route_pm`, 142k, `in_core`) leads and a `name_fill` arterial cannot masquerade as the top barrier. This is the proposal Q3 deliverable.
+
+---
+
+### `tbl_23_corridor_kde_gistar_crossread.csv`  — puma corridor × KDE/Gi* cross-read (Q5)
+**Source:** derived — joins `lcp_puma_scmtns_to_diablo_3310.gpkg`, `lcp_puma_scmtns_to_diablo_swath_3310.gpkg`, `lcp_puma_core_patches_3310.gpkg`, `kde_puma_current_1km_3310.tif`, `hot_puma_gistar_unit_3310.gpkg` · **By:** `07f_corridor_crossread.R` · **Decision:** 36
+
+| Field | Type | Description |
+|---|---|---|
+| `metric` | character | Cross-read metric name (endpoint KDE percentiles, LCP/swath KDE percentiles, Coyote Valley pinch KDE percentile + distance, corridor Gi* hot-unit counts, SUSPECT/TRUSTED split) |
+| `value` | numeric | Metric value (KDE percentiles are of land-cell KDE distribution; counts are units) |
+
+Notes: the Q5 puma-track deliverable. Reports the CONVERGENCE finding (corridor runs through above-median observed density) with its effort-entanglement + bandwidth-bleed caveats. Parallels but contrasts the bobcat ψ-vs-KDE cross-read (`tbl_15`, which found divergence).
+
+---
+
+### `lcp_puma_network_3310.gpkg`  — puma core-connectivity network (Gabriel LCP edges)
+**Source:** Gabriel graph on ≥30 km² core centroids, `create_lcp` per edge (Decision 37) · **Geometry:** LINESTRING, one per routed edge · **CRS:** EPSG:3310 · **Records:** 38 routed edges (11 adjacencies are cost-0, not lines) · **By:** `07g_corridor_network.R` · **Storage:** `data/processed/` (generalised lines, policy §3) · **Decision:** 37
+
+| Field | Type | Units | Description | Source | Nulls |
+|---|---|---|---|---|---|
+| `from_patch` / `to_patch` | integer | — | Edge endpoint core patch_ids | derived | No |
+| `cost_distance` | numeric | cost units | Accumulated least-cost distance along the edge | leastcostpath | Yes |
+| `length_km` | numeric | km | Edge LCP length | derived | No |
+| `weak_rank` | integer | — | Rank by cost-distance among routed edges (1 = costliest = weakest) | derived | Yes |
+| `cost_per_km` | numeric | — | cost_distance / length_km (resistance intensity) | derived | Yes |
+
+Notes: weak links = highest cost-distance = conservation-relevant fragile connections, BUT the longest cross-bay links are partly artifactual (Gabriel forces geometric-neighbour edges across the impassable central Bay — read as disconnection, not a corridor to protect; Decision 37). Same-cell adjacencies (cost 0, strongest links) are NOT in this line layer (no geometry).
+
+---
+
+### `lcp_puma_network_weaklinks_swath_3310.gpkg`  — swaths of the 5 costliest network links
+**Source:** `create_cost_corridor` q5% band for the 5 costliest routed edges (Decision 37) · **Geometry:** MULTIPOLYGON, one per link · **CRS:** EPSG:3310 · **Records:** 5 · **By:** `07g_corridor_network.R` · **Storage:** `data/processed/` · **Decision:** 37
+
+| Field | Type | Units | Description | Source | Nulls |
+|---|---|---|---|---|---|
+| `weak_rank` | integer | — | 1 = costliest link | derived | No |
+| `from_patch` / `to_patch` | integer | — | Link endpoint core patch_ids | derived | No |
+| `cost_distance` | numeric | cost units | Link accumulated cost | derived | No |
+
+Notes: swath = q5% context band (Decision 33 convention). The top cross-bay swaths inherit the artifact caveat (Decision 37).
+
+---
+
+### `tbl_24_network_weaklinks.csv`  — ranked network weak links
+**Source:** derived from `lcp_puma_network_3310.gpkg` · **By:** `07g_corridor_network.R` · **Decision:** 37
+
+| Field | Type | Description |
+|---|---|---|
+| `weak_rank` | integer | 1 = costliest routed edge |
+| `from_patch` / `to_patch` | integer | Edge endpoint core patch_ids |
+| `cost_distance` | numeric | Accumulated least-cost distance |
+| `length_km` | numeric | Edge LCP length |
+| `cost_per_km` | numeric | Resistance intensity |
 
 ---
 

@@ -9,7 +9,7 @@ Phase 1 of a multi-phase project. Sister project to
 | | |
 |---|---|
 | **Author** | Kiran Balasubramanian |
-| **Status** | Week 6 complete (KDE + Getis-Ord Gi\* descriptive analysis + per-unit summary statistics for both species; Decisions 28–30 closed — bandwidth rule, obscured-KDE handling, Gi\* fixed-distance-band neighbours + Q5 effort cross-read) — Week 7 next: bobcat covariate occupancy model fitting (the null fit closed Decision 22; covariate models close the pre-registered c-hat decline check) |
+| **Status** | Week 8 complete — puma connectivity delivered. Core patches (Decision 32), primary least-cost corridor SC Mtns ↔ southern Diablo through the Coyote Valley / US-101 pinch + two-tier swath + AADT-tiered crossings (Decision 33), a route+postmile AADT correction that recovered US-101's real 142k volume and re-ran the resistance surface (Decision 34), all three pre-registered sensitivity checks STABLE with the chaparral/FVEG contingency closed (Decision 35), the Q5 corridor × KDE/Gi* cross-read (Decision 36), and a Gabriel core-connectivity network with weak-link ranking (Decision 37). Week 9 next: Quarto story-site build. |
 | **Focal species** | *Puma concolor* (puma / mountain lion), *Lynx rufus* (bobcat) |
 | **Study area** | Ten-county San Francisco Bay Area |
 | **Analysis CRS** | EPSG:3310 — NAD83 / California Albers |

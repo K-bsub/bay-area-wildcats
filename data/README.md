@@ -173,12 +173,33 @@ everything after it.
   - `cov_aadt_caltrans_points_3310.gpkg` — 2,423 count stations
 - **Caveats:** AADT is **state-highway only**; AADT volumes are **strings**
   (coerce/clean); Geofabrik has **no DOI** — pin by download date + server
-  timestamp. Decision 14. **Week-5 covariate steps now done (script 04b):**
+  timestamp. Decision 14. **Covariate steps done (script 04b):**
   tracks/paths are not barriers for either species (Decision 24); the
-  AADT→segment join parses the strings and propagates volume in 4 tiers
-  (measured → name_fill → spatial_fill → fclass floor), 55.4% station-traceable,
-  the spatial_fill upward bias documented as a data property (Decision 25).
-  Outputs: `cov_roads_classed_3310.gpkg`, `cov_roads_traffic_3310.gpkg`.
+  AADT→segment join parses the strings and assigns volume by a tiered scheme,
+  each tier flagged in `aadt_source`:
+  - **`measured_route_pm`** — state highways (motorway/trunk): route-line +
+    postmile linear referencing, interpolating the bracketing count stations
+    along the matched route (Decision 34). Highest confidence.
+  - **`measured`** — point-snap station within 100 m (Decision 25).
+  - **`name_fill` → `spatial_fill` (≤1 km, measured donor) → `modelled` (fclass
+    floor)** — the local/arterial fallback chain (Decision 25). The spatial_fill
+    upward bias is a data property (stations sample busy roads), not a join bug —
+    it holds for local/arterial roads, which Caltrans does not postmile-reference.
+  ~58% of major-road segments are station-traceable after Decision 34 (was 55.4%
+  pre-fix). Outputs: `cov_roads_classed_3310.gpkg`, `cov_roads_traffic_3310.gpkg`
+  (the latter now carries `aadt_source` incl. `measured_route_pm`, plus
+  `route_pm_rte` / `route_pm_interp_dist_m` audit fields).
+- **`ref` route-number field NOT retained (acquisition follow-up, Decision 34).**
+  The `gis_osm_roads_free_1.shp` read (above) does not carry the OSM `ref` route
+  tag through, so freeways arrive `name = NA`. Consequence: the AADT route match
+  (Decision 34) identifies state highways by `fclass` + station proximity rather
+  than exact route number, and outputs label freeways "route N (motorway)" rather
+  than by name. **Deferred, non-blocking follow-up:** re-pull the NorCal roads
+  preserving `ref` (it exists in the Geofabrik `.pbf`; the `gis_osm_roads_free_1`
+  shapefile layer drops it — the `.pbf` via `osmextract`/`sf` with an explicit
+  `ref` field, or the Geofabrik "roads" layer that retains it, would recover it).
+  Would make the route match exact and label freeways properly. Not required for
+  Phase 1 — the barrier ranking is already correct via the route-line match.
 
 ### 9. Human footprint — gHM v3 + SILVIS housing
 > Load-bearing pair carrying the urban-**intensity** gradient WorldCover's single
@@ -241,16 +262,26 @@ everything after it.
 - **Outputs (`data/interim/`):**
   - `cov_effort_gbif_mammal_unityear_3310.gpkg` (Fork 3A; 5,401 unit×year, 841 units)
   - `cov_effort_gbif_vertebrate_unityear_3310.gpkg` (Fork 3B; 12,505 unit×year, 1,072 units)
+  - Each surveyed unit×year carries **two** effort fields: binary `surveyed = 1`
+    **and** (Week-7 re-emit) graded `eff_nrec` = the **count** of non-bobcat
+    background records in that cell. `eff_nrec` is the per-occasion detection
+    covariate for the occupancy fit; it is an observer-intensity **proxy**
+    (background volume, not bobcat survey effort). Re-run `03b` to regenerate both
+    fields — Part B reads the existing zip on disk, no re-download.
 - **Counts:** 33.0M pulled → 17.2M inside a CPAD unit; bird-dominated (32.7M Aves).
 - **Caveats:** bird effort ≠ bobcat detectability → vertebrate-background naive
   detection rate 0.083 vs mammal 0.171, so the **mammal layer (3A) is
   target-group-correct** — confirmed at the Week-5 null fit: mammal (3A) fitted
   p=0.295 clears the §5.4 line; vertebrate (3B) lower. **Decision 22 CLOSED —
-  occupancy confirmed on the 3A mammal background** (scripts 08–09).
-  Boundary-simplification edge fuzz is negligible (the Part-B spatial join clips
-  precisely to unit polygons). Absence of a unit×year row = not surveyed = NA,
-  **never a fabricated 0.** Decision 22 (CLOSED); detected-but-unsurveyed cells
-  upgraded per Decision 27 (a detection implies effort).
+  occupancy confirmed on the 3A mammal background** (null fit scripts `04d`/`04e`;
+  their output tables keep the `tbl_08`/`tbl_09` prefix by convention — the table
+  number and the script number are independent counters). The Week-7 covariate fit
+  (`06_occupancy_models.R`) then consumed the graded `eff_nrec` from these layers
+  as the detection covariate and passed the pre-registered forward check (c-hat
+  8.9 → 1.47; Decision 31). Boundary-simplification edge fuzz is negligible (the
+  Part-B spatial join clips precisely to unit polygons). Absence of a unit×year
+  row = not surveyed = NA, **never a fabricated 0.** Decision 22 (CLOSED);
+  detected-but-unsurveyed cells upgraded per Decision 27 (a detection implies effort).
 
 ---
 
@@ -287,5 +318,6 @@ Not downloaded as data — cited as **context only, never as a trend**
 (`docs/references.md`): the California Mountain Lion Project statewide abundance
 estimate (~3,200–4,500) and the CDFW status review / CESA listing for the
 Southern California / Central Coast population (Central Coast North = the Santa
-Cruz Mountains, listed threatened April 2026). No statewide bobcat estimate
-exists.
+Cruz Mountains, listed threatened by Commission vote **February 12, 2026** — an
+earlier draft's "April 2026" was the next scheduled meeting; verified 2026-08-17).
+No statewide bobcat estimate exists.

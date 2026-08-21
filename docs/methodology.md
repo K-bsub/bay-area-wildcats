@@ -721,10 +721,53 @@ either a spatial-replication design must be constructed and justified, or
 Felidae detection histories obtained. This is the single largest methodological
 risk in the project — see Decision log.
 
+*As-built (Week 7, `06_occupancy_models.R`).* The bobcat covariate fit is done.
+Detection sub-model fitted first (psi held `~1`), then occupancy with the
+detection structure fixed — the standard `unmarked` two-stage order. Covariate
+sets, standardisation and selection rule were pre-registered before any fitted
+value was seen (Decision 31). Continuous covariates are centred/scaled on the
+model matrix; the graded per-occasion effort proxy `eff_nrec` (from `03b`) enters
+detection as `scale(log1p(eff_nrec))`. Selection is AICc with model averaging
+across the ΔAICc ≤ 2 confidence set for the psi surface. Result: detection is
+effort-driven (best model `p(~eff_nrec_s)`, ΔAICc to null 408); occupancy best
+model `m_full` (terrain + land cover + human footprint), psi surface written to
+`occu_bobc_pred_unit_3310.gpkg`.
+
+*Forward check — CLOSED, passed (the Decision 22 commitment).* The pre-registered
+check required the null-model collapsed 4-period MB-GOF c-hat (8.9) to decline
+substantially once habitat covariates were added. It did: **covariate-model
+c-hat = 1.47** (GOF p = 0.052). The null overdispersion was real habitat
+heterogeneity absorbed by the covariates, not structural misfit — SDM fallback
+stays untriggered. Recorded in `tbl_14_forward_check_chat.csv`.
+
 ### 5.5 Connectivity
-Resistance surface from land cover, housing density, road class and terrain.
-Least-cost paths and corridor swaths between core open-space patches. Circuit-
-theory (Omniscape/Circuitscape) as an optional extension.
+Puma resistance surface from land cover, gHM, road class and terrain
+(`resist_puma_baseline_3310.tif`, 1 km, 1–100; Decision 26, built `04c`; AADT
+input corrected by Decision 34). Core patches = CPAD∪CCED union dissolved across
+tenure, floored at 5 km² (Decision 32) → 164 core endpoints. Conductance object
+`create_cs` (`cond = 1/R`, 16-neighbour, no DEM/max_slope; Decision 33). Primary
+least-cost path **SC Mtns (1727) → southern Diablo (3972)**, 37.2 km through the
+Coyote Valley / US-101 pinch (proposal Q3), widened into a two-tier cost-corridor
+swath (core q2% / context q5%). Barrier crossings ranked within `aadt_source`
+tiers; US-101 (142k measured) the top crossing. Sensitivity check 1
+(road-confidence) STABLE. Circuit-theory (Omniscape/Circuitscape) remains an
+optional extension, not a Phase-1 commitment. Every puma surface ≥1 km via
+`assert_publishable()`; corridors publish as generalised geometry (policy §3).
+
+*Sensitive-data gating — raster vs vector (note, 2026-08-20).* Puma export
+protection uses TWO mechanisms, by data type. **Rasters** (`kde_puma_*`,
+`resist_puma_baseline`, the corridor `costcorr` surface) pass `assert_publishable()`,
+which checks the cell size against the 1 km sensitive floor (`terra::res`); this is
+a RASTER-only check. **Vector corridor outputs** (LCP lines, swaths, crossings, the
+core-connectivity network + weak-link swaths) are protected differently and
+correctly: they are generalised boundary-to-boundary / band geometry derived from
+the 1 km surface, carrying NO precise puma points, which satisfies
+sensitive-data-policy §3 directly. `assert_publishable()` is deliberately NOT
+called on the vector layers — it operates on raster resolution and does not apply
+to lines/polygons. So the invariant is "every raster puma export is gated, and
+every vector puma export is point-free generalised geometry", not "every export
+calls assert_publishable()". Decision-35 sensitivity variant surfaces are never
+written to disk (in-memory diagnostics), so there is no export to gate.
 
 ### 5.6 Road mortality analysis
 CROS records intersected with the road network and open-space adjacency;
@@ -1754,6 +1797,15 @@ replacing the earlier bins; (5) `max()` road override vs an additive road term;
 (6) aspect excluded from resistance; (7) conspecific density excluded
 (considered-and-excluded note above). No item was altered after the build.
 
+*Script-name note (2026-08-20):* this Decision built `04c_puma_resistance.R`. Early
+Decision-26 wording named it `07_puma_resistance.R` (a stale reference from before
+the resistance build was renumbered to `04c`, the same drift class as `04d`/`04e`
+→ `tbl_08`/`tbl_09`). The DOC wording is corrected to `04c`. The script's own
+internal header still reads `07_puma_resistance.R`; that is a separately-flagged,
+non-blocking item and is intentionally NOT silently corrected — do not "fix" it
+without explicit acknowledgement. Output/table numbering (`tbl_07`, resistance
+figure) is an independent counter and is unchanged.
+
 **Decision 27 — A bobcat detection implies observation effort (detection-history encoding)**
 *Date:* 2026-08-15
 *Status:* CLOSED.
@@ -1982,6 +2034,620 @@ spots would be post-hoc number-chasing. This is a finding, recorded in §7.
 
 ---
 
+**Decision 31 — Bobcat covariate occupancy: detection + occupancy covariate sets,
+transform, and selection rule (pre-registered)**
+*Date:* 2026-08-17
+*Status:* **CLOSED.** Fitted in `06_occupancy_models.R`.
+
+*Decision:* Fit the bobcat covariate occupancy model on the **mammal_precise**
+primary history (3A target-group-correct; Decision 22), with the covariate sets,
+standardisation and selection rule below **fixed before any fitted value was
+seen** — same pre-registration discipline as the KDE bandwidth rule (Decision 28)
+and the resistance weights (Decision 26).
+
+*Detection sub-model (p), fitted first with psi held `~1`:*
+- Covariate `eff_nrec_s = scale(log1p(eff_nrec))` — the graded per-occasion
+  observer-intensity proxy. `eff_nrec` is the count of non-bobcat background
+  records per surveyed unit×year, emitted by `03b` (replacing the earlier binary
+  `surveyed` marker). **`log1p` chosen from the observed distribution, not
+  asserted:** the 3A deciles are 1/1/1/1/2/3/4/6/10/21/1238 — heavy right skew, a
+  ~400× tail — so a raw-scaled term would let a single 1,238-record cell dominate
+  the detection slope. `log1p` compresses the tail; it also matches the housing
+  convention (Decision 16). Backed by the skew-then-transform practice standard
+  for list-length / record-count effort covariates in the citizen-science
+  occupancy literature (MacKenzie 2017; Altwegg & Nichols 2019).
+- `year_s = scale(year)` — occasion-level linear time term (year not skewed).
+- Candidate set: p0 `~1`, p1 `~eff_nrec_s`, p2 `~year_s`, p3 `~eff_nrec_s +
+  year_s`. Rule: carry the best-AICc detection structure to the psi stage.
+- *Result:* **p1 `~eff_nrec_s`** wins by ΔAICc 408 over the null; the year term
+  adds nothing (p3 +1.26). Detection is effort-driven and nothing else.
+
+*Occupancy sub-model (psi), detection structure fixed from above:*
+- Continuous (all scaled): `elev_mean`, `slope_mean`, `aspect_north`,
+  `aspect_east`, `ghm_mean`, `housing_logden_mean`, `lc_frac_tree`,
+  `lc_frac_grass`. `lc_frac_shrub` **excluded** (Decision 12: WorldCover
+  under-maps CA shrub ~26×; the covariate is unreliable). gHM **and** housing both
+  kept (Decision 23; unit-grain r re-confirmed on the model matrix at **0.094**,
+  well below 0.7). `spans_gradient` as a flag (Decision 17).
+- Candidate set (nested, ecologically grouped, NOT all-subsets): m0, m_terrain,
+  m_land, m_human, m_habitat, m_full, m_fullgrad.
+- Selection: AICc ranking (`AICcmodavg::aictab`); model-average psi predictions
+  across the ΔAICc ≤ 2 confidence set (`modavgPred`).
+- *Result:* **m_full** best; confidence set {m_full, m_fullgrad} (ΔAICc 1.37 —
+  `spans_gradient` weak). Effect directions (collapsed refit): elevation +, tree
+  cover +, gHM −, effort + — all ecologically expected. psi range 0.035–1.000,
+  median 0.669 across 845 modelled units.
+
+*Collinearity screen (before fitting, on the actual scaled matrix).* VIF computed
+**two ways and cross-checked — manual `lm()` and `usdm::vif` agree to three
+decimals** on every covariate. All VIF < 4 except `lc_frac_tree` = **5.18**.
+
+*Sub-decision — `lc_frac_tree` retained despite VIF 5.18.* The pre-registration
+set VIF ≥ 5 as a **flag requiring a recorded keep/drop decision**, not an
+automatic drop. Retained because: (1) 5.18 is marginal against the usual VIF ≥ 10
+action threshold; (2) tree cover is the primary bobcat-habitat axis and dropping
+it would gut `m_full`; (3) manual and `usdm` VIF agree exactly, so the value is
+not a computation artifact; (4) the psi fit is stable with finite SEs. Recorded,
+not silently kept. Screen written to `tbl_12_collinearity_screen.csv`.
+
+*Forward check (the Decision 22 commitment) — PASSED.* The AICc-best model was
+refit on the same 4-period collapse the null used and run through
+`AICcmodavg::mb.gof.test`. **c-hat fell from the null 8.9 to 1.47** (GOF p =
+0.052): the null overdispersion was real habitat heterogeneity the covariates
+absorbed, not structural misfit. SDM fallback stays untriggered.
+- *Implementation note (bug found and fixed).* The first forward-check run
+  returned c-hat = NA because `mb.gof.test` → `parboot` re-evaluates the fitted
+  model's stored call on each simulated dataset; a namespace-prefixed call
+  (`unmarked::occu(...)`) with the frame passed by variable name failed to
+  resolve inside the bootstrap `update()` (`object 'unmarked' not found`; the
+  documented `unmarked` parboot behaviour). Fixed by attaching `unmarked`,
+  calling `occu()` unprefixed with the formula inlined via `do.call`, and running
+  the bootstrap serially (`parallel = FALSE`). The error is now surfaced, not
+  swallowed to NA. Documented per the project's explicit-error standard.
+
+*Sensitivity (`tbl_16`).* `m_full` refit on all four histories: all converge,
+finite SEs, mean psi 0.49 (3B vertebrate) – 0.62 (3A mammal). The
+background/obscured fork does not change the model or the story.
+
+*Q5 cross-read (`tbl_15`).* Fitted psi vs the Week-6 descriptive pattern
+**diverges**, which is the Q5 finding, not a defect: psi vs KDE mean Pearson r =
+**0.075** — near-zero. All 5 Gi* hot units fall in the top two psi quintiles
+(covariate signal agrees with the descriptive clusters where they exist), but the
+broad KDE pattern is effort-shaped, not habitat-shaped. Stated, not smoothed over
+(proposal Q5, first-class).
+
+*Impact:* Bobcat occupancy track closed for Phase 1. Outputs:
+`occu_bobc_pred_unit_3310.gpkg` (psi surface, keyed `unit_id`),
+`tbl_11`–`tbl_16`, and the fitted models in `outputs/models/`.
+
+**Puma feasibility close (Week-7 milestone).** Confirmed: the puma track needs
+**no** occupancy fit. Puma stays connectivity/SDM by design (proposal Q3;
+Decision 22 is bobcat-only). The puma occupancy fork was never opened; puma
+deliverables are the resistance surface (Decision 26) + Week-8 least-cost
+corridors, plus the Week-6 KDE/Gi* descriptive layer. No new decision required.
+
+**Decision 32 — Puma core-habitat patches: dissolve rule, minimum-patch-area
+floor, and named linkage endpoints (pre-registered mechanism, floor read from the
+observed distribution)**
+*Date:* 2026-08-18
+*Status:* **CLOSED.** Built in `07_connectivity.R` (Part 1 + Part 2).
+
+*Decision:* Derive the puma corridor **endpoints** from the CPAD∪CCED union
+(`protected_union_bayarea_3310.gpkg`, Decision 19), not from CPAD Units (Units are
+the occupancy frame; the connectivity track uses no CPAD level as its unit —
+methodology §3 per-track note). Three sub-rules, the mechanism fixed before the
+run and the one numeric threshold read from the observed area distribution, not
+asserted:
+
+1. **Dissolve rule (fork A — all tenure melted, then split by contiguity).**
+   `st_union()` the whole validity-guarded union, `st_cast` to POLYGON. Fee and
+   easement melt geometrically: an easement grazing parcel abutting a fee preserve
+   is one functional patch to a wide-ranging puma (Decision 19). Tenure is **not**
+   erased as information — each patch keeps a fee/easement area tally
+   (`area_fee`, `area_easement`). Fork B (bridge near-adjacent patches across a
+   gap tolerance) was **considered and deferred**: it needs a second
+   pre-registered gap distance and drifts toward asserting connectivity the
+   surface should predict. It is available as a named variant only if the raw
+   dissolve strands a named range — it did not.
+
+2. **Minimum-patch-area floor = 5 km² (home-range anchored, NOT read off a curve
+   break).** A patch below 5 km² cannot hold a meaningful fraction of a single
+   puma home range (home-range prior **5 km**, Decision 28; Hansen et al. 2025
+   ranges span tens–hundreds of km²), so it is a **stepping-stone, not a corridor
+   endpoint**. The observed patch-area distribution is a **smooth size continuum
+   with no break** (endpoint-floor scan below), so "read the break" does not apply
+   — the floor is set by the ecological home-range scale, and the scan is recorded
+   as the evidence that the cut is not severe (82.5% of protected area retained at
+   5 km²). **Alternative 1 km² floor (the resistance grid resolution) considered
+   and rejected:** it keeps 464 endpoints and generates a dense mesh of trivial
+   short links that would bury the Santa Cruz Mountains ↔ Diablo Range signal the
+   proposal asks for (Q3). 2 km² and other mid-curve values were **not** used —
+   the middle of a smooth curve is an asserted cutoff with no anchor.
+
+   *Endpoint-floor scan (evidence; `tbl_17`):*
+   | floor (km²) | patches kept | protected area retained |
+   |---|---|---|
+   | 0.01 | 2,356 | 99.9% |
+   | 0.10 | 1,429 | 99.3% |
+   | 0.50 | 696 | 96.5% |
+   | 1.00 | 464 | 93.7% |
+   | 2.00 | 307 | 90.0% |
+   | **5.00** | **164** | **82.5%** |
+   | 10.00 | 86 | 73.7% |
+
+   *Result:* **164 core patches** (endpoints) ≥ 5 km²; **3,512 stepping-stones**
+   retained; **591 sub-100 m² "dust" patches dropped from both layers.** The floor
+   drops patches from the **endpoint set only** — it does **not** alter the
+   resistance raster; least-cost movement still crosses stepping-stones and matrix.
+
+3. **Named linkage endpoints (verified from county + west→east geometry; two
+   initial seed labels CORRECTED on record).** The primary linkage (proposal Q3)
+   is **Santa Cruz Mountains ↔ southern Diablo Range** through the Coyote Valley /
+   US-101 pinch:
+   - **Santa Cruz Mountains = `patch_id 1727`** (177.0 km², San Mateo, centroid
+     cx −196,663 / cy −85,363) — the largest of the ~8 SC-range cores; the range
+     is split by internal highways (92/35/9/17). Routing seeds from this dominant
+     core (option **a**); SC-range fragmentation is a **stated corridor
+     limitation**, not an endpoint-naming problem. Nearest-SC-core routing
+     (option b) is available as a refinement if the least-cost surface warrants it.
+   - **Diablo Range (southern) = `patch_id 3972`** (500.4 km², Santa Clara,
+     centroid cx −135,434 / cy −91,905) — Henry Coe + easement margins, east of
+     Coyote Valley.
+   - **Correction on record:** the initial code seeds were **both wrong** —
+     `3972` was first mislabelled "Santa Cruz Mountains" and `220` "Diablo Range".
+     Verification against county centroids and the south-Bay west→east scan showed
+     `3972` is the *southern Diablo Range* and `220` is the *Marin / Mt Tamalpais*
+     block (438 km², Marin) — **not a linkage endpoint**, left unlabelled. The
+     error was surfaced and fixed before any Decision text was committed; recorded
+     here per the project's surface-errors principle.
+
+*Cleaning note (not a threshold).* The raw dissolve inflates the patch count
+(3,773 features → 4,267 patches) because the Decision-19 `st_difference`
+fee-precedence erase leaves sub-metre gaps that `st_union` cannot close and
+`st_cast` splits into sub-100 m² dust. An `st_snap(union, union, tol)` clean was
+**attempted and abandoned** — it is all-pairs O(n²) on 3,773 features and hung. It
+is unnecessary: the dust holds 0.0002% of protected area and sits ~5 orders of
+magnitude below the 5 km² floor, so the floor removes it for free. **One
+threshold, one justification** — the dust exclusion is the `< 1e-4 km²` (sub-100
+m²) artifact cutoff, not a second ecological rule.
+
+*Outputs.* `lcp_puma_core_patches_3310.gpkg` (164 endpoints),
+`lcp_puma_stepping_stones_3310.gpkg` (3,512 retained), `tbl_17` (area
+distribution + floor scan), `tbl_18` (core-patch summary), `fig_17` (log-area
+histogram with the 5 km² floor marked). Both layers are T0 (protected-area
+boundaries) — no `assert_publishable()` gate applies (that gates puma
+surfaces/corridors, not protected-land polygons).
+
+*Signed off (2026-08-18):* (1) fork A dissolve, fork B deferred; (2) 5 km²
+home-range floor, 1 km² rejected, mid-curve values rejected; (3) endpoints 1727
+(SC Mtns) / 3972 (southern Diablo), option (a) dominant-core routing, two seed
+labels corrected; (4) 591 dust patches excluded as `st_difference` artifacts, no
+snap. Table/figure numbers (`tbl_17`/`tbl_18`/`fig_17`) are the next free counter
+values, independent of the `07` script number (same convention as `04d`/`04e` →
+`tbl_08`/`tbl_09`).
+
+---
+
+** Decision 32 — Puma core-habitat patches: dissolve rule, 5 km² floor, named endpoints
+*Date:* 2026-08-18 · *Status:* **CLOSED** (`07_connectivity.R` Parts 1–2).
+
+Corridor **endpoints** are derived from the CPAD∪CCED union
+(`protected_union_bayarea_3310.gpkg`, Decision 19), NOT CPAD Units (Units are the
+occupancy frame; connectivity uses no CPAD level as its unit — §3 per-track note).
+
+1. **Dissolve (fork A).** `st_union` all tenure, `st_cast` to POLYGON: fee +
+   easement melt geometrically (one functional patch to a wide-ranging puma,
+   Decision 19); tenure kept as a per-patch `area_fee` / `area_easement` tally.
+   Fork B (bridge near-adjacent patches across a gap tolerance) considered and
+   **deferred** — a second threshold, not needed (no named range was stranded).
+2. **Minimum-patch-area floor = 5 km² (home-range anchored).** A patch below
+   5 km² cannot hold a meaningful fraction of a puma home range (prior 5 km,
+   Decision 28; Hansen 2025 ranges tens–hundreds km²) → **stepping-stone, not an
+   endpoint.** The area distribution is a smooth continuum with **no break**
+   (endpoint-floor scan, `tbl_17`), so the floor is set by the ecological
+   home-range scale, and the scan is the evidence the cut is not severe (82.5% of
+   protected area retained). **1 km² (grid resolution) rejected** — 464 endpoints,
+   a dense mesh of trivial links that would bury the SC Mtns ↔ Diablo signal
+   (Q3). Mid-curve values (2 km²) rejected as anchor-free. Result: **164 cores,
+   3,512 stepping-stones retained, 591 sub-100 m² dust dropped.**
+3. **Named endpoints (verified from county + west→east geometry; two seed labels
+   CORRECTED).** Primary linkage = **Santa Cruz Mountains (`patch_id 1727`,
+   177 km², San Mateo) ↔ southern Diablo Range (`patch_id 3972`, 500 km², Santa
+   Clara, Henry Coe)** through the Coyote Valley / US-101 pinch. **Correction on
+   record:** initial code seeds (3972 = "SC Mtns", 220 = "Diablo") were BOTH
+   wrong — verification showed 3972 is southern Diablo and 220 is the Marin / Mt
+   Tam block (438 km², not a linkage endpoint). Surfaced and fixed before any
+   Decision text was committed (surface-errors principle). SC Mtns is split into
+   ~8 cores by internal highways; 1727 is the dominant core; fragmentation is a
+   stated corridor limitation (option a — dominant-core routing).
+
+*Cleaning note (not a threshold).* Raw dissolve inflates the count (3,773 →
+4,267) via sub-metre `st_difference` gaps split into sub-100 m² dust. An
+`st_snap(union,union,tol)` clean was attempted and **abandoned** (all-pairs O(n²),
+hung); unnecessary — the dust holds 0.0002% of area and is removed for free by the
+5 km² floor. The `< 1e-4 km²` dust cutoff is the artifact bound, not a second
+ecological rule.
+
+*Outputs:* `lcp_puma_core_patches_3310.gpkg`, `lcp_puma_stepping_stones_3310.gpkg`,
+`tbl_17`, `tbl_18`, `fig_17`. Both layers T0 (protected-area boundaries) — no
+`assert_publishable()` gate. `tbl_17/18` + `fig_17` numbering is independent of the
+`07` script number (same convention as `04d/04e` → `tbl_08/09`).
+
+---
+
+** Decision 33 — Least-cost corridor construction: conductance, neighbourhood, swath band
+*Date:* 2026-08-18 · *Status:* **CLOSED** (`07_connectivity.R` Parts 3–4).
+Consumes `resist_puma_baseline_3310.tif` (Decision 26); does NOT rebuild it.
+Built on `leastcostpath` 2.0.13 (terra `create_cs` API; `gdistance` not on the
+path — the <2.0 transition workflow is not used).
+
+1. **Resistance → conductance inversion (`cond = 1/R`) before `create_cs`.**
+   `create_cs` treats higher raster values as EASIER movement (barrier
+   conductance = 0). Our surface is resistance (100 = impassable), so it MUST be
+   inverted or the path would run through freeways. Non-negotiable for
+   correctness. R clamped 1–100 → cond 0.01–1.0, strictly positive (observed
+   range 0.010–0.185: no cell reaches resistance 1, consistent with the Decision
+   26 min of 5.4).
+2. **Neighbourhood = 16 (package default).** Extended adjacency reduces the
+   deviation / elongation distortion of 8-connectivity (paths locked to 45°
+   increments); 16 adds knight's moves and roughly halves angular error. Standard
+   for connectivity modelling (Antikainen 2013 *Transactions in GIS*; Shirabe
+   2016; Etherington distortion literature). Residual elongation is a known,
+   unfixable raster limitation — recorded, not hidden. Compute is trivial at this
+   grain, so the accuracy gain is free.
+3. **`dem = NULL, max_slope = NULL`.** Slope is ALREADY in R (Decision 26
+   `r_slope`, 15%) as a graded cost. A DEM + `max_slope` would double-count
+   terrain and hard-zero steep cells the pre-registration made merely costly. Off.
+4. **Endpoints = nearest boundary points**, snapped to the nearest
+   finite-conductance cell (`check_locations = TRUE`). Centroids rejected (a
+   500 km² patch centroid sits deep inside). Snap moved SC 240 m / Diablo 287 m
+   (< 1 cell).
+5. **Two-tier swath band (read from the observed cost-corridor distribution;
+   literature-informed).** `create_cost_corridor` (both directions averaged, raw
+   accumulated cost). The cost distribution has a **cliff** — q25→q50 jumps
+   376→1011 — so low-cost corridor cells are cleanly separated from off-route
+   background. Bands set BELOW the cliff:
+   - **CORE = accumulated cost ≤ q2%** (146.9) → 409 km², high-confidence corridor.
+   - **CONTEXT = ≤ q5%** (180.4) → 1,021 km², permeable flanks.
+   q10% (2,041 km², ~20 km mean width) **rejected**: the field-verified Coyote
+   Valley functional linkage is a narrow thread (0.6–3.2 km at the pinch), so a
+   broad band would erase the constriction the corridor is about. **1 km grain
+   limitation stated:** the sub-1 km pinch is below one cell (Decision 26 flagged
+   this), so the swath is REGIONAL corridor context, not a site-scale pinch map;
+   the precise US-101 pinch is located by the barrier-crossing step (road
+   geometry), not the swath.
+6. **Barrier crossings ranked WITHIN `aadt_source` confidence tiers** (Decision
+   34), not on raw AADT — so US-101 (`measured_route_pm`) leads and a `name_fill`
+   arterial cannot masquerade as the top barrier. Roads identified + labelled by
+   `fclass` (freeways are `name = NA`; `ref` lost — Decision 34 follow-up).
+
+*Primary linkage result:* LCP **37.2 km**, SC Mtns (1727) → southern Diablo
+(3972), passing **1.6 km** from the verified Coyote Valley / US-101 pinch; the
+core swath covers the pinch. Independently corroborated (Bay Area Critical
+Linkages; OSA Coyote Valley Landscape Linkage; SC Mtns Linkage CAPP). US-101 is
+the top-ranked measured crossing (142k, `in_core`).
+
+*Sensitivity verdict recording:* by qualitative statement + raw divergence
+metrics, NOT a hard pass/fail threshold (a numeric cutoff on a one-off comparison
+would be false precision). See sensitivity check 1 under Decision 34.
+
+*Outputs:* `lcp_puma_scmtns_to_diablo_3310.gpkg` (LCP),
+`lcp_puma_scmtns_to_diablo_costcorr_3310.tif` (surface, gated
+`assert_publishable`), `lcp_puma_scmtns_to_diablo_swath_3310.gpkg` (two tiers),
+`lcp_puma_scmtns_to_diablo_crossings_3310.gpkg`, `tbl_19`, `tbl_20`, `fig_18`,
+`fig_19`. Swaths/corridors are generalised geometry, publishable per
+sensitive-data-policy §3.
+
+---
+
+** Decision 34 — State-highway AADT by route-line + postmile referencing (data-correction)
+*Date:* 2026-08-18 · *Status:* **CLOSED** (pre-registered before the re-run;
+closed after). Revises the AADT INPUT to Decision 26; Decision 26's weights /
+transform are UNCHANGED (data correction, not a re-tune).
+
+**Bug.** The Decision-25 AADT join snapped Caltrans count-station POINTS to the
+nearest road within 100 m, discarding Caltrans' native route + postmile linear
+referencing. US-101 through Coyote Valley — the field-verified critical barrier —
+sits in the largest station gap on SCL Route-101 (8.96 mi, PM 17.82 → 26.78, both
+bracket stations ~142k) and fell to the modelled 80k floor: a ~43% underestimate.
+A named arterial (Santa Teresa Blvd) meanwhile carried a `name_fill` 111k that
+outranked the real freeway (US-101 is `name = NA`, so name-propagation skipped it).
+
+**Fix (pre-registered from the data structure, not the outcome).** For every
+state-highway segment (`fclass ∈ {motorway, trunk, +links}`): build the matched
+route as a PM-ordered line of its stations (per `RTE`+`CNTY`), pick the route the
+segment lies ALONG (min distance to route-line, ≤ 500 m — junction-safe: a US-101
+segment is 190 m from the 101 line vs 4,977 m from the Route-85 line, so it can
+not inherit Route-85's terminal AADT), and interpolate the bracketing stations'
+AADT. New provenance tier **`measured_route_pm`** (highest confidence). Non-state
+roads keep the Decision-25 tiers unchanged. This **refines Decision 25's**
+"spatial_fill skews high, not correctable" note: that stands for *local/arterial*
+roads (Caltrans does not PM-reference them); state highways ARE PM-referenced and
+so ARE correctable — which is what this does.
+
+*Implementation note:* OSM segments carry no postmile, so the route is
+reconstructed as a PM-ordered station polyline and segments are projected onto it
+— a geometry-based approximation of postmile interpolation, exact enough on the
+near-linear, flat-inter-interchange state-highway network. Two failed
+implementations preceded this (nearest-station route inference pulled Route-85's
+56k, then southern-101's low values) — both surfaced and corrected; the route-LINE
+match is the working version. `ref`-field recovery (exact route match + freeway
+labels) is a deferred roads-pull follow-up (§4 data-sources).
+
+**Result.** US-101 @ Coyote Valley now **142,000** (`measured_route_pm`);
+state-highway network 17,327 segments route-referenced, median 135k (vs the 80k
+floor). US-101 is correctly the top measured crossing; Santa Teresa demoted to a
+flagged estimate.
+
+**Scope = full re-run** (`04b` join → `04c` resistance → `07` corridors), because
+AADT feeds the resistance surface. `resist_puma_baseline_3310.tif` re-emitted as a
+data-correction revision superseding the 2026-08-15 build.
+
+**Sensitivity check 1 (road-confidence; pre-registered Decision 26) — PASSED /
+STABLE.** The old-vs-new corridor comparison IS this check. Verdict by qualitative
+statement + raw metrics (Decision 33): the corridor is **fully robust** to the
+correction — LCP identical (Hausdorff 0 m; length 37.19 km both), core swath IoU
+1.000, context IoU 0.990, cost-surface Spearman 1.000 — while accumulated cost rose
++4.4% (311.9 → 325.7). **Mechanism (why it is rank-preserving, stated so the
+perfect overlap is not misread as a trivial change):** both 80k and 142k already
+map to the high-resistance tail under the Decision-26 log-inverse transform (which
+compresses the high-traffic tail by design), so US-101 cells were already
+high-cost and the path already avoided them; the correction changed absolute cost
+but not cell rank. **The correction was consequential for the crossing SEVERITY
+RANKING (US-101 mis-ranked → correctly top) but immaterial for corridor GEOMETRY.**
+Two distinct findings, kept distinct. `tbl_21`, `fig_20`.
+
+*Outputs:* revised `cov_roads_traffic_3310.gpkg` (+ `measured_route_pm` tier,
+`route_pm_rte`, `route_pm_interp_dist_m`), revised `resist_puma_baseline_3310.tif`,
+`tbl_21`, `fig_20`.
+
+---
+
+** Decision 35 — Corridor sensitivity verdict: robust to all three pre-registered checks
+*Date:* 2026-08-20 · *Status:* **CLOSED** (`07e_sensitivity.R`; `tbl_22`, `fig_21`).
+
+The three pre-registered Decision-26 sensitivity checks were run as one-at-a-time
+(OAT) plausible-range perturbations of the resistance surface, judged on corridor
+overlap (method: Beier, Majka & Newell 2009; Rayfield, Fortin & Fall 2010; Marrec
+et al. 2020 — perturb one uncertain parameter across its plausible range,
+re-extract, report overlap; a perturbation that does not touch the high-resistance
+cells that pin the corridor is expected to leave it stable). Every variant is the
+`04c` build parameterised (`build_resistance()`) with the SAME corrected AADT
+(Decision 34) — only the one perturbed parameter differs. Verdict recorded
+qualitatively + raw metrics (Decision 33), not a hard pass/fail threshold.
+
+**Result — STABLE across all three checks** (baseline LCP 37.19 km):
+
+| check | LCP km | mean sep | core IoU | context IoU |
+|---|---|---|---|---|
+| baseline | 37.19 | 0 | 1.000 | 1.000 |
+| 1 road-confidence (drop low-conf AADT → R_land) | 37.19 | 0 m | 0.916 | 0.941 |
+| 2 chaparral (shrub 10 → 5 = tree) | 37.19 | 0 m | 1.000 | 0.998 |
+| 3a weights gHM-heavy (+10% gHM / −10% LC) | 35.55 | 1,312 m | 0.976 | 0.975 |
+| 3b weights LC-heavy (−10% gHM / +10% LC) | 37.19 | 0 m | 0.976 | 0.975 |
+
+Worst case: context IoU 0.941, mean LCP separation 1,312 m (~1 cell). The corridor
+is robust to all three known data limitations.
+
+**Per-check findings (mechanism stated, not just the aggregate):**
+
+1. **Road-confidence — PASS.** Trusting only station-traceable AADT (dropping
+   spatial_fill/modelled barrier cells to R_land) left the LCP identical (0 m);
+   only the swath edges shifted (IoU 0.92/0.94, the widest tier is the most
+   perturbable at its margin). Consistent with sensitivity check 1 (Decision 34
+   v1/v2): AADT confidence affects the surface at the margins, not the corridor
+   spine. (Sensitivity check 1 is thus corroborated by a second, independent
+   variant — dropping low-confidence cells rather than correcting them.)
+
+2. **Chaparral (Decision 12) — PASS; FVEG supplement NOT triggered.** Lowering
+   shrub resistance 10 → 5 (treating all WorldCover shrub as tree-equivalent
+   cover, bounding the ~26× chaparral under-mapping) moved the corridor **not at
+   all** (core IoU 1.000, context 0.998, LCP 0 m). Mechanism: shrub was already a
+   low value (10) on a path pinned by freeway/urban barriers and running through
+   tree/grass cells, so halving an already-low mid-range value changes nothing.
+   **This CLOSES the Decision-12 chaparral contingency: WorldCover shrub
+   under-mapping is immaterial to puma connectivity; the CAL FIRE FVEG supplement
+   is not needed.** (The under-mapping may still matter for other analyses — this
+   verdict is specific to the connectivity corridor.)
+
+3. **Weight perturbation — PASS, with a stated caveat.** The gHM/LC split was
+   bounded ±10% relative (opposite directions, slope fixed, renormalised) as a
+   plausible-range bound on the expert prior (Decision 26 weights have no
+   collar-data fit; Beier/Rayfield plausible-range logic — NOT a tuning loop).
+   Both bounds keep IoU ≥ 0.975. **Asymmetry, recorded honestly:** the LC-heavy
+   bound (3b) did not move the path (0 m); the gHM-heavy bound (3a) shortened it
+   37.19 → 35.55 km (mean sep 1,312 m, max 3,206 m) via a marginally more direct
+   northern route through lower-gHM interior cells. **This 3a shift is the largest
+   single sensitivity in the Week-8 analysis.** It is still robust (same corridor,
+   IoU 0.976), but the honest limitation is: the corridor *location* is robust,
+   while the corridor's *exact route/length* has ~1.5 km of play tied to the gHM
+   weight — an author prior without empirical backing. The asymmetry is
+   ecologically sensible (gHM is the dominant discriminator in this human-dominated
+   landscape, so up-weighting it has more leverage than down-weighting it).
+
+**Overall verdict:** the SC Mtns ↔ southern Diablo corridor is **robust to the
+known data limitations** — AADT interpolation bias, WorldCover chaparral
+under-mapping, and the author-prior resistance weights. No supplement is
+triggered. The one stated caveat is the ~1.5 km route play under gHM up-weighting,
+recorded as a §7 limitation, not a re-fit (the weights are pre-registered priors,
+Decision 26; this bounds them, it does not tune them). Variant surfaces are
+in-memory diagnostics only — none is written to disk or substituted for the
+Decision-26 baseline.
+
+*Outputs:* `tbl_22`, `fig_21`. No new spatial layers (variants are diagnostic).
+
+---
+
+** Decision 36 — Puma Q5 cross-read: corridor CONVERGES with the descriptive pattern
+*Date:* 2026-08-20 · *Status:* **CLOSED** (`07f_corridor_crossread.R`; `tbl_23`,
+`fig_22`).
+
+Proposal Q5 for the puma track: does the modelled (structure-driven) corridor run
+through the Week-6 descriptive (effort-shaped) occurrence pattern — KDE + Gi* — or
+diverge from it? A corridor is "where pumas MOVE BETWEEN cores", not "where pumas
+ARE", so this is a three-part read (endpoint check / corridor-vs-pattern / Q5
+effort), not the single ψ-vs-KDE correlation used for bobcat.
+
+**Result — CONVERGENCE (and this reverses the pre-analysis expectation, recorded
+honestly).** The pre-analysis guess was divergence — that the corridor, especially
+the Coyote Valley pinch, would run through LOW-KDE occurrence gaps (pumas moving
+through a developed pinch unobserved). **The data says the opposite:**
+
+- **Endpoints high** (SC Mtns 78th KDE percentile, 11 Gi* hot units; S Diablo
+  53rd, 4 hot units) — cores are where pumas concentrate, as expected.
+- **The whole corridor runs through above-median density** — LCP median 77th KDE
+  percentile, range 53–93, **0% of the LCP below the median** (no matrix crossing).
+  Swath mean 73rd (core) / 68th (context) percentile.
+- **The Coyote Valley pinch is 83rd KDE percentile — HIGH, not the predicted low.**
+  (The LCP centre-line passes 1.6 km from the exact pinch cell — the 1 km grain;
+  the pinch value is the cell, not the on-LCP value.)
+- **Gi* hot units on the corridor: 7, of which 6 TRUSTED / 1 SUSPECT** — the hot
+  units the corridor crosses are mostly NOT effort artifacts.
+
+So two independent methods — structure-driven least-cost and effort-shaped
+descriptive KDE/Gi* — **agree on where the corridor is**, and the agreement is
+mostly effort-independent (6/7 TRUSTED). This is **corroboration, but only
+weak-to-moderate and partly structural — NOT independent validation.** The
+literature is explicit on both points: (a) corridor-through-high-occurrence is the
+*expected* result, since least-cost paths by construction follow suitable habitat
+and occurrences concentrate in the same suitable habitat (Larkin et al. 2004;
+LaRue & Nielsen 2008), so agreement is what a working model *should* produce and
+is a recognised validation approach (LaRue & Nielsen modelled corridors to
+confirmed occurrences; Chetkiewicz & Boyce 2009 found telemetry supported some
+modelled crossings); BUT (b) our resistance surface (Decision 26) and the KDE
+share a land-cover/gHM foundation, so part of the convergence is two views of the
+SAME landscape gradient, not two independent confirmations.
+
+**What keeps the convergence meaningful despite the shared foundation:**
+- **The 6/7 TRUSTED Gi* hot units** are occurrence concentration that is NOT
+  effort-driven — real puma presence on the corridor, the load-bearing evidence
+  against pure circularity.
+- **The corridor carries a road/barrier (AADT) term the KDE does not** — they are
+  not the same construct; convergence *despite* that added structure is more than
+  shared-terrain agreement.
+
+**What it is NOT:** strong or independent validation. That would require telemetry
+/ movement data (the literature gold standard — Chetkiewicz & Boyce 2009 used GPS
+collars; we have occurrence points only). Furthermore, the comparative-evaluation
+literature (Unnithan Kumar et al. 2022, *Sci Rep*) found the precise least-cost
+PATH is the least accurate connectivity form against simulated true movement,
+while resistant-kernel-like SWATHS overlap true connectivity far better — so the
+two-tier SWATH (not the centre-line) is the more defensible product, and the story
+should lead with it. Our corridor is a plausible, occurrence-corroborated
+hypothesis, not a validated movement route.
+
+**Two caveats, stated so the convergence is not over-read:**
+1. **Effort entanglement.** KDE is effort-shaped. "Corridor follows density" could
+   mean the corridor is real (pumas are there) OR both the occurrence data and the
+   corridor are drawn to the same accessible, well-surveyed valley-edge terrain.
+   The 6/7 TRUSTED hot units argue for the former (real corroboration), but the
+   convergence is stated WITH its effort caveat, not as clean independent proof.
+2. **KDE bandwidth bleed.** At σ = 5 km (Decision 28, home-range prior), the
+   high-density SC Mtns and Diablo cores smear density into the 1 km-wide pinch
+   between them, so the pinch's 83rd percentile is partly flanking-core bleed, not
+   purely pinch-local observation. Cannot be cleanly separated here; likely BOTH
+   real observed use (Coyote Valley is a known, watched linkage) and bleed.
+
+**Cross-track contrast (a genuine finding, not a coincidence):**
+- **Bobcat (Decision 31, Week 7):** modelled ψ **diverged** from descriptive KDE
+  (ψ-vs-KDE r = 0.075) — the descriptive pattern was effort-shaped and the
+  occupancy model (which has an explicit detection/effort sub-model) corrected it.
+- **Puma (this Decision):** modelled corridor **converges** with descriptive
+  KDE/Gi* — the least-cost model has NO effort term, yet lands on the same places
+  as the occurrence data, which is *stronger* evidence the puma pattern is real
+  terrain-driven signal rather than effort.
+
+The split is mechanistically sensible: the bobcat model is *designed* to pull away
+from raw effort-shaped counts; the puma corridor is pure landscape structure, so
+its convergence with the independent occurrence data is corroboration rather than
+circularity. Stated as the puma-track Q5 finding.
+
+*Outputs:* `tbl_23`, `fig_22`. No new spatial layers.
+
+---
+
+** Decision 37 — Puma core-connectivity network: Gabriel graph + weak-link ranking
+*Date:* 2026-08-20 · *Status:* **CLOSED** (`07g_corridor_network.R`; `tbl_24`,
+`fig_23`, network + weak-swath layers).
+
+Extends the single SC↔Diablo linkage (Decision 33) to a study-area connectivity
+network, to answer "how is the whole large-core system connected, and where is it
+weakest" (proposal Q3, network scale).
+
+**Design.**
+- **Nodes = 29 large cores ≥ 30 km²** (cutoff from the observed core-area
+  distribution scan: clean break 44→29→19 at 20/30/50 km²; 30 km² = "population
+  anchor" tier, well above the 5 km² endpoint floor — small cores are
+  stepping-stones, not network nodes).
+- **Edges = Gabriel graph on core centroids** (`spdep::gabrielneigh` —
+  version-independent; keeps near-neighbour alternatives so a weak link = a
+  connection with no alternative, unlike an MST where every edge looks critical).
+- **Paths = `create_lcp` per edge, boundary-to-boundary** (only `create_lcp`,
+  confirmed in leastcostpath 2.x; `create_lcp_network` is 1.x). Same corrected
+  resistance (Decision 34) + conductance (1/R, 16-neighbour, Decision 33).
+- **Weak links = costliest routed edges** (highest cost-distance). Chain from
+  SC↔Diablo traced via `igraph` shortest cost path (edges weighted by
+  cost-distance).
+
+**Results (49 Gabriel edges: 38 routed, 11 same-cell adjacencies).**
+
+*Same-cell adjacencies (11/49, 22%).* Eleven edges join cores whose nearest
+boundary points fall in the SAME 1 km cell — functionally contiguous cores a puma
+crosses within one cell. Recorded as `adjacency` (cost 0, the STRONGEST links),
+not dropped. The high adjacency fraction shows the large cores **cluster** (SC
+Mtns cluster, Diablo cluster, North Bay cluster), so fragility lives in the sparse
+INTER-cluster links.
+
+*Finding 1 — SC→Diablo is a low-cost stepping-stone chain, not the direct link.*
+The network routes SC Mtns → S Diablo as **1727 → 2618 → 3250 → 3972** (3 hops,
+total cost **185.5**) — roughly HALF the direct primary-corridor cost (~325,
+Decision 33). A puma would hop through the intermediate south-Bay cores (2618
+Santa Clara, 3250 Santa Clara / Coyote Valley area), not take the forced direct
+route. This confirms + strengthens the stepping-stone framing: the intermediate
+Coyote Valley cores are the EFFICIENT path; losing them forces the animal onto the
+costlier direct route.
+
+*Finding 2 — the network's structural weak links are the CROSS-BAY connections,
+NOT Coyote Valley.* Costliest routed links (`tbl_24`): **1053↔1899** (cost 1063,
+61 km; San Mateo Peninsula ↔ Contra Costa/Mt Diablo), **1053↔3289** (804, 42 km;
+Peninsula ↔ Alameda), **752↔1899** (729, 48 km; Marin ↔ Contra Costa). These
+connect the **Peninsula/SC-Mtns cluster to the East-Bay/Diablo cluster ACROSS the
+central urbanized Bay** — long, high-resistance spans with no stepping stones. The
+Coyote Valley chain edges are CHEAP (cost 185 total), not weak. **So the famous
+traffic pinch (Coyote Valley / US-101) is NOT the structural weak point** — its
+importance is the traffic BARRIER (142k AADT, Decision 34 crossing analysis), a
+different axis from network fragility.
+
+*Finding 3 — the central Bay splits the network into two subnetworks.* Reading 1+2
+together: the Bay is a near-complete barrier separating a **Peninsula/SC-Mtns
+subnetwork** from an **East-Bay/Diablo subnetwork**, connected efficiently only at
+the SOUTH (the Coyote Valley stepping-stone chain) and tenuously across the middle.
+The SC→Diablo chain works *because* it routes around the south end. This aligns
+with known biology — SC Mtns pumas are famously isolated, connected to the Diablo
+Range mainly via the south Bay.
+
+**Caveat — cross-bay weak links are partly artifactual (recorded, load-bearing).**
+A 61 km least-cost path across the entire developed bayshore is at the edge of
+biological plausibility; pumas do not routinely traverse the urban Bay. The
+Gabriel graph FORCES a connection between geometric neighbours regardless of
+realism, and the LCP dutifully finds the least-bad route across an essentially
+impassable barrier. So the very-longest cross-bay links mean "these clusters are
+effectively DISCONNECTED", not "here is a corridor to protect." The weak-link
+RANKING is valid within the Gabriel topology; the cross-bay link IDENTITIES should
+be read as disconnection evidence, not conservation-target corridors. The
+south-Bay (Coyote Valley) chain, by contrast, IS a real protectable connection.
+
+**Ceiling (inherited).** Like Decision 36, the network is a hypothesis from an
+author-prior resistance surface, not a telemetry-validated result; the weak-link
+cost-ORDERING has some give (Decision 35: ±10% gHM weight → ~1.5 km route play),
+so weak-link identities are robust but exact ranking is approximate.
+
+*Outputs:* `lcp_puma_network_3310.gpkg` (38 routed edges),
+`lcp_puma_network_weaklinks_swath_3310.gpkg` (5 costliest swaths), `tbl_24`,
+`fig_23`.
+
+---
+
 ## 7. Known limitations
 
 - **No population time series.** There is no repeated regional census
@@ -2101,3 +2767,15 @@ is not redistributable.
 | 2026-08-16 | 5.3 | Gi* built (05_kde_and_hotspots.R PART 2). Results: puma 47 hot/430 cold, bobc 6 hot/224 cold, effort 104 hot/112 cold. Point assignment: puma 657 inside/79 snapped/292 matrix; bobc 2,502/396/1,522. Q5: puma 25 suspect/22 trusted, bobc 2 suspect/4 trusted. Outputs hot_puma_gistar_unit_3310.gpkg, hot_bobc_gistar_unit_3310.gpkg, occ_puma_matrix_3310.gpkg (interim), occ_bobc_matrix_3310.gpkg, tbl_10_gistar_q5_crossread.csv. Five entries added to data-dictionary.md |
 | 2026-08-16 | 5.3/7 | Bobcat 6-hot-spot result VERIFIED real (not artifact) via retained Global G QC: both species significant positive Global G (puma z~31, bobc z~9.9, p~0) = real clustering present with intact local structure (puma 47 hot), so no global-gradient artifact, no detrending. Bobcat highs spikier/more isolated (69% zero units, max 519, p99=29) -> fewer jointly-high neighbourhoods. Logged as §7 limitation: low hot count is spatial arrangement, not scarcity |
 | 2026-08-16 | 5.1 | Per-unit summary stats built (05 PART 3): stats_puma_unit_3310.csv + stats_bobc_unit_3310.csv, 1,129 units each, keyed unit_id, never pooled (Decision 3). Fields: occurrence counts (n_occ inside+snapped / n_total incl obscured / n_obscured), obscured_frac (FLAGGED sparse/low-meaning — randomised coords, 163 puma / 322 bobc units with points), effort_years, coverage-weighted kde_mean+kde_max (exactextractr; ~300 units NA = masked KDE cells, not zero), gistar_z/hotspot/q5_flag. Bobcat adds bobc_detected (naive per-unit collapse, NOT modelled psi): 351 detected / 508 surveyed-not-detected / 270 never-surveyed NA. Two entries added to data-dictionary.md |
+| 2026-08-17 | 4.3 | Effort layers re-emitted with GRADED intensity (03b): each surveyed unit×year now carries eff_nrec = count of non-bobcat background records, alongside the retained binary surveyed=1 (04d/04e unaffected). Deciles printed for the transform decision. 3A mammal 1/1/1/1/2/3/4/6/10/21/1238 (heavy right skew); 3B vertebrate median 106, max 158,123. eff_nrec field added to both effort-layer dictionary entries. eff_nrec is an observer-intensity PROXY (background volume, not bobcat survey effort) — caveat carried |
+| 2026-08-17 | 5.4/6/9 | Decision 31 CLOSED — bobcat covariate occupancy fit (06_occupancy_models.R), pre-registered before fitted values seen. Detection p1 ~eff_nrec_s (scale(log1p(eff_nrec)), transform chosen from observed deciles; ΔAICc 408 over null, year term adds nothing). Occupancy best m_full (terrain+land+human), confidence set {m_full, m_fullgrad} ΔAICc 1.37. gHM×housing model-matrix r=0.094 (Decision 23 keep-both re-confirmed). VIF manual==usdm to 3 dp; lc_frac_tree=5.18 flagged, KEPT with recorded justification (marginal vs VIF≥10, primary habitat axis). psi surface occu_bobc_pred_unit_3310.gpkg (845 units, median 0.669). tbl_11–16 + surface added to data-dictionary.md |
+| 2026-08-17 | 5.4/7 | Decision 22 FORWARD CHECK CLOSED — PASSED. Covariate-model collapsed 4-period MB-GOF c-hat = 1.47 (GOF p=0.052), declined substantially from null 8.9: null overdispersion was real habitat heterogeneity absorbed by covariates, not misfit. SDM fallback stays untriggered. Bug fixed en route: mb.gof.test/parboot re-evaluates the stored call in the bootstrap; namespace-prefixed occu() with frame-by-name gave "object 'unmarked' not found" → fixed via attached unmarked + do.call-inlined formula + parallel=FALSE; error now surfaced not swallowed. tbl_14. Q5 cross-read: psi vs KDE r=0.075 (effort-shaped descriptive vs habitat-shaped modelled — stated). Puma feasibility closed: no occupancy fit needed (connectivity/SDM by design) |
+| 2026-08-18 | 6 | Decision 32 CLOSED — puma core-habitat patches from the CPAD∪CCED union (Decision 19), fork-A dissolve (all tenure melted, tenure kept as per-patch fee/easement tally), min-patch-area floor 5 km² (home-range anchored, Decision 28 prior; NOT read off the smooth area curve; 1 km²/mid-curve rejected). 164 core endpoints, 3,512 stepping-stones retained, 591 sub-100 m² dust dropped as st_difference artifacts (no snap — st_snap hung O(n²); floor removes dust for free). Endpoints: SC Mtns = patch 1727 (177 km², San Mateo), southern Diablo = patch 3972 (500 km², Santa Clara); two initial seed labels (3972=SC, 220=Diablo) surfaced as WRONG and corrected — 220 is Marin/Mt Tam, not an endpoint. Option (a) dominant-core routing; SC-range fragmentation a stated corridor limitation. tbl_17/tbl_18/fig_17 |
+| 2026-08-18 | 5.5 | Core-patch stage built (07_connectivity.R Part 1+2) — lcp_puma_core_patches_3310.gpkg (164), lcp_puma_stepping_stones_3310.gpkg (3,512). leastcostpath 2.0.13 / gdistance 1.6.5 confirmed installed; leastcostpath uses the terra create_cs API (≥2.0), so gdistance is not on the corridor path. Both flagged NOT in renv.lock — snapshot pending. Least-cost path extraction + 3 Decision-26 sensitivity checks pending |
+| 2026-08-20 | 6 | Decision 32 CLOSED — puma core patches from the CPAD∪CCED union, fork-A dissolve, 5 km² home-range floor (Decision 28 prior; NOT off the smooth area curve; 1 km²/mid-curve rejected). 164 cores, 3,512 stepping-stones retained, 591 sub-100 m² dust dropped (st_difference artifact; st_snap abandoned — hung O(n²), floor removes dust for free). Endpoints SC Mtns=1727 / southern Diablo=3972; two seed labels (3972=SC, 220=Diablo) surfaced WRONG and corrected (220=Marin/Mt Tam). tbl_17/18, fig_17 |
+| 2026-08-20 | 5.5/6 | Decision 33 CLOSED — least-cost corridor construction. leastcostpath 2.0.13 terra create_cs; cond=1/R inversion (REQUIRED — package reads high=permeable); neighbours=16 (Antikainen 2013/Shirabe 2016, distortion-reduced); dem/max_slope NULL (slope already in R, Decision 26). LCP SC Mtns→S Diablo 37.2 km through Coyote Valley, 1.6 km from verified pinch, core swath covers pinch. Two-tier swath core q2%(409 km²)/context q5%(1,021 km²), set below the q25→q50 cost cliff; q10% rejected (would erase the narrow pinch). 1 km grain can't resolve sub-1 km pinch = swath is regional context, crossing step locates the pinch. lcp_* layers, tbl_19/20, fig_18/19 |
+| 2026-08-20 | 6/9 | Decision 34 CLOSED — state-highway AADT by route-line + PM referencing, fixing the Decision-25 spatial-snap that dropped US-101 @ Coyote Valley to the 80k modelled floor (true ~142k, bracketing PM17.82/26.78 stations). Route chosen by nearest route-LINE (junction-safe: 101 line 190 m vs 85 line 4,977 m), new measured_route_pm tier. REFINES Decision 25 (spatial_fill-skew-not-correctable holds for local/arterial; state highways ARE PM-referenced, so correctable). Two failed impls surfaced+corrected before the working route-line match. Full re-run 04b→04c→07; resist_puma_baseline re-emitted (data-correction revision, Decision 26 weights unchanged). US-101 now top measured crossing 142k; Santa Teresa demoted to flagged estimate. ref-recovery deferred |
+| 2026-08-20 | 5.5/7 | Sensitivity check 1 (road-confidence, Decision 26) PASSED/STABLE — v1(80k) vs v2(142k) corridor: LCP identical (Hausdorff 0 m), core swath IoU 1.000, context 0.990, cost Spearman 1.000; accumulated cost +4.4%. Rank-preserving because both AADT values map to the log-inverse high-resistance tail (transform compresses high-traffic tail by design) — path already avoided US-101 cells. Correction material for crossing SEVERITY ranking, immaterial for corridor GEOMETRY (two distinct findings). Verdict recorded qualitatively + raw metrics, no hard threshold. tbl_21, fig_20 |
+| 2026-08-20 | 6/7 | Decision 35 CLOSED — three pre-registered Decision-26 corridor sensitivity checks (07e_sensitivity.R), OAT plausible-range perturbation judged on corridor overlap (Beier 2009/Rayfield 2010/Marrec 2020). ALL STABLE (worst context IoU 0.941, worst LCP mean sep 1,312 m). (1) road-confidence PASS (LCP identical, swath edges only) — corroborates sensitivity check 1. (2) chaparral shrub 10→5 PASS, IoU 1.000/0.998 — **FVEG supplement NOT triggered, Decision-12 chaparral contingency closed** (under-mapping immaterial to connectivity). (3) weights ±10% PASS, IoU ≥0.975, but asymmetric: gHM-heavy shortened LCP 37.19→35.55 km (mean sep 1,312 m) = largest single Week-8 sensitivity; LC-heavy 0 m. Caveat recorded: corridor LOCATION robust, exact route/length has ~1.5 km play tied to the gHM author-prior weight (§7 limitation, not a re-fit). Variant surfaces in-memory only. tbl_22, fig_21 |
+| 2026-08-20 | 5.3/6 | Decision 36 CLOSED — puma Q5 corridor cross-read (07f_corridor_crossread.R). Three-part read (corridor ≠ density, so not a single ψ-vs-KDE correlation). Result CONVERGENCE (reverses the pre-analysis divergence guess, recorded honestly): LCP median 77th KDE percentile, 0% below median; Coyote Valley pinch 83rd (HIGH, not the predicted low); 7 Gi* hot units on the corridor, 6 TRUSTED. Corroboration but only WEAK-TO-MODERATE and PARTLY STRUCTURAL — NOT independent validation: resistance surface + KDE share a land-cover/gHM foundation (part of the agreement is two views of the same gradient; Larkin 2004/LaRue-Nielsen 2008 note corridor-through-occurrence is expected). Load-bearing counter-evidence: 6/7 TRUSTED hot units (effort-independent) + corridor's road term absent from KDE. Strong validation would need telemetry (we have occurrence only). Unnithan Kumar 2022: LCP centre-line is least-accurate form → lead the story with the SWATH not the line. CROSS-TRACK CONTRAST: bobcat ψ DIVERGED from KDE (r=0.075, model corrects effort); puma corridor CONVERGES (no effort term, yet lands on observed density). tbl_23, fig_22 |
+| 2026-08-20 | 5.5/6 | Decision 37 CLOSED — puma core-connectivity network (07g_corridor_network.R). 29 large-core anchors (≥30 km², cutoff from area-scan break), Gabriel graph (spdep), create_lcp per edge (2.x-only; create_lcp_network is 1.x). 49 edges: 38 routed + 11 same-cell adjacencies (cost 0, strongest links — cores cluster, 22% adjacency). Finding 1: SC→Diablo is a stepping-stone CHAIN 1727→2618→3250→3972 (cost 185.5, ~half the direct 325) — Coyote Valley intermediate cores are the efficient path. Finding 2: structural weak links are CROSS-BAY Peninsula↔East-Bay spans (1053-1899 cost 1063/61 km etc.), NOT Coyote Valley (cheap). Traffic pinch (US-101) ≠ structural weak point — different axes. Finding 3: central Bay splits the network into Peninsula/SC-Mtns + East-Bay/Diablo subnetworks, joined efficiently only at the south (matches known SC-Mtns puma isolation). CAVEAT: longest cross-bay links partly artifactual (Gabriel forces geometric-neighbour edges across an impassable barrier) = disconnection evidence, not protectable corridors. tbl_24, fig_23 |

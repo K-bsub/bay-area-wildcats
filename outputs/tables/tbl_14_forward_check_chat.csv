@@ -1,0 +1,2 @@
+"best_model","detection_side","null_chat","covariate_chat","gof_p","chat_declined","gof_error","verdict"
+"m_full","~eff_nrec_s",8.9,1.468,0.052,TRUE,NA,"PASS — c-hat < 2; strong decline, fit good"

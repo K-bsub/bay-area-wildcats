@@ -1,0 +1,9 @@
+"covariate","vif_manual","vif_usdm","agree"
+"elev_mean",2.2,2.2,TRUE
+"slope_mean",3.168,3.168,TRUE
+"aspect_north",1.125,1.125,TRUE
+"aspect_east",1.33,1.33,TRUE
+"ghm_mean",1.871,1.871,TRUE
+"housing_logden_mean",1.041,1.041,TRUE
+"lc_frac_tree",5.181,5.181,TRUE
+"lc_frac_grass",3.513,3.513,TRUE

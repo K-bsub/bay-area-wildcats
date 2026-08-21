@@ -410,10 +410,32 @@ than road presence for barrier effects — a tertiary road and a freeway are bot
   measured volume; Week 5 assigns an `fclass`-derived floor or model.
 - **Volumes stored as strings:** `AHEAD_AADT` / `BACK_AADT` are text (commas,
   blanks; ~8% of `AHEAD_AADT` empty). Coerce to numeric and clean before use.
-- **Point, not line:** AADT is per count station, not attributed to road segments;
-  the AADT→segment join is a Week-5 covariate step (Decision 14).
+- **Point, not line:** AADT is per count station, not attributed to road segments.
+  The AADT→segment join is a covariate step. **Two-stage join (Decisions 25 + 34):**
+  local/arterial roads use a spatial-snap + name/spatial-fill + fclass-floor
+  tier chain (Decision 25); **state highways (motorway/trunk) use route-line +
+  postmile linear referencing** (Decision 34, `measured_route_pm` tier) — the
+  station's `RTE`/`PM` fields place it along the matched route so a segment in an
+  inter-interchange station gap gets the bracketing stations' interpolated volume
+  rather than falling to a modelled floor.
 - **Sanity range (study area):** median AHEAD_AADT ~68,000, max ~292,000 —
   freeway-scale, consistent with a state-highway-only dataset.
+- **Spatial-snap missed freeways in station gaps (fixed, Decision 34).** The
+  original blind station→segment spatial snap (Decision 25) discarded Caltrans'
+  native route+postmile referencing, dropping US-101 at the Coyote Valley pinch —
+  the study's key wildlife barrier — to the modelled 80k floor when its true
+  volume is ~142k (bracketing stations at PM 17.82 / 26.78, both ~142k, across the
+  8.96-mi largest SCL Route-101 station gap). Corrected by route-line + postmile
+  interpolation for state-highway segments (Decision 34). A named arterial (Santa
+  Teresa Blvd) had also out-ranked the real freeway via name-fill; the corrected
+  tiering fixes the barrier ordering.
+- **`ref` route-number field lost in the roads pull (follow-up, Decision 34).**
+  The OSM/Geofabrik roads extract did not retain the `ref` route tag, so freeways
+  are `name = NA` and are identified for the AADT route match by `fclass` +
+  station proximity rather than exact route number, and are labelled "route N
+  (motorway)" in outputs rather than by name. Recovering `ref` (re-pull preserving
+  the route tag) is a deferred, non-blocking roads-pull follow-up; it would make
+  the route match exact and label freeways properly. Flagged here per Decision 34.
 
 ### 4.4 Human footprint — human modification + housing density
 
@@ -504,16 +526,21 @@ Available context:
 - California Mountain Lion Project statewide abundance estimate (CDFW with
   UC Santa Cruz, UC Davis, Audubon Canyon Ranch, Institute for Wildlife
   Studies) — a single point-in-time estimate, roughly 3,200–4,500 statewide.
-- CDFW status review and **CESA listing** — in **April 2026** the Fish and Game
-  Commission listed mountain lions in the Southern California / Central Coast
-  Distinct Population Segment (SC/CC DPS) as **threatened** under CESA. The
-  relevant subpopulation here is **Central Coast North = the Santa Cruz Mountains
-  population**, which anchors the puma connectivity/isolation narrative and spans
-  the San Francisco, San Mateo and peninsula range. (This supersedes the earlier
-  "candidate under review" framing; see `docs/references.md` for the petition
-  (2019), candidacy (2020) and listing (2026) chain. Verify against the primary
-  Commission notice before any public-facing narrative claim — the doc's current
-  sourcing is secondary legal alerts.)
+- CDFW status review and **CESA listing** — at its **February 12, 2026** meeting
+  (Feb 11–12 Commission meeting) the Fish and Game Commission voted unanimously to
+  list mountain lions in the Southern California / Central Coast Distinct
+  Population Segment (SC/CC DPS) as **threatened** under CESA, based on the CDFW
+  status-review report dated **December 2025**. The relevant subpopulation here is
+  **Central Coast North = the Santa Cruz Mountains population**, which anchors the
+  puma connectivity/isolation narrative and spans the San Francisco, San Mateo and
+  peninsula range. (This supersedes the earlier "candidate under review" framing;
+  see `docs/references.md` for the petition (2019), candidacy (2020, May 1) and
+  listing (2026, Feb 12) chain. Corrected from an earlier "April 2026" date —
+  April 15–16 was only the next scheduled meeting — and verified 2026-08-17
+  against the CDFW / Fish and Game Commission news release and concurring legal
+  alerts. Cite the **vote date**, not an effective date: the Commission adopts
+  formal findings at a later meeting; use the primary Commission notice / Cal.
+  Reg. Notice Register for the final regulation once published.)
 - No statewide bobcat abundance estimate exists.
 
 Cite these as context only. Do not present them as a trend.

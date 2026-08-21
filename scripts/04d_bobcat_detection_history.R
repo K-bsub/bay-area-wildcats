@@ -1,5 +1,5 @@
 # =============================================================================
-# 08_bobcat_detection_history.R
+# 04d_bobcat_detection_history.R
 #
 # Build the bobcat unit x year detection history that (with the null fit in the
 # next script) closes Decision 22. BUILD ONLY — no model is fit here; the
@@ -39,6 +39,11 @@
 #   data/interim/dh_bobc_vertebrate_all_3310.rds
 #   outputs/tables/tbl_08_detection_history_summary.csv (per-history diagnostics)
 #   outputs/tables/tbl_08_detections_outside_effort.csv (flag: detections in unsurveyed unit-years)
+#
+# NUMBERING NOTE: this script is 04d_ by execution order, but its output tables
+# keep the tbl_08_ prefix on purpose — those filenames are referenced by other
+# scripts and docs and are NOT renamed (the table number and the script number
+# are independent counters). Do not "fix" the tbl_08_ names to match 04d.
 # =============================================================================
 
 source("R/00_config.R")
@@ -220,7 +225,7 @@ if (length(upgraded_all) > 0) {
 
 log_stage("dh_bobc", "histories_built", length(combos))
 
-message("\n================ 08_bobcat_detection_history.R complete ================")
+message("\n================ 04d_bobcat_detection_history.R complete ================")
 message("4 histories written to data/interim/dh_bobc_*_3310.rds")
 message("--> REVIEW tbl_08_detection_history_summary.csv before fitting.")
 message("    Key checks: naive_p vs the 0.10 SDM-fallback line; n_sites_ge2_yr (repeat structure);")

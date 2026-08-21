@@ -1,0 +1,5 @@
+"history","background","detection_set","best_model","n_sites_fit","mean_psi_pred","se_finite","converged"
+"mammal_precise","3A_mammal","precise","m_full",845,0.602,TRUE,TRUE
+"mammal_all","3A_mammal","all_incl_obscured","m_full",853,0.624,TRUE,TRUE
+"vertebrate_precise","3B_vertebrate","precise","m_full",1072,0.489,TRUE,TRUE
+"vertebrate_all","3B_vertebrate","all_incl_obscured","m_full",1074,0.511,TRUE,TRUE

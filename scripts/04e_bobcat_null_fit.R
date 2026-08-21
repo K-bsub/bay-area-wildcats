@@ -1,5 +1,5 @@
 # =============================================================================
-# 09_bobcat_null_fit.R
+# 04e_bobcat_null_fit.R
 #
 # Fit the NULL occupancy model to each bobcat detection history and read the
 # three fit-time criteria that were deferred from the Week-4 gate, closing
@@ -11,7 +11,7 @@
 # Primary decision runs on the MAMMAL-PRECISE history (3A target-group-correct,
 # precise detections). The other three (mammal_all, vertebrate_precise,
 # vertebrate_all) are fit as robustness / sensitivity comparisons. Detected cells
-# upgraded per Decision 27 are already baked into the histories from script 08.
+# upgraded per Decision 27 are already baked into the histories from script 04d.
 #
 # Inputs (data/interim/):
 #   dh_bobc_mammal_precise_3310.rds        (PRIMARY)
@@ -23,6 +23,11 @@
 #   outputs/models/bobc_occu_null_<history>_<date>.rds   (fitted unmarked objects)
 #   outputs/tables/tbl_09_null_fit_criteria.csv          (p, SE, GOF per history)
 #   outputs/tables/tbl_09_decision22_close.csv           (the close: which bg, verdict)
+#
+# NUMBERING NOTE: this script is 04e_ by execution order, but its output tables
+# keep the tbl_09_ prefix on purpose — those filenames are referenced elsewhere
+# and are NOT renamed (table number and script number are independent counters).
+# Do not "fix" the tbl_09_ names to match 04e.
 # =============================================================================
 
 source("R/00_config.R")

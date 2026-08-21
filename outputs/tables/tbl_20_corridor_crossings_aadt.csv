@@ -1,0 +1,291 @@
+"rank_overall","aadt_tier","rank_in_tier","road_label","fclass","aadt","aadt_source","aadt_is_estimate","in_core","cross_len_m"
+1,"measured_route_pm",1,"route 101 (motorway)","motorway",142000,"measured_route_pm",FALSE,TRUE,215
+2,"measured_route_pm",2,"route 101 (motorway)","motorway",142000,"measured_route_pm",FALSE,TRUE,561
+3,"measured_route_pm",3,"route 101 (motorway)","motorway",142000,"measured_route_pm",FALSE,TRUE,443
+4,"measured_route_pm",4,"route 101 (motorway)","motorway",142000,"measured_route_pm",FALSE,TRUE,293
+5,"measured_route_pm",5,"(trunk_link)","trunk_link",64999,"measured_route_pm",FALSE,FALSE,44
+6,"measured_route_pm",6,"(trunk_link)","trunk_link",64987,"measured_route_pm",FALSE,FALSE,121
+7,"measured_route_pm",7,"(trunk_link)","trunk_link",64932,"measured_route_pm",FALSE,FALSE,278
+8,"measured_route_pm",8,"Santa Cruz Highway","trunk",64930,"measured_route_pm",FALSE,FALSE,159
+9,"measured_route_pm",9,"Santa Cruz Highway","trunk",64801,"measured_route_pm",FALSE,FALSE,756
+10,"measured_route_pm",10,"(trunk_link)","trunk_link",64743,"measured_route_pm",FALSE,FALSE,251
+11,"measured_route_pm",11,"Santa Cruz Highway","trunk",64571,"measured_route_pm",FALSE,FALSE,440
+12,"measured_route_pm",12,"Santa Cruz Highway","trunk",64486,"measured_route_pm",FALSE,FALSE,1098
+13,"measured_route_pm",13,"(trunk_link)","trunk_link",64439,"measured_route_pm",FALSE,FALSE,96
+14,"measured_route_pm",14,"(trunk_link)","trunk_link",64433,"measured_route_pm",FALSE,FALSE,51
+15,"measured_route_pm",15,"Santa Cruz Highway","trunk",64182,"measured_route_pm",FALSE,FALSE,320
+16,"measured_route_pm",16,"Santa Cruz Highway","trunk",64153,"measured_route_pm",FALSE,FALSE,305
+17,"measured_route_pm",17,"(trunk_link)","trunk_link",64046,"measured_route_pm",FALSE,FALSE,155
+18,"measured_route_pm",18,"(trunk_link)","trunk_link",63995,"measured_route_pm",FALSE,FALSE,112
+19,"measured_route_pm",19,"Santa Cruz Highway","trunk",61373,"measured_route_pm",FALSE,FALSE,1979
+20,"measured_route_pm",20,"Santa Cruz Highway","trunk",61366,"measured_route_pm",FALSE,FALSE,2007
+21,"measured_route_pm",21,"Santa Cruz Highway","trunk",60366,"measured_route_pm",FALSE,FALSE,22
+22,"measured_route_pm",22,"(trunk_link)","trunk_link",60365,"measured_route_pm",FALSE,FALSE,32
+23,"measured_route_pm",23,"Santa Cruz Highway","trunk",60356,"measured_route_pm",FALSE,FALSE,22
+24,"measured_route_pm",24,"(trunk_link)","trunk_link",60356,"measured_route_pm",FALSE,FALSE,50
+25,"measured_route_pm",25,"(trunk)","trunk",60317,"measured_route_pm",FALSE,FALSE,49
+26,"measured_route_pm",26,"(trunk)","trunk",60309,"measured_route_pm",FALSE,FALSE,109
+27,"measured_route_pm",27,"(trunk)","trunk",60294,"measured_route_pm",FALSE,FALSE,58
+28,"measured_route_pm",28,"route 17 (motorway)","motorway",60210,"measured_route_pm",FALSE,FALSE,133
+29,"measured_route_pm",29,"route 17 (motorway)","motorway",60207,"measured_route_pm",FALSE,FALSE,148
+30,"measured_route_pm",30,"Santa Cruz Highway","trunk",54582,"measured_route_pm",FALSE,FALSE,359
+31,"measured_route_pm",31,"Santa Cruz Highway","trunk",54365,"measured_route_pm",FALSE,FALSE,192
+32,"measured_route_pm",32,"Santa Cruz Highway","trunk",54226,"measured_route_pm",FALSE,FALSE,30
+33,"measured_route_pm",33,"Santa Cruz Highway","trunk",54224,"measured_route_pm",FALSE,FALSE,29
+34,"measured_route_pm",34,"Santa Cruz Highway","trunk",54206,"measured_route_pm",FALSE,FALSE,7
+35,"measured_route_pm",35,"(trunk_link)","trunk_link",54165,"measured_route_pm",FALSE,FALSE,50
+36,"measured_route_pm",36,"(trunk_link)","trunk_link",54158,"measured_route_pm",FALSE,FALSE,15
+37,"measured_route_pm",37,"(trunk_link)","trunk_link",54129,"measured_route_pm",FALSE,FALSE,55
+38,"measured_route_pm",38,"Santa Cruz Highway","trunk",54107,"measured_route_pm",FALSE,FALSE,132
+39,"measured_route_pm",39,"(trunk_link)","trunk_link",54000,"measured_route_pm",FALSE,FALSE,38
+40,"measured_route_pm",40,"Santa Cruz Highway","trunk",54000,"measured_route_pm",FALSE,FALSE,871
+41,"measured_route_pm",41,"(trunk_link)","trunk_link",54000,"measured_route_pm",FALSE,FALSE,39
+42,"measured_route_pm",42,"Santa Cruz Highway","trunk",54000,"measured_route_pm",FALSE,FALSE,445
+43,"measured_route_pm",43,"(trunk_link)","trunk_link",54000,"measured_route_pm",FALSE,FALSE,54
+44,"measured_route_pm",44,"(trunk_link)","trunk_link",54000,"measured_route_pm",FALSE,FALSE,58
+45,"measured_route_pm",45,"Santa Cruz Highway","trunk",54000,"measured_route_pm",FALSE,FALSE,283
+46,"measured_route_pm",46,"Santa Cruz Highway","trunk",54000,"measured_route_pm",FALSE,FALSE,101
+47,"measured_route_pm",47,"Santa Cruz Highway","trunk",54000,"measured_route_pm",FALSE,FALSE,383
+48,"measured_route_pm",48,"Santa Cruz Highway","trunk",54000,"measured_route_pm",FALSE,FALSE,564
+49,"measured_route_pm",49,"Santa Cruz Highway","trunk",54000,"measured_route_pm",FALSE,FALSE,1602
+50,"measured_route_pm",50,"Santa Cruz Highway","trunk",54000,"measured_route_pm",FALSE,FALSE,348
+51,"measured_route_pm",51,"Santa Cruz Highway","trunk",54000,"measured_route_pm",FALSE,FALSE,385
+52,"measured_route_pm",52,"(trunk_link)","trunk_link",53836,"measured_route_pm",FALSE,FALSE,77
+53,"measured_route_pm",53,"(trunk_link)","trunk_link",53771,"measured_route_pm",FALSE,FALSE,62
+54,"measured_route_pm",54,"Santa Cruz Highway","trunk",53213,"measured_route_pm",FALSE,FALSE,73
+55,"measured_route_pm",55,"Santa Cruz Highway","trunk",53211,"measured_route_pm",FALSE,FALSE,66
+56,"measured_route_pm",56,"Santa Cruz Highway","trunk",53149,"measured_route_pm",FALSE,FALSE,1629
+57,"measured_route_pm",57,"Santa Cruz Highway","trunk",1050,"measured_route_pm",FALSE,FALSE,1090
+58,"measured",1,"Saratoga-Los Gatos Road","primary",18500,"measured",FALSE,FALSE,321
+59,"measured",2,"(primary)","primary",14000,"measured",FALSE,FALSE,263
+60,"measured",3,"Saratoga-Los Gatos Road","primary",13800,"measured",FALSE,FALSE,358
+61,"measured",4,"Saratoga-Los Gatos Road","primary",13800,"measured",FALSE,FALSE,72
+62,"measured",5,"Big Basin Way","primary",7200,"measured",FALSE,FALSE,117
+63,"measured",6,"Big Basin Way","primary",6900,"measured",FALSE,FALSE,299
+64,"measured",7,"(primary)","primary",6300,"measured",FALSE,FALSE,57
+65,"measured",8,"Big Basin Way","primary",4650,"measured",FALSE,TRUE,834
+66,"measured",9,"Big Basin Way","primary",3150,"measured",FALSE,FALSE,3623
+67,"measured",10,"(primary)","primary",1610,"measured",FALSE,FALSE,3750
+68,"measured",11,"Skyline Boulevard","secondary",1400,"measured",FALSE,FALSE,4685
+69,"measured",12,"Summit Road","secondary",1050,"measured",FALSE,FALSE,81
+70,"measured",13,"Summit Road","secondary",1050,"measured",FALSE,TRUE,891
+71,"measured",14,"Bear Creek Road","secondary",790,"measured",FALSE,TRUE,1107
+72,"measured",15,"Skyline Boulevard","secondary",430,"measured",FALSE,FALSE,28
+73,"name_fill",1,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,150
+74,"name_fill",2,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,96
+75,"name_fill",3,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,21
+76,"name_fill",4,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,TRUE,970
+77,"name_fill",5,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,155
+78,"name_fill",6,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,249
+79,"name_fill",7,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,50
+80,"name_fill",8,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,867
+81,"name_fill",9,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,80
+82,"name_fill",10,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,90
+83,"name_fill",11,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,526
+84,"name_fill",12,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,33
+85,"name_fill",13,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,140
+86,"name_fill",14,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,50
+87,"name_fill",15,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,24
+88,"name_fill",16,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,251
+89,"name_fill",17,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,92
+90,"name_fill",18,"Santa Teresa Boulevard","secondary",111000,"name_fill",TRUE,FALSE,116
+91,"name_fill",19,"Santa Cruz Highway","secondary",67288,"name_fill",TRUE,FALSE,26
+92,"name_fill",20,"Santa Cruz Highway","trunk",67288,"name_fill",TRUE,FALSE,946
+93,"name_fill",21,"Skyline Boulevard","secondary",32250,"name_fill",TRUE,TRUE,5827
+94,"name_fill",22,"Skyline Boulevard","secondary",32250,"name_fill",TRUE,FALSE,710
+95,"name_fill",23,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,93
+96,"name_fill",24,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,58
+97,"name_fill",25,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,197
+98,"name_fill",26,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,235
+99,"name_fill",27,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,512
+100,"name_fill",28,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,50
+101,"name_fill",29,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,126
+102,"name_fill",30,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,505
+103,"name_fill",31,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,26
+104,"name_fill",32,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,39
+105,"name_fill",33,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,33
+106,"name_fill",34,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,28
+107,"name_fill",35,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,22
+108,"name_fill",36,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,33
+109,"name_fill",37,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,110
+110,"name_fill",38,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,122
+111,"name_fill",39,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,60
+112,"name_fill",40,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,50
+113,"name_fill",41,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,48
+114,"name_fill",42,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,334
+115,"name_fill",43,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,TRUE,228
+116,"name_fill",44,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,31
+117,"name_fill",45,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,19
+118,"name_fill",46,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,332
+119,"name_fill",47,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,111
+120,"name_fill",48,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,227
+121,"name_fill",49,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,284
+122,"name_fill",50,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,23
+123,"name_fill",51,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,92
+124,"name_fill",52,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,21
+125,"name_fill",53,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,55
+126,"name_fill",54,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,93
+127,"name_fill",55,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,72
+128,"name_fill",56,"Saratoga-Los Gatos Road","primary",16150,"name_fill",TRUE,FALSE,22
+129,"name_fill",57,"Bear Creek Road","secondary",7895,"name_fill",TRUE,TRUE,2304
+130,"name_fill",58,"Bear Creek Road","secondary",7895,"name_fill",TRUE,FALSE,3189
+131,"name_fill",59,"Bear Creek Road","secondary",7895,"name_fill",TRUE,FALSE,14
+132,"name_fill",60,"Bear Creek Road","secondary",7895,"name_fill",TRUE,TRUE,529
+133,"name_fill",61,"Bear Creek Road","secondary",7895,"name_fill",TRUE,TRUE,46
+134,"name_fill",62,"Bear Creek Road","secondary",7895,"name_fill",TRUE,TRUE,3320
+135,"name_fill",63,"Bear Creek Road","secondary",7895,"name_fill",TRUE,TRUE,3974
+136,"name_fill",64,"Bear Creek Road","secondary",7895,"name_fill",TRUE,FALSE,22
+137,"name_fill",65,"Bear Creek Road","secondary",7895,"name_fill",TRUE,TRUE,1478
+138,"name_fill",66,"Bear Creek Road","secondary",7895,"name_fill",TRUE,TRUE,10
+139,"name_fill",67,"Bear Creek Road","secondary",7895,"name_fill",TRUE,TRUE,2521
+140,"name_fill",68,"Bear Creek Road","secondary",7895,"name_fill",TRUE,TRUE,40
+141,"name_fill",69,"Bear Creek Road","secondary",7895,"name_fill",TRUE,TRUE,222
+142,"name_fill",70,"Bear Creek Road","secondary",7895,"name_fill",TRUE,TRUE,54
+143,"name_fill",71,"Bear Creek Road","secondary",7895,"name_fill",TRUE,TRUE,1115
+144,"name_fill",72,"Bear Creek Road","secondary",7895,"name_fill",TRUE,TRUE,19
+145,"name_fill",73,"Big Basin Way","primary",6900,"name_fill",TRUE,FALSE,658
+146,"name_fill",74,"Big Basin Way","primary",6900,"name_fill",TRUE,FALSE,253
+147,"name_fill",75,"Big Basin Way","primary",6900,"name_fill",TRUE,FALSE,365
+148,"name_fill",76,"Big Basin Way","primary",6900,"name_fill",TRUE,FALSE,573
+149,"name_fill",77,"Big Basin Way","primary",6900,"name_fill",TRUE,FALSE,522
+150,"name_fill",78,"Big Basin Way","primary",6900,"name_fill",TRUE,FALSE,424
+151,"name_fill",79,"Big Basin Way","primary",6900,"name_fill",TRUE,FALSE,450
+152,"name_fill",80,"Big Basin Way","primary",6900,"name_fill",TRUE,TRUE,2092
+153,"name_fill",81,"Big Basin Way","primary",6900,"name_fill",TRUE,TRUE,1989
+154,"name_fill",82,"Big Basin Way","primary",6900,"name_fill",TRUE,TRUE,49
+155,"name_fill",83,"Big Basin Way","primary",6900,"name_fill",TRUE,TRUE,80
+156,"name_fill",84,"Big Basin Way","primary",6900,"name_fill",TRUE,FALSE,47
+157,"name_fill",85,"Big Basin Way","primary",6900,"name_fill",TRUE,FALSE,102
+158,"name_fill",86,"Big Basin Way","primary",6900,"name_fill",TRUE,FALSE,240
+159,"name_fill",87,"Big Basin Way","primary",6900,"name_fill",TRUE,FALSE,10
+160,"name_fill",88,"Big Basin Way","primary",6900,"name_fill",TRUE,FALSE,122
+161,"name_fill",89,"Big Basin Way","primary",6900,"name_fill",TRUE,FALSE,15
+162,"name_fill",90,"Big Basin Way","primary",6900,"name_fill",TRUE,FALSE,67
+163,"name_fill",91,"Big Basin Way","primary",6900,"name_fill",TRUE,FALSE,2402
+164,"name_fill",92,"Summit Road","secondary",1050,"name_fill",TRUE,TRUE,2440
+165,"name_fill",93,"Summit Road","secondary",1050,"name_fill",TRUE,TRUE,2417
+166,"name_fill",94,"Summit Road","secondary",1050,"name_fill",TRUE,TRUE,1714
+167,"name_fill",95,"Summit Road","secondary",1050,"name_fill",TRUE,FALSE,9
+168,"name_fill",96,"Summit Road","secondary",1050,"name_fill",TRUE,FALSE,25
+169,"name_fill",97,"Summit Road","secondary",1050,"name_fill",TRUE,TRUE,328
+170,"name_fill",98,"Summit Road","secondary",1050,"name_fill",TRUE,TRUE,944
+171,"spatial_fill",1,"Quito Road","secondary",18500,"spatial_fill",FALSE,FALSE,117
+172,"spatial_fill",2,"Quito Road","secondary",18500,"spatial_fill",FALSE,FALSE,97
+173,"spatial_fill",3,"Quito Road","secondary",18500,"spatial_fill",FALSE,FALSE,15
+174,"spatial_fill",4,"(primary)","primary",14000,"spatial_fill",FALSE,FALSE,1149
+175,"spatial_fill",5,"Fruitvale Avenue","secondary",13800,"spatial_fill",FALSE,FALSE,26
+176,"spatial_fill",6,"(primary_link)","primary_link",13800,"spatial_fill",FALSE,FALSE,43
+177,"spatial_fill",7,"(primary_link)","primary_link",13800,"spatial_fill",FALSE,FALSE,39
+178,"spatial_fill",8,"(primary_link)","primary_link",13800,"spatial_fill",FALSE,FALSE,44
+179,"spatial_fill",9,"Fruitvale Avenue","secondary",13800,"spatial_fill",FALSE,FALSE,24
+180,"spatial_fill",10,"(primary_link)","primary_link",13800,"spatial_fill",FALSE,FALSE,42
+181,"spatial_fill",11,"Fruitvale Avenue","secondary",13800,"spatial_fill",FALSE,FALSE,715
+182,"spatial_fill",12,"Fruitvale Avenue","secondary",13800,"spatial_fill",FALSE,FALSE,10
+183,"spatial_fill",13,"(primary)","primary",6300,"spatial_fill",FALSE,FALSE,4569
+184,"spatial_fill",14,"(primary)","primary",6300,"spatial_fill",FALSE,FALSE,272
+185,"spatial_fill",15,"(primary)","primary",6300,"spatial_fill",FALSE,FALSE,2403
+186,"spatial_fill",16,"(primary)","primary",6300,"spatial_fill",FALSE,FALSE,194
+187,"spatial_fill",17,"(primary)","primary",6300,"spatial_fill",FALSE,FALSE,15
+188,"spatial_fill",18,"(primary)","primary",6300,"spatial_fill",FALSE,FALSE,70
+189,"spatial_fill",19,"Congress Springs Road","primary",3150,"spatial_fill",FALSE,FALSE,833
+190,"spatial_fill",20,"(primary)","primary",1610,"spatial_fill",FALSE,FALSE,534
+191,"spatial_fill",21,"(primary)","primary",1610,"spatial_fill",FALSE,FALSE,14
+192,"modelled",1,"Monterey Road","primary",20000,"modelled",TRUE,FALSE,2602
+193,"modelled",2,"Monterey Road","primary",20000,"modelled",TRUE,TRUE,208
+194,"modelled",3,"Monterey Road","primary",20000,"modelled",TRUE,FALSE,2552
+195,"modelled",4,"Congress Springs Road","primary",20000,"modelled",TRUE,FALSE,2744
+196,"modelled",5,"Monterey Road","primary",20000,"modelled",TRUE,TRUE,586
+197,"modelled",6,"Monterey Road","primary",20000,"modelled",TRUE,TRUE,279
+198,"modelled",7,"Monterey Road","primary",20000,"modelled",TRUE,TRUE,67
+199,"modelled",8,"Monterey Road","primary",20000,"modelled",TRUE,TRUE,66
+200,"modelled",9,"Monterey Road","primary",20000,"modelled",TRUE,TRUE,289
+201,"modelled",10,"Monterey Road","primary",20000,"modelled",TRUE,FALSE,232
+202,"modelled",11,"Monterey Road","primary",20000,"modelled",TRUE,FALSE,10
+203,"modelled",12,"Monterey Road","primary",20000,"modelled",TRUE,FALSE,695
+204,"modelled",13,"Monterey Road","primary",20000,"modelled",TRUE,FALSE,79
+205,"modelled",14,"Monterey Road","primary",20000,"modelled",TRUE,FALSE,38
+206,"modelled",15,"Almaden Expressway","primary",20000,"modelled",TRUE,FALSE,19
+207,"modelled",16,"Monterey Road","primary",20000,"modelled",TRUE,TRUE,28
+208,"modelled",17,"Monterey Road","primary",20000,"modelled",TRUE,FALSE,716
+209,"modelled",18,"Monterey Road","primary",20000,"modelled",TRUE,FALSE,478
+210,"modelled",19,"Monterey Road","primary",20000,"modelled",TRUE,FALSE,121
+211,"modelled",20,"Monterey Road","primary",20000,"modelled",TRUE,FALSE,45
+212,"modelled",21,"Monterey Road","primary",20000,"modelled",TRUE,TRUE,1086
+213,"modelled",22,"Monterey Road","primary",20000,"modelled",TRUE,FALSE,81
+214,"modelled",23,"Monterey Road","primary",20000,"modelled",TRUE,TRUE,218
+215,"modelled",24,"Monterey Road","primary",20000,"modelled",TRUE,TRUE,95
+216,"modelled",25,"Monterey Road","primary",20000,"modelled",TRUE,FALSE,10
+217,"modelled",26,"Monterey Road","primary",20000,"modelled",TRUE,TRUE,1062
+218,"modelled",27,"Monterey Road","primary",20000,"modelled",TRUE,TRUE,85
+219,"modelled",28,"Monterey Road","primary",20000,"modelled",TRUE,TRUE,637
+220,"modelled",29,"(primary_link)","primary_link",10000,"modelled",TRUE,FALSE,156
+221,"modelled",30,"(primary_link)","primary_link",10000,"modelled",TRUE,FALSE,50
+222,"modelled",31,"(primary_link)","primary_link",10000,"modelled",TRUE,FALSE,136
+223,"modelled",32,"(primary_link)","primary_link",10000,"modelled",TRUE,TRUE,354
+224,"modelled",33,"(primary_link)","primary_link",10000,"modelled",TRUE,FALSE,80
+225,"modelled",34,"(primary_link)","primary_link",10000,"modelled",TRUE,FALSE,16
+226,"modelled",35,"(primary_link)","primary_link",10000,"modelled",TRUE,FALSE,16
+227,"modelled",36,"(primary_link)","primary_link",10000,"modelled",TRUE,FALSE,80
+228,"modelled",37,"(primary_link)","primary_link",10000,"modelled",TRUE,FALSE,58
+229,"modelled",38,"(primary_link)","primary_link",10000,"modelled",TRUE,FALSE,69
+230,"modelled",39,"(primary_link)","primary_link",10000,"modelled",TRUE,FALSE,21
+231,"modelled",40,"Uvas Road","secondary",8000,"modelled",TRUE,FALSE,1826
+232,"modelled",41,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,1363
+233,"modelled",42,"Soquel San Jose Road","secondary",8000,"modelled",TRUE,TRUE,5390
+234,"modelled",43,"Harry Road","secondary",8000,"modelled",TRUE,FALSE,41
+235,"modelled",44,"Gillian Cichowski Memorial Overcrossing","secondary",8000,"modelled",TRUE,FALSE,62
+236,"modelled",45,"Blossom Hill Road","secondary",8000,"modelled",TRUE,FALSE,321
+237,"modelled",46,"East Zayante Road","secondary",8000,"modelled",TRUE,FALSE,938
+238,"modelled",47,"Hale Avenue","secondary",8000,"modelled",TRUE,FALSE,352
+239,"modelled",48,"East Zayante Road","secondary",8000,"modelled",TRUE,FALSE,58
+240,"modelled",49,"Empire Grade","secondary",8000,"modelled",TRUE,FALSE,1020
+241,"modelled",50,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,32
+242,"modelled",51,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,344
+243,"modelled",52,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,2140
+244,"modelled",53,"Uvas Road","secondary",8000,"modelled",TRUE,FALSE,96
+245,"modelled",54,"Uvas Road","secondary",8000,"modelled",TRUE,FALSE,18
+246,"modelled",55,"Uvas Road","secondary",8000,"modelled",TRUE,FALSE,27
+247,"modelled",56,"Uvas Road","secondary",8000,"modelled",TRUE,FALSE,5139
+248,"modelled",57,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,986
+249,"modelled",58,"Blossom Hill Road","secondary",8000,"modelled",TRUE,FALSE,116
+250,"modelled",59,"Blossom Hill Road","secondary",8000,"modelled",TRUE,FALSE,28
+251,"modelled",60,"Blossom Hill Road","secondary",8000,"modelled",TRUE,FALSE,106
+252,"modelled",61,"Blossom Hill Road","secondary",8000,"modelled",TRUE,FALSE,21
+253,"modelled",62,"Blossom Hill Road","secondary",8000,"modelled",TRUE,FALSE,8
+254,"modelled",63,"Blossom Hill Road","secondary",8000,"modelled",TRUE,FALSE,22
+255,"modelled",64,"Blossom Hill Road","secondary",8000,"modelled",TRUE,FALSE,85
+256,"modelled",65,"Blossom Hill Road","secondary",8000,"modelled",TRUE,FALSE,143
+257,"modelled",66,"Blossom Hill Road","secondary",8000,"modelled",TRUE,FALSE,38
+258,"modelled",67,"Soquel San Jose Road","secondary",8000,"modelled",TRUE,FALSE,3346
+259,"modelled",68,"Empire Grade","secondary",8000,"modelled",TRUE,FALSE,1709
+260,"modelled",69,"McKean Road","secondary",8000,"modelled",TRUE,FALSE,31
+261,"modelled",70,"Harry Road","secondary",8000,"modelled",TRUE,FALSE,9
+262,"modelled",71,"Hale Avenue","secondary",8000,"modelled",TRUE,FALSE,12
+263,"modelled",72,"Hale Avenue","secondary",8000,"modelled",TRUE,FALSE,127
+264,"modelled",73,"Hale Avenue","secondary",8000,"modelled",TRUE,FALSE,91
+265,"modelled",74,"Hale Avenue","secondary",8000,"modelled",TRUE,FALSE,589
+266,"modelled",75,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,8
+267,"modelled",76,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,3346
+268,"modelled",77,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,48
+269,"modelled",78,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,75
+270,"modelled",79,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,713
+271,"modelled",80,"Hale Avenue","secondary",8000,"modelled",TRUE,FALSE,79
+272,"modelled",81,"East Zayante Road","secondary",8000,"modelled",TRUE,FALSE,1315
+273,"modelled",82,"Hale Avenue","secondary",8000,"modelled",TRUE,FALSE,15
+274,"modelled",83,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,13
+275,"modelled",84,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,34
+276,"modelled",85,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,40
+277,"modelled",86,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,164
+278,"modelled",87,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,61
+279,"modelled",88,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,42
+280,"modelled",89,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,69
+281,"modelled",90,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,430
+282,"modelled",91,"McKean Road","secondary",8000,"modelled",TRUE,TRUE,599
+283,"modelled",92,"East Zayante Road","secondary",8000,"modelled",TRUE,FALSE,96
+284,"modelled",93,"Harry Road","secondary",8000,"modelled",TRUE,FALSE,15
+285,"modelled",94,"Soquel San Jose Road","secondary",8000,"modelled",TRUE,FALSE,5628
+286,"modelled",95,"Soquel San Jose Road","secondary",8000,"modelled",TRUE,FALSE,9
+287,"modelled",96,"Blossom Hill Road","secondary",8000,"modelled",TRUE,FALSE,3
+288,"modelled",97,"(secondary_link)","secondary_link",4000,"modelled",TRUE,TRUE,93
+289,"modelled",98,"(secondary_link)","secondary_link",4000,"modelled",TRUE,FALSE,31
+290,"modelled",99,"(secondary_link)","secondary_link",4000,"modelled",TRUE,FALSE,28

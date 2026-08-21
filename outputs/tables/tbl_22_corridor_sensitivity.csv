@@ -1,0 +1,6 @@
+"check","lcp_len_km","lcp_mean_sep_m","lcp_max_sep_m","core_iou","context_iou"
+"baseline (Decision 26)",37.19,0,0,1,1
+"1: road-confidence (drop low-conf AADT to R_land)",37.19,0,0,0.916,0.941
+"2: chaparral (shrub resistance 10->5=tree)",37.19,0,0,1,0.998
+"3a: weights gHM-heavy (+10% gHM / -10% LC, renorm)",35.55,1312,3206,0.976,0.975
+"3b: weights LC-heavy (-10% gHM / +10% LC, renorm)",37.19,0,0,0.976,0.975

@@ -18,6 +18,19 @@
 # A/B choice is made from real volumes without re-downloading. Decision 22
 # (draft) depends on this layer to close.
 #
+# GRADED EFFORT (added Week 7, for the detection sub-model). Each surveyed unit x
+# year now carries `eff_nrec` = the COUNT of non-bobcat background records in that
+# unit x year, alongside the binary `surveyed = 1L`. `eff_nrec` is the graded
+# per-occasion detection-effort proxy the p sub-model needs; the binary `surveyed`
+# is kept unchanged so the existing detection-history builder (04d) and null fit
+# (04e) are unaffected.
+#   CAVEAT (state wherever the eff_nrec coefficient is read): eff_nrec is
+#   BACKGROUND vertebrate/mammal observation volume, an observer-intensity PROXY.
+#   It is not bobcat survey effort (no camera-nights / survey-hours). More records
+#   ~ more observer activity ~ higher chance of detecting a bobcat if present. The
+#   raw count is stored; any transform (e.g. log1p) is a Week-7 modelling choice
+#   made from the observed distribution, not applied here.
+#
 # TWO-PART (async):
 #   PART A submits the download (records the key), then stops.
 #   PART B (after GBIF reports READY) imports leanly + derives effort + writes.
@@ -216,15 +229,26 @@ bg_u <- st_join(bg_sf, units_sf["unit_id"], join = st_within) %>%
 cat("background records inside a CPAD unit:", nrow(bg_u),
     sprintf(" (%.0f%% of pulled)\n", 100 * nrow(bg_u) / nrow(bg)))
 
-# effort table: one row per unit x year that had >=1 background record
+# effort table: one row per unit x year that had >=1 background record.
+# `df` holds one row PER RECORD (geometry already dropped), so count() before the
+# distinct collapse yields the graded per-cell intensity.
+#   eff_nrec = number of non-bobcat background records in the unit x year
+#              (the graded observer-intensity proxy for the p sub-model)
+#   surveyed = 1L, unchanged, so binary consumers (04d/04e) are unaffected
 build_effort <- function(df, label) {
-  eff <- df %>% distinct(unit_id, yr) %>% mutate(surveyed = 1L)
+  eff <- df %>%
+    count(unit_id, yr, name = "eff_nrec") %>%   # graded intensity (>=1 by construction)
+    mutate(surveyed = 1L)                        # binary marker retained
   cat(sprintf("\n-- %s --\n", label))
   cat("unit x year cells surveyed  :", nrow(eff), "\n")
   cat("distinct units ever surveyed:", n_distinct(eff$unit_id),
       "of", nrow(units_sf), "\n")
   cat("median survey-years per unit:",
       median(count(eff, unit_id, name = "n")$n), "\n")
+  cat("eff_nrec per cell (min/med/max):",
+      min(eff$eff_nrec), "/", median(eff$eff_nrec), "/", max(eff$eff_nrec), "\n")
+  cat("  eff_nrec distribution (deciles):\n  ")
+  print(round(quantile(eff$eff_nrec, probs = seq(0, 1, 0.1))))
   eff
 }
 

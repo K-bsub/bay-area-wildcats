@@ -1,0 +1,14 @@
+"metric","value"
+"SC_endpoint_kde_pctile",78
+"Diablo_endpoint_kde_pctile",53
+"SC_endpoint_gistar_hot_units",11
+"Diablo_endpoint_gistar_hot_units",4
+"lcp_median_kde_pctile",77
+"lcp_pct_below_median_kde",0
+"swath_core_kde_pctile",73
+"swath_context_kde_pctile",68
+"coyote_pinch_kde_pctile",83
+"coyote_pinch_km_from_lcp",1.6
+"corridor_gistar_hot_units",7
+"corridor_hot_units_suspect",1
+"corridor_hot_units_trusted",6

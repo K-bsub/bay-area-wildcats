@@ -45,12 +45,14 @@ Justin Dellinger.
 **CDFW status review + CESA listing — Southern California / Central Coast
 mountain lion.**
 
-> ⚠️ **Flag — the project's inherited wording is now stale (see below).** The
-> `references.md` seed and `data-sources.md` §5 describe this as a "status review
-> supporting CESA **listing**" of the "Central Coast North" population. As of
-> **April 2026 the population was formally listed as threatened** — it is no
-> longer a candidate under review. Wording needs a light correction; the
-> underlying documents are still the right citations. Details:
+> ✅ **Resolved (2026-08-17) — inherited wording corrected against primary
+> sources.** The `references.md` seed and `data-sources.md` §5 described this as a
+> "status review supporting CESA **listing**" of the "Central Coast North"
+> population, and an earlier draft dated the listing to April 2026. Both are now
+> corrected: the Commission voted to list the population as **threatened on
+> February 12, 2026** (not April — April 15–16 was only the *next* scheduled
+> meeting). It is no longer a candidate under review. The underlying documents are
+> still the right citations. Details:
 
 - **Petition (2019):** Center for Biological Diversity & Mountain Lion Foundation
   petitioned the Fish and Game Commission (June 25, 2019) to list an
@@ -64,20 +66,30 @@ mountain lion.**
   during the review.
 - **CDFW Status Review:** *Status Review of the Petitioned Southern
   California/Central Coast ESU of Mountain Lion in California.* California
-  Department of Fish and Wildlife. (CDFW document portal — DocumentID 239679 /
+  Department of Fish and Wildlife. The status-review report the Commission relied
+  on is dated **December 2025**. (CDFW document portal — DocumentID 239679 /
   239696.)
-- **Listing (2026):** in **April 2026** the Commission listed mountain lions
+- **Listing (2026):** at its **February 12, 2026** meeting (the Feb 11–12
+  Commission meeting) the Commission voted unanimously to list mountain lions
   within the **Southern California / Central Coast Distinct Population Segment
   (SC/CC DPS)** as **threatened** under CESA. The DPS spans from portions of the
-  San Francisco Bay Area south to the Mexico border and largely (slightly more
-  narrowly) conforms to the petitioned ESU.
+  San Francisco Bay Area south to the Mexico border and is slightly smaller than,
+  but largely conforms to, the petitioned SC/CC ESU. Affected counties named in
+  the release include Ventura, Los Angeles, Orange, San Diego, San Bernardino,
+  Riverside, Santa Barbara, San Luis Obispo, Monterey, Santa Cruz and parts of
+  the Bay Area. **Note:** the Feb 12 vote determined listing is *warranted*; the
+  Commission adopts its formal findings (and the regulatory effective date
+  follows) at a later meeting — so cite the **date of the vote**, not an effective
+  date, unless the final regulation date has since been confirmed.
 
-  > *Provenance note:* the April 2026 listing post-dates my training cutoff and
-  > was confirmed by web search on 2026-08-03 (legal alerts: Allen Matkins,
-  > Mondaq, Endangered Species Law & Policy). Verify against the primary
-  > Commission notice / Cal. Reg. Notice Register before it goes in public-facing
-  > narrative — secondary legal-alert sourcing is fine for the doc, not ideal for
-  > the story site.
+  > *Provenance note:* the listing post-dates my training cutoff. Corrected and
+  > verified 2026-08-17 against the CDFW / Fish and Game Commission news release
+  > (fgc.ca.gov, "CESA Protections Warranted … Mountain Lion," Feb 2026) and
+  > concurring legal alerts (National Law Review, Endangered Species Law & Policy,
+  > Fennemore). The earlier "April 2026" date was wrong (that was the next
+  > scheduled meeting). For the public-facing story site, still cite the primary
+  > Commission notice / Cal. Reg. Notice Register for the final adopted findings
+  > and effective date once published — the vote date (Feb 12, 2026) is firm.
 
 - No statewide **bobcat** abundance or status estimate exists — asymmetry to
   state plainly wherever puma status context appears, so the bobcat track is not
@@ -213,6 +225,58 @@ mountain lion.**
   > *Ecology*, 89(10), 2712–2724.
   > Adriaensen, F., et al. (2003). The application of 'least-cost' modelling as a
   > functional landscape model. *Landscape and Urban Planning*, 64(4), 233–247.
+
+  Implementation — `leastcostpath` (Decision 33):
+  > Lewis, J. *leastcostpath: Modelling Pathways and Movement Potential Within a
+  > Landscape* [R package]. v2.0.13 (2.x terra API — `create_cs`, `create_lcp`,
+  > `create_cost_corridor`; the pre-2.0 `gdistance` transition backend is not
+  > used). CRAN, https://cran.r-project.org/package=leastcostpath. (Cite the
+  > installed version from `renv.lock` when converting to `.bib`.)
+
+  Raster neighbourhood / adjacency distortion (Decision 33 — the 16-connectivity
+  choice; more movement directions reduce the deviation & elongation distortion
+  of raster least-cost paths, which otherwise overestimate cost-weighted length
+  by orienting segments only along 8 directions):
+  > Antikainen, H. (2013). Comparison of different strategies for determining
+  > raster-based least-cost paths with a minimum amount of distortion.
+  > *Transactions in GIS*, 17(1), 96–108. DOI: 10.1111/j.1467-9671.2012.01355.x.
+  > Shirabe, T. (2016). A method for finding a least-cost wide path in raster
+  > space. *International Journal of Geographical Information Science*, 30(8),
+  > 1469–1485. DOI: 10.1080/13658816.2015.1124435.
+
+  Bay Area / Santa Cruz Mountains ↔ Diablo Range linkage — corroboration of the
+  modelled corridor (Decision 33; the Coyote Valley / US-101 pinch as the
+  field-verified constriction between the two ranges). Grey-literature / agency
+  connectivity assessments, cited as corroboration, not as method:
+  > Bay Area Critical Linkages / Conservation Lands Network — Santa Cruz Mountains
+  > and Coyote Valley linkage assessments. Open Space Authority of Santa Clara
+  > Valley, *Coyote Valley Landscape Linkage* (conservation vision + wildlife
+  > movement). Santa Cruz Mountains Linkage — *Linkage Conceptual Area Protection
+  > Plan (CAPP)*. (Locate primary reports for the story-site citation; used here
+  > to confirm the modelled 1727↔3972 linkage matches the field-established one.)
+  Least-cost uncertainty / sensitivity analysis (Decision 35 — OAT plausible-range
+  perturbation of the resistance surface, judged on corridor overlap; the method
+  and the finding that corridor location is driven by high-resistance cells and is
+  robust to plausible variation in lower-value parameters):
+  > Beier, P., Majka, D.R., & Newell, S.L. (2009). Uncertainty analysis of
+  > least-cost modeling for designing wildlife linkages. *Ecological Applications*,
+  > 19(8), 2067–2077.
+  > Rayfield, B., Fortin, M.-J., & Fall, A. (2010). The sensitivity of least-cost
+  > habitat graphs to relative cost surface values. *Landscape Ecology*, 25(4),
+  > 519–532. DOI: 10.1007/s10980-009-9436-7.
+  > Marrec, R., et al. (2020). A conceptual framework and uncertainty analysis for
+  > large-scale, species-agnostic modelling of landscape connectivity. *Scientific
+  > Reports*, 10, 21073. — connectivity maps most sensitive to some parameters
+  > (barrier definition, scaling function), robust to others; high-value cells more
+  > concordant than low.
+  Connectivity network topology (Decision 37 — Gabriel graph on cores, shortest
+  cost path for the SC↔Diablo chain):
+  > Gabriel, K.R., & Sokal, R.R. (1969). A new statistical approach to geographic
+  > variation analysis. *Systematic Zoology*, 18(3), 259–278. (Gabriel graph.)
+  > Csárdi, G., & Nepusz, T. (2006). The igraph software package for complex
+  > network research. *InterJournal Complex Systems*, 1695. [R package `igraph`.]
+  > `spdep` (Bivand et al.) — `gabrielneigh`. (Cite installed versions from
+  > `renv.lock` when converting to `.bib`.)
 
 ---
 

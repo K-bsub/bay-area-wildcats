@@ -19,7 +19,7 @@ pkgs <- c(
   "rgbif", "rinat", "tigris", "elevatr", "osmdata",
   # Analysis
   "spatstat.explore", "spatstat.geom", "sfdep", "spdep",
-  "unmarked", "leastcostpath", "gdistance",
+  "unmarked", "AICcmodavg", "usdm", "leastcostpath", "gdistance",
   # Wrangling and reporting
   "tidyverse", "janitor", "gt", "ggplot2", "scales", "patchwork",
   "leaflet", "quarto",
@@ -32,6 +32,12 @@ if (length(missing)) install.packages(missing)
 
 # leastcostpath / gdistance aren't needed until connectivity (Week 8); if either
 # fails to install today it does not block verification -- proceed and revisit.
+#
+# AICcmodavg (mb.gof.test, aictab) is already in renv.lock -- it was used by the
+# Week-6 bobcat null fit (04e) but was previously ABSENT from this pkgs vector, a
+# latent manifest/setup gap. Declared here so the setup script and renv.lock
+# agree. usdm (vifstep) is added for the Week-7 covariate-matrix VIF screen; the
+# fit script also computes VIF manually via lm() and cross-checks the two.
 
 # ---- Confirm we are running inside the project ------------------------------
 if (!file.exists("R/00_config.R")) {
