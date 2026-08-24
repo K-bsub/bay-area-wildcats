@@ -1,0 +1,23 @@
+[
+  {
+    "objectID": "data.html",
+    "href": "data.html",
+    "title": "Data",
+    "section": "",
+    "text": "Placeholder. Built in Week 9.\nSources, licences and known issues are documented in docs/data-sources.md. No sensitive location data is published on this site."
+  },
+  {
+    "objectID": "methods.html",
+    "href": "methods.html",
+    "title": "Methods",
+    "section": "",
+    "text": "Placeholder. Built in Week 9.\nA plain-language summary of the analysis. The full processing log, parameter values and decisions live in docs/methodology.md."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Wild Cats at the Urban Edge",
+    "section": "",
+    "text": "Story site placeholder. Content built in Week 9.\nTwo species, one landscape, opposite problems: bobcats are everywhere and hard to miss; pumas are almost invisible and running out of room to move."
+  }
+]
