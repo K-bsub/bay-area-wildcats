@@ -51,3 +51,6 @@ site/.quarto/
 Thumbs.db
 .vscode/
 *.swp
+
+/.quarto/
+**/*.quarto_ipynb
