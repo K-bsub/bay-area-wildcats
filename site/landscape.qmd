@@ -93,7 +93,7 @@ ggplot(floor_scan, aes(x = floor_km2, y = patches_kept)) +
   annotate(
     "text", x = chosen$floor_km2, y = chosen$patches_kept,
     label = "5 km² floor\n164 patches · 82.5% area retained",
-    hjust = -0.08, vjust = -0.2, size = 3.3, color = col_choice, lineheight = 0.95
+    hjust = 1.1, vjust = 1.4, size = 3.3, color = col_choice, lineheight = 0.95
   ) +
   scale_x_log10(
     breaks = floor_scan$floor_km2,
@@ -113,7 +113,7 @@ ggplot(floor_scan, aes(x = floor_km2, y = patches_kept)) +
     panel.grid.major = element_line(color = "#edeae3"),
     axis.title = element_text(color = col_ink),
     axis.text  = element_text(color = col_ink),
-    plot.margin = margin(8, 40, 8, 8)
+    plot.margin = margin(8, 12, 8, 8)
   )
 ```
 
