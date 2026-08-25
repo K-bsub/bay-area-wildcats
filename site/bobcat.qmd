@@ -216,6 +216,95 @@ each hot unit is cross-read against the effort surface and labelled — TRUSTED
 where the cluster is not explained by effort, EFFORT-FLAGGED where it is. The map
 shows the label, not just the count.
 
+The result here is mostly an absence, and that absence is the finding. After
+false-discovery-rate correction, only **six units** are significant hot spots out
+of more than eleven hundred, against **224** significant cold spots. Bobcat
+records barely cluster into strong hotspots at all once the multiple-testing
+correction is applied. And of the six hot units, the effort cross-read trusts only
+**four** — the other two coincide with recording-effort hotspots and are flagged
+as suspect. So the honest hot-spot story is: weak positive clustering, two of the
+few hot units probably an artefact of where people looked, and a much clearer
+signal in the cold spots — the quiet units where bobcats are recorded less than
+their surroundings would predict.
+
+```{r}
+#| label: fig-bobc-gistar
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Getis-Ord Gi* hot- and cold-spot units for bobcat records, FDR-corrected. Red units are significant hotspots, purple units significant cold spots, faint grey not significant. Solid red is a TRUSTED hotspot; hollow red is a hotspot that coincides with a recording-effort hotspot and is flagged as effort-SUSPECT. Only six units are hot (four trusted, two suspect) against 224 cold — the weakness of the clustering is itself the result, and every count behind it reflects recording effort as much as bobcat presence. Source: sfdep Gi* with the Q5 effort cross-read."
+
+library(sf)
+library(leaflet)
+library(dplyr)
+
+hot <- st_read("../data/processed/hot_bobc_gistar_unit_3310.gpkg", quiet = TRUE) |>
+  st_transform(4326)
+
+# Tiger-site palette: hottest red, coldest purple, neutral grey.
+col_hot <- "#B30000"
+col_cold <- "#3F007D"
+col_ns  <- "#CCCCCC"
+
+ns_units   <- hot[hot$hotspot == "ns", ]
+cold_units <- hot[hot$hotspot == "cold", ]
+# Split the hot units by the Q5 effort verdict (Option B: fill treatment).
+hot_trust  <- hot[hot$hotspot == "hot" & hot$q5_flag == "occ_hot_effort_not_TRUSTED", ]
+hot_susp   <- hot[hot$hotspot == "hot" & hot$q5_flag == "occ_hot_effort_hot_SUSPECT", ]
+
+lab_common <- function(d, verdict = NULL) {
+  base <- sprintf("%s (unit %s)<br>Gi* z = %.2f, FDR p = %.3f",
+                  d$unit_name, d$unit_id, d$gistar_z, d$gistar_p_fdr)
+  if (!is.null(verdict)) base <- paste0(base, "<br><b>", verdict, "</b>")
+  lapply(base, htmltools::HTML)
+}
+
+leaflet(options = leafletOptions(minZoom = 7)) |>
+  addTiles(
+    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    attribution = "Tiles &copy; Esri"
+  ) |>
+  addTiles(
+    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
+  ) |>
+  # not significant — faint but visible context
+  addPolygons(
+    data = ns_units,
+    fillColor = col_ns, fillOpacity = 0.18,
+    color = "#b7b7b7", weight = 0.3, opacity = 0.4,
+    label = ~lapply(sprintf("%s (unit %s) — not significant", unit_name, unit_id),
+                    htmltools::HTML)
+  ) |>
+  # cold spots — purple
+  addPolygons(
+    data = cold_units,
+    fillColor = col_cold, fillOpacity = 0.7,
+    color = "#2a0057", weight = 0.4, opacity = 0.7,
+    label = lab_common(cold_units)
+  ) |>
+  # trusted hot — solid red
+  addPolygons(
+    data = hot_trust,
+    fillColor = col_hot, fillOpacity = 0.85,
+    color = "#7a0000", weight = 1.0, opacity = 0.9,
+    label = lab_common(hot_trust, "TRUSTED hotspot (not explained by effort)")
+  ) |>
+  # suspect hot — hollow red (effort-flagged)
+  addPolygons(
+    data = hot_susp,
+    fillColor = col_hot, fillOpacity = 0.12,
+    color = col_hot, weight = 1.6, opacity = 0.95, dashArray = "4 3",
+    label = lab_common(hot_susp, "EFFORT-SUSPECT hotspot (coincides with an effort hotspot)")
+  ) |>
+  addLegend(
+    position = "bottomright",
+    colors = c(col_hot, col_hot, col_cold, col_ns),
+    labels = c("Hotspot — trusted", "Hotspot — effort-suspect",
+               "Cold spot", "Not significant"),
+    opacity = 0.85, title = "Gi* (FDR-corrected)"
+  )
+```
+
 ## The detection-bias caveat, stated once and carried
 
 Every descriptive map in this section — kernel density, hot spots, even the raw
