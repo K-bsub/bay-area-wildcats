@@ -209,6 +209,58 @@ that just maps the densest clusters of *effort* (Decision 28). Even with the rul
 a kernel-density surface of opportunistic records maps detection effort as much as
 bobcat density. It is shown as a descriptive layer, not as an abundance estimate.
 
+```{r}
+#| label: fig-bobc-kde
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Kernel-density surface of bobcat records (500 m, precise records only). Darker green is higher record density. The colour follows a square-root stretch, not a linear one: density is heavily right-skewed, so a linear scale would show only a few peak cells and wash out the rest — the stretch makes the pattern visible but visually lifts the low values, so read colour as relative pattern, not absolute density. Masked and out-of-study cells are transparent, not zero. This surface maps recording effort as much as bobcat density; the occupancy surface above is the layer to trust for distribution. Source: spatstat KDE, bandwidth by Decision 28."
+
+library(terra)
+library(leaflet)
+
+k <- rast("../data/processed/kde_bobc_current_500m_3310.tif")
+
+# Square-root stretch, capped near the 99th percentile of nonzero density so the
+# handful of extreme cells do not blow out the ramp (values are right-skewed:
+# max is ~400x the median). Masked cells stay NA -> transparent.
+cap <- 0.00000398566624  # 99th percentile of nonzero density
+ks  <- sqrt(clamp(k, lower = 0, upper = cap, values = TRUE))
+
+# Tiger KDE green ramp; na.color transparent so masked area shows basemap.
+ramp <- colorNumeric(
+  palette = c("#F7FCF5", "#BAE4B3", "#74C476", "#31A354", "#006D2C"),
+  domain  = c(0, sqrt(cap)),
+  na.color = "transparent"
+)
+
+leaflet(options = leafletOptions(minZoom = 7)) |>
+  addTiles(
+    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    attribution = "Tiles &copy; Esri"
+  ) |>
+  addTiles(
+    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
+  ) |>
+  addRasterImage(ks, colors = ramp, opacity = 0.75, project = TRUE) |>
+  addControl(
+    position = "bottomright",
+    html = htmltools::HTML(
+      "<div style='background:#fff;padding:8px 10px;border-radius:4px;
+                   box-shadow:0 1px 4px rgba(0,0,0,0.2);font-size:12px;
+                   line-height:1.4;text-align:left;max-width:190px;'>
+         <div style='font-weight:600;margin-bottom:5px;'>Record density</div>
+         <div style='height:12px;border-radius:2px;margin-bottom:3px;
+                     background:linear-gradient(to right,#F7FCF5,#BAE4B3,#74C476,#31A354,#006D2C);'></div>
+         <div style='display:flex;justify-content:space-between;'>
+           <span>low</span><span>high</span></div>
+         <div style='margin-top:5px;color:#5a6070;font-size:11px;'>
+           Square-root stretch. Reflects recording effort as much as density.</div>
+       </div>"
+    )
+  )
+```
+
 **Hot spots.** A Getis-Ord Gi\* analysis flags units with significantly high or low
 record counts relative to their neighbours. The honest problem, carried over from
 the tiger project: a raw-count hot spot is partly an observer-effort hot spot. So
