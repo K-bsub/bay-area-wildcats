@@ -113,6 +113,70 @@ project deliberately lets gHM carry the human-pressure axis (Decision 23). Read
 together, the human signal in bobcat occupancy is real and negative — it just
 lives in the gHM term, not the housing one.
 
+### The occupancy surface
+
+The map below is the model-corrected result: predicted occupancy for each
+open-space unit, after detection effort has been modelled out. It is the layer to
+trust for distribution — not the raw sightings, and not the kernel density that
+follows.
+
+```{r}
+#| label: fig-bobc-psi
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Predicted bobcat occupancy (ψ) by open-space unit, from the model-averaged occupancy fit. Darker green is higher predicted occupancy. Grey units are not modelled — they lack covariate coverage, so no prediction exists; grey means no estimate, not low occupancy. The surface covers the 845 fitted units; the 284 grey units carry geometry only. Detection effort has been modelled out of this surface, which is what separates it from the raw record maps below. Source: model-averaged occu fit (m_full + m_fullgrad)."
+
+library(sf)
+library(leaflet)
+library(dplyr)
+
+# Rendered from site/, so data lives one level up at ../data/. A page-relative
+# path is predictable here; here::here() can mis-anchor to site/ because Quarto
+# plants its own project marker.
+psi <- st_read("../data/processed/occu_bobc_pred_unit_3310.gpkg", quiet = TRUE) |>
+  st_transform(4326)
+
+modelled  <- psi[!is.na(psi$psi_pred), ]
+notmodel  <- psi[ is.na(psi$psi_pred), ]
+
+pal <- colorNumeric("Greens", domain = c(0, 1), na.color = "#cfccc4")
+
+leaflet(options = leafletOptions(minZoom = 7)) |>
+  addProviderTiles("CartoDB.Positron") |>
+  # not-modelled units first, underneath, in flat grey
+  addPolygons(
+    data = notmodel,
+    fillColor = "#cfccc4", fillOpacity = 0.55,
+    color = "#9a978f", weight = 0.5, opacity = 0.8,
+    label = ~paste0("Unit ", unit_id, " — not modelled (no covariate coverage)")
+  ) |>
+  # modelled units on top, green scale
+  addPolygons(
+    data = modelled,
+    fillColor = ~pal(psi_pred), fillOpacity = 0.8,
+    color = "#4a4a48", weight = 0.4, opacity = 0.7,
+    highlightOptions = highlightOptions(weight = 2, color = "#222", bringToFront = TRUE),
+    label = ~sprintf("Unit %s — \u03c8 = %.2f (SE %.2f)", unit_id, psi_pred, psi_se)
+  ) |>
+  addLegend(
+    position = "bottomright", pal = pal, values = c(0, 1),
+    title = "Predicted occupancy (\u03c8)", opacity = 0.8
+  ) |>
+  addControl(
+    "<div style='font-size:11px;line-height:1.3;max-width:200px'>
+     Grey = not modelled (no covariate coverage), <b>not</b> low occupancy.
+     Effort is modelled out of this surface.</div>",
+    position = "topright"
+  )
+```
+
+This surface is where the effort correction pays off. A raw sightings map would
+put the darkest signal wherever recording is densest — near trailheads, near
+cities. The occupancy model moves the signal to where the *landscape* supports
+bobcats: up in elevation, away from human modification. Where the two disagree is
+the effort bias made visible, and it is the heart of Question 5.
+
 ## Two more views, and why they need care
 
 The occupancy surface is the model-corrected view. Two descriptive layers sit
