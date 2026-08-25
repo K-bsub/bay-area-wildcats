@@ -1,10 +1,87 @@
 [
   {
-    "objectID": "data.html",
-    "href": "data.html",
-    "title": "Data",
+    "objectID": "bobcat.html",
+    "href": "bobcat.html",
+    "title": "Where Bobcats Are, and Why",
     "section": "",
-    "text": "Placeholder. Built in Week 9.\nSources, licences and known issues are documented in docs/data-sources.md. No sensitive location data is published on this site."
+    "text": "Bobcats are the easy species to study here, and that ease is itself the problem. Records are abundant, so the question is not whether there is enough data — it is how much of the apparent pattern is bobcats and how much is people with cameras and phones. The occupancy model is built to separate the two."
+  },
+  {
+    "objectID": "bobcat.html#occupancy-not-just-sightings",
+    "href": "bobcat.html#occupancy-not-just-sightings",
+    "title": "Where Bobcats Are, and Why",
+    "section": "Occupancy, not just sightings",
+    "text": "Occupancy, not just sightings\nA raw map of bobcat sightings shows where people looked as much as where bobcats are. An occupancy model pulls those apart. It treats each open-space unit as a site visited repeatedly, models the chance of detecting a bobcat given that it is present, and from that estimates the chance the unit is occupied at all. The detection part absorbs the effort; the occupancy part is what’s left.\nThe fit is a single-species occupancy model over 845 open-space units, built in a fixed two-stage order: the detection sub-model first, then occupancy with the detection structure held fixed. The covariate sets and the selection rule were written down before any fitted number was looked at (Decision 31), so the result is a test of a pre-registered model, not a search for one that fit."
+  },
+  {
+    "objectID": "bobcat.html#detection-is-effort-plainly",
+    "href": "bobcat.html#detection-is-effort-plainly",
+    "title": "Where Bobcats Are, and Why",
+    "section": "Detection is effort, plainly",
+    "text": "Detection is effort, plainly\nThe detection result is blunt. The single covariate is a per-visit record-count effort proxy, and it dominates: more recording effort, far higher detection, with a strength that leaves no room for doubt. Against a no-effort null the effort model is better by an AICc gap of 408 — not a subtle correction, the main signal in the detection process.\nThis is the whole reason the occupancy model exists. A sightings map would read that effort as bobcat distribution. The model reads it as effort and sets it aside, so the occupancy surface underneath is not just a map of where people were looking."
+  },
+  {
+    "objectID": "bobcat.html#what-explains-occupancy",
+    "href": "bobcat.html#what-explains-occupancy",
+    "title": "Where Bobcats Are, and Why",
+    "section": "What explains occupancy",
+    "text": "What explains occupancy\nWith effort handled, three landscape signals shape where bobcats are. The pattern needs all three parts together — terrain, land cover, and human footprint. The model that keeps only one of them falls far behind: a human-footprint-only or a land-cover-only model sits more than 40 AICc units below the full model, while the full model and its near-twin carry 85% of the weight between them.\n\n\n\n\n\n\n\n\nFigure 1: Bobcat occupancy coefficients (logit scale, top model m_full), with 95% confidence intervals. Points right of the zero line raise the modelled chance a unit is occupied; points left lower it. Elevation is the strongest signal (positive); human modification (gHM) is the clearest negative. Tree cover leans positive but its interval touches zero. Terrain aspect, slope, grass, and housing density do not separate from zero. Source: Decision 31 occupancy fit (tbl_13).\n\n\n\n\n\nElevation is the strongest signal, and it is positive. Bobcat occupancy rises with mean unit elevation — the higher, less-developed units of the Coast Ranges and Diablo are the strongholds. Human modification is the clearest negative. As the gHM index rises, modelled occupancy falls: this is the coexistence limit showing up directly in the numbers. Tree cover leans positive but its interval just touches zero, so it reads as a lean, not a firm effect. Grass cover, slope, terrain aspect, and housing density do not separate from zero in this fit.\nThe housing result is worth one note. Housing density enters positive but unresolved, while gHM enters clearly negative. The two are correlated, and the project deliberately lets gHM carry the human-pressure axis (Decision 23). Read together, the human signal in bobcat occupancy is real and negative — it just lives in the gHM term, not the housing one."
+  },
+  {
+    "objectID": "bobcat.html#two-more-views-and-why-they-need-care",
+    "href": "bobcat.html#two-more-views-and-why-they-need-care",
+    "title": "Where Bobcats Are, and Why",
+    "section": "Two more views, and why they need care",
+    "text": "Two more views, and why they need care\nThe occupancy surface is the model-corrected view. Two descriptive layers sit alongside it, and both carry the effort problem the occupancy model was built to escape — so both are read with that caveat attached.\nKernel density. A smoothed surface of where bobcat records fall. The smoothing scale — the bandwidth — is set by a pre-registered rule, not by hand and not by the data-driven default, because the default collapses toward a tiny bandwidth that just maps the densest clusters of effort (Decision 28). Even with the rule, a kernel-density surface of opportunistic records maps detection effort as much as bobcat density. It is shown as a descriptive layer, not as an abundance estimate.\nHot spots. A Getis-Ord Gi* analysis flags units with significantly high or low record counts relative to their neighbours. The honest problem, carried over from the tiger project: a raw-count hot spot is partly an observer-effort hot spot. So each hot unit is cross-read against the effort surface and labelled — TRUSTED where the cluster is not explained by effort, EFFORT-FLAGGED where it is. The map shows the label, not just the count."
+  },
+  {
+    "objectID": "bobcat.html#the-detection-bias-caveat-stated-once-and-carried",
+    "href": "bobcat.html#the-detection-bias-caveat-stated-once-and-carried",
+    "title": "Where Bobcats Are, and Why",
+    "section": "The detection-bias caveat, stated once and carried",
+    "text": "The detection-bias caveat, stated once and carried\nEvery descriptive map in this section — kernel density, hot spots, even the raw record counts behind them — reflects where people recorded bobcats, not only where bobcats are. That is not a footnote to bury; it is the point of Question 5, and it is why the occupancy surface, which models effort explicitly, is the layer to trust for distribution. The two other layers are shown because they are informative about pattern, with the effort caveat attached to each, not because they are unbiased.\nThis is also the cleanest contrast in the whole project. The bobcat occupancy model corrects for effort and, where it does, its picture diverges from the raw kernel density. The puma corridors in the next section do not depend on effort at all — they are built from landscape resistance, not from sightings — so they converge with the density surface for a different reason. Same region, two species, two entirely different relationships between what was recorded and what is there."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Wild Cats at the Urban Edge",
+    "section": "",
+    "text": "Two species share the same ground here, and they present opposite problems. Bobcats are common and easy to record. Pumas are rare, wide-ranging, and their precise locations are a risk to publish. One landscape, two data situations that point in different directions. This project keeps them on separate tracks and lets each tell its own story."
+  },
+  {
+    "objectID": "index.html#not-a-recovery-story",
+    "href": "index.html#not-a-recovery-story",
+    "title": "Wild Cats at the Urban Edge",
+    "section": "Not a recovery story",
+    "text": "Not a recovery story\nThe sister project to this one studied tiger recovery in India. That study had a national census: five repeated survey rounds that made “population change over time” the natural question to ask.\nThe Bay Area has no equivalent for either species. There is one recent statewide mountain lion abundance estimate and no statewide bobcat estimate at all. A recovery narrative is not available, because the census that would support it does not exist.\nWhat the region does have is dense, well-kept open data on land protection, road mortality, and landscape structure. So the question changes. This project is about distribution and coexistence at the urban–wildland edge — where the animals are, how they move, and where their movement meets the roads — not about recovery over time."
+  },
+  {
+    "objectID": "index.html#ten-counties-eight-million-people",
+    "href": "index.html#ten-counties-eight-million-people",
+    "title": "Wild Cats at the Urban Edge",
+    "section": "Ten counties, eight million people",
+    "text": "Ten counties, eight million people\nThe study area is the ten-county San Francisco Bay Area: Alameda, Contra Costa, Marin, Napa, San Francisco, San Mateo, Santa Clara, Santa Cruz, Solano, and Sonoma. Roughly eight million people live inside this frame, next to a patchwork of parks, watershed lands, ranch easements, and open-space preserves.\nPumas and bobcats persist here at the urban edge, not in wilderness. That edge is the subject. The relevant questions are about movement, permeability, and coexistence, not about a return to some earlier state."
+  },
+  {
+    "objectID": "index.html#two-species-two-tracks",
+    "href": "index.html#two-species-two-tracks",
+    "title": "Wild Cats at the Urban Edge",
+    "section": "Two species, two tracks",
+    "text": "Two species, two tracks\nThe two species are analysed in parallel and never pooled. This is a fixed rule of the project (Decision 3), and it follows directly from their data. Pooling sparse, sensitive puma records with abundant, low-risk bobcat records would hide the very contrast that makes each track work.\n\n\n\n\n\n\n\n\n\nPuma\nBobcat\n\n\n\n\nOccurrence records\nSparse\nAbundant\n\n\nLocation sensitivity\nHigh — precise points held, coarsened on publish\nLow\n\n\nHome range\nVery large (100s of km²)\nSmall (10s of km²)\n\n\nPrimary story\nIsolation and connectivity\nOccupancy and distribution\n\n\nPrimary method\nLeast-cost paths and corridors\nOccupancy models, KDE, Gi*\n\n\n\nThe puma track holds 1,028 precise, publicly shared occurrence points inside the study frame. That number is small for an animal that ranges over hundreds of square kilometres, so the puma work is built around connectivity: where the core habitat patches are, and how an animal could move between them. The precise points are never published — every puma map is generalised first. How that is done is set out in the sensitive-data policy and shown on each puma figure.\nThe bobcat track is the opposite. Records are abundant, so the work is about distribution: which open-space units bobcats occupy, and which landscape characteristics best explain that pattern."
+  },
+  {
+    "objectID": "index.html#five-questions",
+    "href": "index.html#five-questions",
+    "title": "Wild Cats at the Urban Edge",
+    "section": "Five questions",
+    "text": "Five questions\nThe analysis is organised around five pre-registered questions. Each belongs to one track, except the last, which cuts across both:\n\nLandscape. How is protected open space distributed across the ten counties, and how connected or fragmented is it from the view of a wide-ranging carnivore?\nBobcat. Where are bobcats present across open-space units, and which landscape characteristics best explain that pattern?\nPuma. Where are the likely movement corridors between core habitat patches, and where do those corridors cross major roads and high-traffic barriers?\nBoth. Where do the modelled puma corridors cross major roads and high-traffic barriers, and where is wildlife–vehicle collision risk therefore concentrated? Direct mortality records are pending; the road crossings serve as the interim risk proxy.\nCross-cutting. How much of the apparent spatial pattern reflects true distribution, and how much reflects observer and detection effort?\n\nThe fifth question is treated as a first-class result, not a footnote. Detection effort shapes every descriptive layer in the project, and the two species answer it in opposite ways: the bobcat model corrects for effort, while the puma corridors do not depend on it. That contrast runs through the sections that follow."
+  },
+  {
+    "objectID": "methods.html",
+    "href": "methods.html",
+    "title": "Methods",
+    "section": "",
+    "text": "Placeholder. Built in Week 9.\nA plain-language summary of the analysis. The full processing log, parameter values and decisions live in docs/methodology.md."
   },
   {
     "objectID": "landscape.html",
@@ -42,45 +119,10 @@
     "text": "What this section does and does not claim\nThis is a description of the protected land, built from protected-area boundaries alone. It uses no occurrence records, so the detection-effort caveat that governs the occurrence maps later in this project does not apply here — there is nothing in these numbers that reflects where people looked for animals. The patches are where the protected ground is, not where the cats were seen.\nWhat it does not tell you is whether an animal can actually move between those 164 cores. A patch being large is not the same as a patch being reachable. Two cores can sit a few kilometres apart on the map and be effectively cut off from each other by a freeway, a reservoir, or the developed bayshore. Turning this static fabric into a question about movement — which cores connect, and where the connections are weakest — is the work of the puma connectivity section (Question 3)."
   },
   {
-    "objectID": "methods.html",
-    "href": "methods.html",
-    "title": "Methods",
+    "objectID": "data.html",
+    "href": "data.html",
+    "title": "Data",
     "section": "",
-    "text": "Placeholder. Built in Week 9.\nA plain-language summary of the analysis. The full processing log, parameter values and decisions live in docs/methodology.md."
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Wild Cats at the Urban Edge",
-    "section": "",
-    "text": "Two species share the same ground here, and they present opposite problems. Bobcats are common and easy to record. Pumas are rare, wide-ranging, and their precise locations are a risk to publish. One landscape, two data situations that point in different directions. This project keeps them on separate tracks and lets each tell its own story."
-  },
-  {
-    "objectID": "index.html#not-a-recovery-story",
-    "href": "index.html#not-a-recovery-story",
-    "title": "Wild Cats at the Urban Edge",
-    "section": "Not a recovery story",
-    "text": "Not a recovery story\nThe sister project to this one studied tiger recovery in India. That study had a national census: five repeated survey rounds that made “population change over time” the natural question to ask.\nThe Bay Area has no equivalent for either species. There is one recent statewide mountain lion abundance estimate and no statewide bobcat estimate at all. A recovery narrative is not available, because the census that would support it does not exist.\nWhat the region does have is dense, well-kept open data on land protection, road mortality, and landscape structure. So the question changes. This project is about distribution and coexistence at the urban–wildland edge — where the animals are, how they move, and where their movement meets the roads — not about recovery over time."
-  },
-  {
-    "objectID": "index.html#ten-counties-eight-million-people",
-    "href": "index.html#ten-counties-eight-million-people",
-    "title": "Wild Cats at the Urban Edge",
-    "section": "Ten counties, eight million people",
-    "text": "Ten counties, eight million people\nThe study area is the ten-county San Francisco Bay Area: Alameda, Contra Costa, Marin, Napa, San Francisco, San Mateo, Santa Clara, Santa Cruz, Solano, and Sonoma. Roughly eight million people live inside this frame, next to a patchwork of parks, watershed lands, ranch easements, and open-space preserves.\nPumas and bobcats persist here at the urban edge, not in wilderness. That edge is the subject. The relevant questions are about movement, permeability, and coexistence, not about a return to some earlier state."
-  },
-  {
-    "objectID": "index.html#two-species-two-tracks",
-    "href": "index.html#two-species-two-tracks",
-    "title": "Wild Cats at the Urban Edge",
-    "section": "Two species, two tracks",
-    "text": "Two species, two tracks\nThe two species are analysed in parallel and never pooled. This is a fixed rule of the project (Decision 3), and it follows directly from their data. Pooling sparse, sensitive puma records with abundant, low-risk bobcat records would hide the very contrast that makes each track work.\n\n\n\n\n\n\n\n\n\nPuma\nBobcat\n\n\n\n\nOccurrence records\nSparse\nAbundant\n\n\nLocation sensitivity\nHigh — precise points held, coarsened on publish\nLow\n\n\nHome range\nVery large (100s of km²)\nSmall (10s of km²)\n\n\nPrimary story\nIsolation and connectivity\nOccupancy and distribution\n\n\nPrimary method\nLeast-cost paths and corridors\nOccupancy models, KDE, Gi*\n\n\n\nThe puma track holds 1,028 precise, publicly shared occurrence points inside the study frame. That number is small for an animal that ranges over hundreds of square kilometres, so the puma work is built around connectivity: where the core habitat patches are, and how an animal could move between them. The precise points are never published — every puma map is generalised first. How that is done is set out in the sensitive-data policy and shown on each puma figure.\nThe bobcat track is the opposite. Records are abundant, so the work is about distribution: which open-space units bobcats occupy, and which landscape characteristics best explain that pattern."
-  },
-  {
-    "objectID": "index.html#five-questions",
-    "href": "index.html#five-questions",
-    "title": "Wild Cats at the Urban Edge",
-    "section": "Five questions",
-    "text": "Five questions\nThe analysis is organised around five pre-registered questions. Each belongs to one track, except the last, which cuts across both:\n\nLandscape. How is protected open space distributed across the ten counties, and how connected or fragmented is it from the view of a wide-ranging carnivore?\nBobcat. Where are bobcats present across open-space units, and which landscape characteristics best explain that pattern?\nPuma. Where are the likely movement corridors between core habitat patches, and where do those corridors cross major roads and high-traffic barriers?\nBoth. Where do the modelled puma corridors cross major roads and high-traffic barriers, and where is wildlife–vehicle collision risk therefore concentrated? Direct mortality records are pending; the road crossings serve as the interim risk proxy.\nCross-cutting. How much of the apparent spatial pattern reflects true distribution, and how much reflects observer and detection effort?\n\nThe fifth question is treated as a first-class result, not a footnote. Detection effort shapes every descriptive layer in the project, and the two species answer it in opposite ways: the bobcat model corrects for effort, while the puma corridors do not depend on it. That contrast runs through the sections that follow."
+    "text": "Placeholder. Built in Week 9.\nSources, licences and known issues are documented in docs/data-sources.md. No sensitive location data is published on this site."
   }
 ]

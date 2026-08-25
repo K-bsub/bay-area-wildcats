@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Methods – Wild Cats at the Urban Edge</title>
+<title>Where Bobcats Are, and Why – Wild Cats at the Urban Edge</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -104,11 +104,11 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Landscape</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./bobcat.html"> 
+    <a class="nav-link active" href="./bobcat.html" aria-current="page"> 
 <span class="menu-text">Bobcat</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./methods.html" aria-current="page"> 
+    <a class="nav-link" href="./methods.html"> 
 <span class="menu-text">Methods</span></a>
   </li>  
   <li class="nav-item">
@@ -126,15 +126,26 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#occupancy-not-just-sightings" id="toc-occupancy-not-just-sightings" class="nav-link active" data-scroll-target="#occupancy-not-just-sightings">Occupancy, not just sightings</a></li>
+  <li><a href="#detection-is-effort-plainly" id="toc-detection-is-effort-plainly" class="nav-link" data-scroll-target="#detection-is-effort-plainly">Detection is effort, plainly</a></li>
+  <li><a href="#what-explains-occupancy" id="toc-what-explains-occupancy" class="nav-link" data-scroll-target="#what-explains-occupancy">What explains occupancy</a></li>
+  <li><a href="#two-more-views-and-why-they-need-care" id="toc-two-more-views-and-why-they-need-care" class="nav-link" data-scroll-target="#two-more-views-and-why-they-need-care">Two more views, and why they need care</a></li>
+  <li><a href="#the-detection-bias-caveat-stated-once-and-carried" id="toc-the-detection-bias-caveat-stated-once-and-carried" class="nav-link" data-scroll-target="#the-detection-bias-caveat-stated-once-and-carried">The detection-bias caveat, stated once and carried</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Methods</h1>
+<h1 class="title">Where Bobcats Are, and Why</h1>
+<p class="subtitle lead">Question 2 — Bobcat</p>
 </div>
 
 
@@ -151,10 +162,50 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><em>Placeholder. Built in Week 9.</em></p>
-<p>A plain-language summary of the analysis. The full processing log, parameter values and decisions live in <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/methodology.md"><code>docs/methodology.md</code></a>.</p>
+<p>Bobcats are the easy species to study here, and that ease is itself the problem. Records are abundant, so the question is not whether there is enough data — it is how much of the apparent pattern is bobcats and how much is people with cameras and phones. The occupancy model is built to separate the two.</p>
+<section id="occupancy-not-just-sightings" class="level2">
+<h2 class="anchored" data-anchor-id="occupancy-not-just-sightings">Occupancy, not just sightings</h2>
+<p>A raw map of bobcat sightings shows where people looked as much as where bobcats are. An occupancy model pulls those apart. It treats each open-space unit as a site visited repeatedly, models the chance of <em>detecting</em> a bobcat given that it is present, and from that estimates the chance the unit is <em>occupied</em> at all. The detection part absorbs the effort; the occupancy part is what’s left.</p>
+<p>The fit is a single-species occupancy model over 845 open-space units, built in a fixed two-stage order: the detection sub-model first, then occupancy with the detection structure held fixed. The covariate sets and the selection rule were written down before any fitted number was looked at (Decision 31), so the result is a test of a pre-registered model, not a search for one that fit.</p>
+</section>
+<section id="detection-is-effort-plainly" class="level2">
+<h2 class="anchored" data-anchor-id="detection-is-effort-plainly">Detection is effort, plainly</h2>
+<p>The detection result is blunt. The single covariate is a per-visit record-count effort proxy, and it dominates: more recording effort, far higher detection, with a strength that leaves no room for doubt. Against a no-effort null the effort model is better by an AICc gap of 408 — not a subtle correction, the main signal in the detection process.</p>
+<p>This is the whole reason the occupancy model exists. A sightings map would read that effort as bobcat distribution. The model reads it as effort and sets it aside, so the occupancy surface underneath is not just a map of where people were looking.</p>
+</section>
+<section id="what-explains-occupancy" class="level2">
+<h2 class="anchored" data-anchor-id="what-explains-occupancy">What explains occupancy</h2>
+<p>With effort handled, three landscape signals shape where bobcats are. The pattern needs all three parts together — terrain, land cover, and human footprint. The model that keeps only one of them falls far behind: a human-footprint-only or a land-cover-only model sits more than 40 AICc units below the full model, while the full model and its near-twin carry 85% of the weight between them.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-bobc-coef" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A coefficient plot with nine occupancy terms on the vertical axis and effect size on the logit horizontal axis, a dashed line at zero. Mean elevation sits well to the right at about +1.4 with an interval clear of zero. Human modification sits to the left at about -0.56 with an interval clear of zero. Tree cover is positive at about +0.62 with an interval just touching zero. Grass, northerly and easterly aspect, slope, and housing density all sit near zero with intervals crossing it.">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bobc-coef-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="bobcat_files/figure-html/fig-bobc-coef-1.png" class="img-fluid figure-img" alt="A coefficient plot with nine occupancy terms on the vertical axis and effect size on the logit horizontal axis, a dashed line at zero. Mean elevation sits well to the right at about +1.4 with an interval clear of zero. Human modification sits to the left at about -0.56 with an interval clear of zero. Tree cover is positive at about +0.62 with an interval just touching zero. Grass, northerly and easterly aspect, slope, and housing density all sit near zero with intervals crossing it." width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bobc-coef-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Bobcat occupancy coefficients (logit scale, top model m_full), with 95% confidence intervals. Points right of the zero line raise the modelled chance a unit is occupied; points left lower it. Elevation is the strongest signal (positive); human modification (gHM) is the clearest negative. Tree cover leans positive but its interval touches zero. Terrain aspect, slope, grass, and housing density do not separate from zero. Source: Decision 31 occupancy fit (tbl_13).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Elevation is the strongest signal, and it is positive.</strong> Bobcat occupancy rises with mean unit elevation — the higher, less-developed units of the Coast Ranges and Diablo are the strongholds. <strong>Human modification is the clearest negative.</strong> As the gHM index rises, modelled occupancy falls: this is the coexistence limit showing up directly in the numbers. <strong>Tree cover leans positive</strong> but its interval just touches zero, so it reads as a lean, not a firm effect. Grass cover, slope, terrain aspect, and housing density do not separate from zero in this fit.</p>
+<p>The housing result is worth one note. Housing density enters positive but unresolved, while gHM enters clearly negative. The two are correlated, and the project deliberately lets gHM carry the human-pressure axis (Decision 23). Read together, the human signal in bobcat occupancy is real and negative — it just lives in the gHM term, not the housing one.</p>
+</section>
+<section id="two-more-views-and-why-they-need-care" class="level2">
+<h2 class="anchored" data-anchor-id="two-more-views-and-why-they-need-care">Two more views, and why they need care</h2>
+<p>The occupancy surface is the model-corrected view. Two descriptive layers sit alongside it, and both carry the effort problem the occupancy model was built to escape — so both are read with that caveat attached.</p>
+<p><strong>Kernel density.</strong> A smoothed surface of where bobcat records fall. The smoothing scale — the bandwidth — is set by a pre-registered rule, not by hand and not by the data-driven default, because the default collapses toward a tiny bandwidth that just maps the densest clusters of <em>effort</em> (Decision 28). Even with the rule, a kernel-density surface of opportunistic records maps detection effort as much as bobcat density. It is shown as a descriptive layer, not as an abundance estimate.</p>
+<p><strong>Hot spots.</strong> A Getis-Ord Gi* analysis flags units with significantly high or low record counts relative to their neighbours. The honest problem, carried over from the tiger project: a raw-count hot spot is partly an observer-effort hot spot. So each hot unit is cross-read against the effort surface and labelled — TRUSTED where the cluster is not explained by effort, EFFORT-FLAGGED where it is. The map shows the label, not just the count.</p>
+</section>
+<section id="the-detection-bias-caveat-stated-once-and-carried" class="level2">
+<h2 class="anchored" data-anchor-id="the-detection-bias-caveat-stated-once-and-carried">The detection-bias caveat, stated once and carried</h2>
+<p>Every descriptive map in this section — kernel density, hot spots, even the raw record counts behind them — reflects where people recorded bobcats, not only where bobcats are. That is not a footnote to bury; it is the point of Question 5, and it is why the occupancy surface, which models effort explicitly, is the layer to trust for distribution. The two other layers are shown because they are informative about pattern, with the effort caveat attached to each, not because they are unbiased.</p>
+<p>This is also the cleanest contrast in the whole project. The bobcat occupancy model <em>corrects</em> for effort and, where it does, its picture diverges from the raw kernel density. The puma corridors in the next section do not depend on effort at all — they are built from landscape resistance, not from sightings — so they converge with the density surface for a different reason. Same region, two species, two entirely different relationships between what was recorded and what is there.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
