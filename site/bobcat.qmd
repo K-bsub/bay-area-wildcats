@@ -137,19 +137,38 @@ library(dplyr)
 psi <- st_read("../data/processed/occu_bobc_pred_unit_3310.gpkg", quiet = TRUE) |>
   st_transform(4326)
 
+# The psi layer carries no name field; the Gi* layer does, on the same unit_id
+# key (join verified: every psi unit matches, no blank names). Bring the name in.
+names_lookup <- st_read("../data/processed/hot_bobc_gistar_unit_3310.gpkg",
+                        quiet = TRUE) |>
+  st_drop_geometry() |>
+  select(unit_id, unit_name)
+
+psi <- psi |>
+  left_join(names_lookup, by = "unit_id") |>
+  mutate(unit_label = ifelse(is.na(unit_name) | unit_name == "",
+                             paste0("Unit ", unit_id),
+                             paste0(unit_name, " (unit ", unit_id, ")")))
+
 modelled  <- psi[!is.na(psi$psi_pred), ]
 notmodel  <- psi[ is.na(psi$psi_pred), ]
 
 pal <- colorNumeric("Greens", domain = c(0, 1), na.color = "#cfccc4")
 
 leaflet(options = leafletOptions(minZoom = 7)) |>
-  addProviderTiles("CartoDB.Positron") |>
+  addTiles(
+    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    attribution = "Tiles &copy; Esri"
+  ) |>
+  addTiles(
+    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
+  ) |>
   # not-modelled units first, underneath, in flat grey
   addPolygons(
     data = notmodel,
     fillColor = "#cfccc4", fillOpacity = 0.55,
     color = "#9a978f", weight = 0.5, opacity = 0.8,
-    label = ~paste0("Unit ", unit_id, " — not modelled (no covariate coverage)")
+    label = ~paste0(unit_label, " — not modelled (no covariate coverage)")
   ) |>
   # modelled units on top, green scale
   addPolygons(
@@ -157,7 +176,7 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
     fillColor = ~pal(psi_pred), fillOpacity = 0.8,
     color = "#4a4a48", weight = 0.4, opacity = 0.7,
     highlightOptions = highlightOptions(weight = 2, color = "#222", bringToFront = TRUE),
-    label = ~sprintf("Unit %s — \u03c8 = %.2f (SE %.2f)", unit_id, psi_pred, psi_se)
+    label = ~sprintf("%s — \u03c8 = %.2f (SE %.2f)", unit_label, psi_pred, psi_se)
   ) |>
   addLegend(
     position = "bottomright", pal = pal, values = c(0, 1),
