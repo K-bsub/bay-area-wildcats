@@ -6,6 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Kiran Balasubramanian">
+<meta name="dcterms.date" content="2026-08-25">
 
 <title>Wild Cats at the Urban Edge</title>
 <style>
@@ -118,8 +120,17 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#not-a-recovery-story" id="toc-not-a-recovery-story" class="nav-link active" data-scroll-target="#not-a-recovery-story">Not a recovery story</a></li>
+  <li><a href="#ten-counties-eight-million-people" id="toc-ten-counties-eight-million-people" class="nav-link" data-scroll-target="#ten-counties-eight-million-people">Ten counties, eight million people</a></li>
+  <li><a href="#two-species-two-tracks" id="toc-two-species-two-tracks" class="nav-link" data-scroll-target="#two-species-two-tracks">Two species, two tracks</a></li>
+  <li><a href="#five-questions" id="toc-five-questions" class="nav-link" data-scroll-target="#five-questions">Five questions</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -134,7 +145,19 @@ ul.task-list li input[type="checkbox"] {
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Kiran Balasubramanian </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">August 25, 2026</p>
+    </div>
+  </div>
   
     
   </div>
@@ -144,10 +167,79 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><em>Story site placeholder. Content built in Week 9.</em></p>
-<p>Two species, one landscape, opposite problems: bobcats are everywhere and hard to miss; pumas are almost invisible and running out of room to move.</p>
+<p>Two species share the same ground here, and they present opposite problems. Bobcats are common and easy to record. Pumas are rare, wide-ranging, and their precise locations are a risk to publish. One landscape, two data situations that point in different directions. This project keeps them on separate tracks and lets each tell its own story.</p>
+<section id="not-a-recovery-story" class="level2">
+<h2 class="anchored" data-anchor-id="not-a-recovery-story">Not a recovery story</h2>
+<p>The sister project to this one studied tiger recovery in India. That study had a national census: five repeated survey rounds that made “population change over time” the natural question to ask.</p>
+<p>The Bay Area has no equivalent for either species. There is one recent statewide mountain lion abundance estimate and no statewide bobcat estimate at all. A recovery narrative is not available, because the census that would support it does not exist.</p>
+<p>What the region does have is dense, well-kept open data on land protection, road mortality, and landscape structure. So the question changes. This project is about <strong>distribution and coexistence at the urban–wildland edge</strong> — where the animals are, how they move, and where their movement meets the roads — not about recovery over time.</p>
+</section>
+<section id="ten-counties-eight-million-people" class="level2">
+<h2 class="anchored" data-anchor-id="ten-counties-eight-million-people">Ten counties, eight million people</h2>
+<p>The study area is the ten-county San Francisco Bay Area: Alameda, Contra Costa, Marin, Napa, San Francisco, San Mateo, Santa Clara, Santa Cruz, Solano, and Sonoma. Roughly eight million people live inside this frame, next to a patchwork of parks, watershed lands, ranch easements, and open-space preserves.</p>
+<p>Pumas and bobcats persist here at the urban edge, not in wilderness. That edge is the subject. The relevant questions are about movement, permeability, and coexistence, not about a return to some earlier state.</p>
+</section>
+<section id="two-species-two-tracks" class="level2">
+<h2 class="anchored" data-anchor-id="two-species-two-tracks">Two species, two tracks</h2>
+<p>The two species are analysed in parallel and never pooled. This is a fixed rule of the project (Decision 3), and it follows directly from their data. Pooling sparse, sensitive puma records with abundant, low-risk bobcat records would hide the very contrast that makes each track work.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Puma</th>
+<th>Bobcat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Occurrence records</td>
+<td>Sparse</td>
+<td>Abundant</td>
+</tr>
+<tr class="even">
+<td>Location sensitivity</td>
+<td>High — precise points held, coarsened on publish</td>
+<td>Low</td>
+</tr>
+<tr class="odd">
+<td>Home range</td>
+<td>Very large (100s of km²)</td>
+<td>Small (10s of km²)</td>
+</tr>
+<tr class="even">
+<td>Primary story</td>
+<td>Isolation and connectivity</td>
+<td>Occupancy and distribution</td>
+</tr>
+<tr class="odd">
+<td>Primary method</td>
+<td>Least-cost / circuit connectivity</td>
+<td>Occupancy models, KDE, Gi*</td>
+</tr>
+</tbody>
+</table>
+<p>The puma track holds 1,028 precise, publicly shared occurrence points inside the study frame. That number is small for an animal that ranges over hundreds of square kilometres, so the puma work is built around connectivity: where the core habitat patches are, and how an animal could move between them. The precise points are never published — every puma map is generalised first. How that is done is set out in the sensitive-data policy and shown on each puma figure.</p>
+<p>The bobcat track is the opposite. Records are abundant, so the work is about distribution: which open-space units bobcats occupy, and which landscape characteristics best explain that pattern.</p>
+</section>
+<section id="five-questions" class="level2">
+<h2 class="anchored" data-anchor-id="five-questions">Five questions</h2>
+<p>The analysis is organised around five pre-registered questions. Each belongs to one track, except the last, which cuts across both:</p>
+<ol type="1">
+<li><strong>Landscape.</strong> How is protected open space distributed across the ten counties, and how connected or fragmented is it from the view of a wide-ranging carnivore?</li>
+<li><strong>Bobcat.</strong> Where are bobcats present across open-space units, and which landscape characteristics best explain that pattern?</li>
+<li><strong>Puma.</strong> Where are the likely movement corridors between core habitat patches, and where do those corridors cross major roads and high-traffic barriers?</li>
+<li><strong>Both.</strong> Where does wildlife–vehicle road mortality concentrate, and does it coincide with the modelled corridors and crossing points?</li>
+<li><strong>Cross-cutting.</strong> How much of the apparent spatial pattern reflects true distribution, and how much reflects observer and detection effort?</li>
+</ol>
+<p>The fifth question is treated as a first-class result, not a footnote. Detection effort shapes every descriptive layer in the project, and the two species answer it in opposite ways: the bobcat model corrects for effort, while the puma corridors do not depend on it. That contrast runs through the sections that follow.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

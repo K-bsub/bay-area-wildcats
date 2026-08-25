@@ -18,6 +18,34 @@
     "href": "index.html",
     "title": "Wild Cats at the Urban Edge",
     "section": "",
-    "text": "Story site placeholder. Content built in Week 9.\nTwo species, one landscape, opposite problems: bobcats are everywhere and hard to miss; pumas are almost invisible and running out of room to move."
+    "text": "Two species share the same ground here, and they present opposite problems. Bobcats are common and easy to record. Pumas are rare, wide-ranging, and their precise locations are a risk to publish. One landscape, two data situations that point in different directions. This project keeps them on separate tracks and lets each tell its own story."
+  },
+  {
+    "objectID": "index.html#not-a-recovery-story",
+    "href": "index.html#not-a-recovery-story",
+    "title": "Wild Cats at the Urban Edge",
+    "section": "Not a recovery story",
+    "text": "Not a recovery story\nThe sister project to this one studied tiger recovery in India. That study had a national census: five repeated survey rounds that made “population change over time” the natural question to ask.\nThe Bay Area has no equivalent for either species. There is one recent statewide mountain lion abundance estimate and no statewide bobcat estimate at all. A recovery narrative is not available, because the census that would support it does not exist.\nWhat the region does have is dense, well-kept open data on land protection, road mortality, and landscape structure. So the question changes. This project is about distribution and coexistence at the urban–wildland edge — where the animals are, how they move, and where their movement meets the roads — not about recovery over time."
+  },
+  {
+    "objectID": "index.html#ten-counties-eight-million-people",
+    "href": "index.html#ten-counties-eight-million-people",
+    "title": "Wild Cats at the Urban Edge",
+    "section": "Ten counties, eight million people",
+    "text": "Ten counties, eight million people\nThe study area is the ten-county San Francisco Bay Area: Alameda, Contra Costa, Marin, Napa, San Francisco, San Mateo, Santa Clara, Santa Cruz, Solano, and Sonoma. Roughly eight million people live inside this frame, next to a patchwork of parks, watershed lands, ranch easements, and open-space preserves.\nPumas and bobcats persist here at the urban edge, not in wilderness. That edge is the subject. The relevant questions are about movement, permeability, and coexistence, not about a return to some earlier state."
+  },
+  {
+    "objectID": "index.html#two-species-two-tracks",
+    "href": "index.html#two-species-two-tracks",
+    "title": "Wild Cats at the Urban Edge",
+    "section": "Two species, two tracks",
+    "text": "Two species, two tracks\nThe two species are analysed in parallel and never pooled. This is a fixed rule of the project (Decision 3), and it follows directly from their data. Pooling sparse, sensitive puma records with abundant, low-risk bobcat records would hide the very contrast that makes each track work.\n\n\n\n\n\n\n\n\n\nPuma\nBobcat\n\n\n\n\nOccurrence records\nSparse\nAbundant\n\n\nLocation sensitivity\nHigh — precise points held, coarsened on publish\nLow\n\n\nHome range\nVery large (100s of km²)\nSmall (10s of km²)\n\n\nPrimary story\nIsolation and connectivity\nOccupancy and distribution\n\n\nPrimary method\nLeast-cost / circuit connectivity\nOccupancy models, KDE, Gi*\n\n\n\nThe puma track holds 1,028 precise, publicly shared occurrence points inside the study frame. That number is small for an animal that ranges over hundreds of square kilometres, so the puma work is built around connectivity: where the core habitat patches are, and how an animal could move between them. The precise points are never published — every puma map is generalised first. How that is done is set out in the sensitive-data policy and shown on each puma figure.\nThe bobcat track is the opposite. Records are abundant, so the work is about distribution: which open-space units bobcats occupy, and which landscape characteristics best explain that pattern."
+  },
+  {
+    "objectID": "index.html#five-questions",
+    "href": "index.html#five-questions",
+    "title": "Wild Cats at the Urban Edge",
+    "section": "Five questions",
+    "text": "Five questions\nThe analysis is organised around five pre-registered questions. Each belongs to one track, except the last, which cuts across both:\n\nLandscape. How is protected open space distributed across the ten counties, and how connected or fragmented is it from the view of a wide-ranging carnivore?\nBobcat. Where are bobcats present across open-space units, and which landscape characteristics best explain that pattern?\nPuma. Where are the likely movement corridors between core habitat patches, and where do those corridors cross major roads and high-traffic barriers?\nBoth. Where does wildlife–vehicle road mortality concentrate, and does it coincide with the modelled corridors and crossing points?\nCross-cutting. How much of the apparent spatial pattern reflects true distribution, and how much reflects observer and detection effort?\n\nThe fifth question is treated as a first-class result, not a footnote. Detection effort shapes every descriptive layer in the project, and the two species answer it in opposite ways: the bobcat model corrects for effort, while the puma corridors do not depend on it. That contrast runs through the sections that follow."
   }
 ]
