@@ -52,7 +52,7 @@ the very contrast that makes each track work.
 | Location sensitivity | High — precise points held, coarsened on publish | Low |
 | Home range | Very large (100s of km²) | Small (10s of km²) |
 | Primary story | Isolation and connectivity | Occupancy and distribution |
-| Primary method | Least-cost / circuit connectivity | Occupancy models, KDE, Gi\* |
+| Primary method | Least-cost paths and corridors | Occupancy models, KDE, Gi\* |
 
 The puma track holds 1,028 precise, publicly shared occurrence points inside the
 study frame. That number is small for an animal that ranges over hundreds of
@@ -76,8 +76,10 @@ one track, except the last, which cuts across both:
    landscape characteristics best explain that pattern?
 3. **Puma.** Where are the likely movement corridors between core habitat patches,
    and where do those corridors cross major roads and high-traffic barriers?
-4. **Both.** Where does wildlife–vehicle road mortality concentrate, and does it
-   coincide with the modelled corridors and crossing points?
+4. **Both.** Where do the modelled puma corridors cross major roads and
+   high-traffic barriers, and where is wildlife–vehicle collision risk therefore
+   concentrated? Direct mortality records are pending; the road crossings serve
+   as the interim risk proxy.
 5. **Cross-cutting.** How much of the apparent spatial pattern reflects true
    distribution, and how much reflects observer and detection effort?
 
