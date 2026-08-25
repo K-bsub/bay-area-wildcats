@@ -63,6 +63,65 @@ leaves **164 core patches** large enough to anchor a home range. The floor still
 retains 82.5% of all protected area, because the area that gets dropped sits in
 thousands of tiny fragments that together hold very little ground.
 
+```{r}
+#| label: fig-floor-scan
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Patch count against the minimum-area floor. Each candidate floor is plotted with the number of patches that survive it; the 5 km² choice (marked) keeps 164 patches and 82.5% of all protected area. The curve is a smooth continuum with no natural break, so the floor is set by the puma home-range scale rather than by a gap in the data. Source: Decision 32 floor scan (tbl_17)."
+#| fig-alt: "A line chart on a log vertical axis showing the number of protected patches surviving each minimum-area floor from 0.01 to 10 square kilometres. The count falls smoothly from about 2,356 patches to 86 with no sharp break. The 5 square kilometre floor is marked with a point and label reading 164 patches, 82.5 percent area retained."
+
+library(ggplot2)
+
+# Decision 32 floor scan (tbl_17) — inlined; no disk read, no geometry.
+floor_scan <- data.frame(
+  floor_km2      = c(0.01, 0.10, 0.50, 1.00, 2.00, 5.00, 10.00),
+  patches_kept   = c(2356, 1429, 696, 464, 307, 164, 86),
+  area_retained  = c(99.9, 99.3, 96.5, 93.7, 90.0, 82.5, 73.7)
+)
+
+col_line   <- "#5a6070"  # slate
+col_choice <- "#b07d20"  # amber — the chosen floor
+col_ink    <- "#1a1a18"
+
+chosen <- floor_scan[floor_scan$floor_km2 == 5.00, ]
+
+ggplot(floor_scan, aes(x = floor_km2, y = patches_kept)) +
+  geom_line(color = col_line, linewidth = 0.7) +
+  geom_point(color = col_line, size = 2) +
+  geom_point(data = chosen, color = col_choice, size = 4) +
+  annotate(
+    "text", x = chosen$floor_km2, y = chosen$patches_kept,
+    label = "5 km² floor\n164 patches · 82.5% area retained",
+    hjust = -0.08, vjust = -0.2, size = 3.3, color = col_choice, lineheight = 0.95
+  ) +
+  scale_x_log10(
+    breaks = floor_scan$floor_km2,
+    labels = c("0.01", "0.10", "0.50", "1", "2", "5", "10")
+  ) +
+  scale_y_log10(
+    breaks = c(100, 200, 500, 1000, 2000),
+    labels = scales::comma
+  ) +
+  labs(
+    x = "Minimum-patch-area floor (km², log scale)",
+    y = "Patches retained (log scale)"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major = element_line(color = "#edeae3"),
+    axis.title = element_text(color = col_ink),
+    axis.text  = element_text(color = col_ink),
+    plot.margin = margin(8, 40, 8, 8)
+  )
+```
+
+This is the floor scan, not the raw size distribution: it shows how many patches
+survive each candidate threshold, and it is the evidence that the 5 km² cut is not
+severe. Most of what the floor removes is thousands of tiny fragments; the
+protected area they hold barely moves the total.
+
 This is the structural shape of the problem. Of nearly 4,000 protected patches,
 only 164 are large enough to anchor a wide-ranging carnivore, and the habitat
 value concentrates in a small number of very large cores — the Santa Cruz
