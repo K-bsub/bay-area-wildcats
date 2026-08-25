@@ -296,12 +296,28 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
     color = col_hot, weight = 1.6, opacity = 0.95, dashArray = "4 3",
     label = lab_common(hot_susp, "EFFORT-SUSPECT hotspot (coincides with an effort hotspot)")
   ) |>
-  addLegend(
+  addControl(
     position = "bottomright",
-    colors = c(col_hot, col_hot, col_cold, col_ns),
-    labels = c("Hotspot — trusted", "Hotspot — effort-suspect",
-               "Cold spot", "Not significant"),
-    opacity = 0.85, title = "Gi* (FDR-corrected)"
+    html = htmltools::HTML(sprintf(
+      "<div style='background:#fff;padding:8px 10px;border-radius:4px;
+                   box-shadow:0 1px 4px rgba(0,0,0,0.2);font-size:12px;
+                   line-height:1.5;text-align:left;'>
+         <div style='font-weight:600;margin-bottom:5px;'>Gi* (FDR-corrected)</div>
+         <div style='display:flex;align-items:center;gap:7px;'>
+           <span style='width:15px;height:13px;background:%s;border:1px solid #7a0000;
+                        display:inline-block;flex:none;'></span>Hotspot &mdash; trusted</div>
+         <div style='display:flex;align-items:center;gap:7px;'>
+           <span style='width:15px;height:13px;background:%s22;border:1.6px dashed %s;
+                        display:inline-block;flex:none;'></span>Hotspot &mdash; effort-suspect</div>
+         <div style='display:flex;align-items:center;gap:7px;'>
+           <span style='width:15px;height:13px;background:%s;border:1px solid #2a0057;
+                        display:inline-block;flex:none;'></span>Cold spot</div>
+         <div style='display:flex;align-items:center;gap:7px;'>
+           <span style='width:15px;height:13px;background:%s;border:1px solid #b7b7b7;
+                        display:inline-block;flex:none;'></span>Not significant</div>
+       </div>",
+      col_hot, col_hot, col_hot, col_cold, col_ns
+    ))
   )
 ```
 
