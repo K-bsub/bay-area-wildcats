@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Methods – Wild Cats at the Urban Edge</title>
+<title>The Protected-Land Fabric – Wild Cats at the Urban Edge</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -100,11 +100,11 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Story</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./landscape.html"> 
+    <a class="nav-link active" href="./landscape.html" aria-current="page"> 
 <span class="menu-text">Landscape</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./methods.html" aria-current="page"> 
+    <a class="nav-link" href="./methods.html"> 
 <span class="menu-text">Methods</span></a>
   </li>  
   <li class="nav-item">
@@ -122,15 +122,25 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#two-kinds-of-protection" id="toc-two-kinds-of-protection" class="nav-link active" data-scroll-target="#two-kinds-of-protection">Two kinds of protection</a></li>
+  <li><a href="#how-much-and-how-much-is-new" id="toc-how-much-and-how-much-is-new" class="nav-link" data-scroll-target="#how-much-and-how-much-is-new">How much, and how much is new</a></li>
+  <li><a href="#from-protected-land-to-habitat-patches" id="toc-from-protected-land-to-habitat-patches" class="nav-link" data-scroll-target="#from-protected-land-to-habitat-patches">From protected land to habitat patches</a></li>
+  <li><a href="#what-this-section-does-and-does-not-claim" id="toc-what-this-section-does-and-does-not-claim" class="nav-link" data-scroll-target="#what-this-section-does-and-does-not-claim">What this section does and does not claim</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Methods</h1>
+<h1 class="title">The Protected-Land Fabric</h1>
+<p class="subtitle lead">Question 1 — Landscape</p>
 </div>
 
 
@@ -147,10 +157,32 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><em>Placeholder. Built in Week 9.</em></p>
-<p>A plain-language summary of the analysis. The full processing log, parameter values and decisions live in <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/methodology.md"><code>docs/methodology.md</code></a>.</p>
+<p>The first question is about the ground itself, before any animal moves across it. How much protected open space is there in the ten-county Bay Area, how is it held, and how does it break apart when you look at it the way a wide-ranging carnivore would — as a set of patches large enough to hold a home range, or not?</p>
+<section id="two-kinds-of-protection" class="level2">
+<h2 class="anchored" data-anchor-id="two-kinds-of-protection">Two kinds of protection</h2>
+<p>Protected land here comes in two forms, and the difference matters for a puma. Fee land is owned outright for conservation: the parks, watershed lands, and open-space preserves that most people picture. Easement land is private ground — often working ranchland — where the owner has sold or donated the right to develop it, so it stays open. To a puma crossing it, an easement grazing parcel next to a fee preserve is one continuous piece of habitat. Tenure is a legal distinction, not an ecological one.</p>
+<p>The project keeps both. The connectivity track uses a union of the two sources: CPAD fee land and CCED conservation easements, merged into one protected-land layer, with fee taking precedence wherever the two map the same ground so no area is counted twice.</p>
+</section>
+<section id="how-much-and-how-much-is-new" class="level2">
+<h2 class="anchored" data-anchor-id="how-much-and-how-much-is-new">How much, and how much is new</h2>
+<p>The union holds <strong>5,996.5 km²</strong> of protected land across the ten counties. Fee land accounts for <strong>4,720.8 km²</strong> of that, spread over 1,129 CPAD units. The easements add <strong>1,275.7 km²</strong> of genuinely new protected ground — a roughly 27% increase over the fee footprint alone — after removing 498.2 km² where easements overlapped land already protected in fee.</p>
+<p>That 27% is the point worth holding on to. Conservation easements are not a rounding error on the map of Bay Area protected land. More than a quarter of the connectivity fabric — much of it working ranchland along the inner Coast Ranges — exists only because of easements. Leave them out and the protected-land picture looks substantially more fragmented than it is.</p>
+<p>One limit on this comes with the easement data. Where the easement layer has no record, that does not mean the land is unprotected — only that no easement is mapped there. The union labels tenure where the data exists; it does not fill gaps. Read the easement totals as a floor, not a full accounting.</p>
+</section>
+<section id="from-protected-land-to-habitat-patches" class="level2">
+<h2 class="anchored" data-anchor-id="from-protected-land-to-habitat-patches">From protected land to habitat patches</h2>
+<p>A wide-ranging carnivore does not experience protected land as a legal inventory. It experiences it as patches — connected pieces of open ground it can settle in or move through. So the next step dissolves the union: fee and easement melt together wherever they touch, and the result is cut into distinct patches by physical contiguity, not by ownership.</p>
+<p>Most of those patches are small. The patch-area distribution is a smooth size continuum, from thousands of tiny fragments up to a handful of very large blocks, with no natural break to cut on. A break would let the data choose the threshold; there isn’t one, so the threshold comes from the animal instead.</p>
+<p>A puma home range spans tens to hundreds of square kilometres. A protected patch smaller than about 5 km² cannot hold a meaningful fraction of even one such range, so it works as a stepping-stone at most, not as a place a resident animal lives. Setting that 5 km² floor — an ecological scale, not a number read off a curve — leaves <strong>164 core patches</strong> large enough to anchor a home range. The floor still retains 82.5% of all protected area, because the area that gets dropped sits in thousands of tiny fragments that together hold very little ground.</p>
+<p>This is the structural shape of the problem. Of nearly 4,000 protected patches, only 164 are large enough to anchor a wide-ranging carnivore, and the habitat value concentrates in a small number of very large cores — the Santa Cruz Mountains block at 177 km², the southern Diablo Range at 500 km², and a short list of others. The rest of the protected fabric is stepping-stones and fragments between them.</p>
+</section>
+<section id="what-this-section-does-and-does-not-claim" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-section-does-and-does-not-claim">What this section does and does not claim</h2>
+<p>This is a description of the protected land, built from protected-area boundaries alone. It uses no occurrence records, so the detection-effort caveat that governs the occurrence maps later in this project does not apply here — there is nothing in these numbers that reflects where people looked for animals. The patches are where the protected ground is, not where the cats were seen.</p>
+<p>What it does not tell you is whether an animal can actually move between those 164 cores. A patch being large is not the same as a patch being reachable. Two cores can sit a few kilometres apart on the map and be effectively cut off from each other by a freeway, a reservoir, or the developed bayshore. Turning this static fabric into a question about movement — which cores connect, and where the connections are weakest — is the work of the puma connectivity section (Question 3).</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
