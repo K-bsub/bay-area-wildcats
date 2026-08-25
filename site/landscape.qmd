@@ -91,13 +91,19 @@ ggplot(floor_scan, aes(x = floor_km2, y = patches_kept)) +
   geom_point(color = col_line, size = 2) +
   geom_point(data = chosen, color = col_choice, size = 4) +
   annotate(
-    "text", x = chosen$floor_km2, y = chosen$patches_kept,
-    label = "5 km² floor\n164 patches · 82.5% area retained",
-    hjust = 1.1, vjust = 1.4, size = 3.3, color = col_choice, lineheight = 0.95
+    "segment", x = 1.9, xend = 4.5, y = 300, yend = 170,
+    color = col_choice, linewidth = 0.4
+  ) +
+  annotate(
+    "text", x = 1.85, y = 300,
+    label = "5 km² floor\n164 patches\n82.5% area retained",
+    hjust = 1, vjust = 0.5, size = 3.2, color = col_choice, lineheight = 0.95
   ) +
   scale_x_log10(
     breaks = floor_scan$floor_km2,
-    labels = c("0.01", "0.10", "0.50", "1", "2", "5", "10")
+    labels = c("0.01", "0.10", "0.50", "1", "2", "5", "10"),
+    limits = c(0.006, 12),
+    expand = expansion(mult = c(0.02, 0.03))
   ) +
   scale_y_log10(
     breaks = c(100, 200, 500, 1000, 2000),
@@ -113,7 +119,7 @@ ggplot(floor_scan, aes(x = floor_km2, y = patches_kept)) +
     panel.grid.major = element_line(color = "#edeae3"),
     axis.title = element_text(color = col_ink),
     axis.text  = element_text(color = col_ink),
-    plot.margin = margin(8, 12, 8, 8)
+    plot.margin = margin(8, 14, 8, 8)
   )
 ```
 
