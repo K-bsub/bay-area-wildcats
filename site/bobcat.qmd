@@ -163,6 +163,7 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
   addTiles(
     urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
   ) |>
+  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399) |>
   # not-modelled units first, underneath, in flat grey
   addPolygons(
     data = notmodel,
@@ -242,6 +243,7 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
   addTiles(
     urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
   ) |>
+  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399) |>
   addRasterImage(ks, colors = ramp, opacity = 0.75, project = TRUE) |>
   addControl(
     position = "bottomright",
@@ -319,6 +321,7 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
   addTiles(
     urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
   ) |>
+  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399) |>
   # not significant — faint but visible context
   addPolygons(
     data = ns_units,
