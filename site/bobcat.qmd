@@ -1,0 +1,151 @@
+---
+title: "Where Bobcats Are, and Why"
+subtitle: "Question 2 — Bobcat"
+---
+
+Bobcats are the easy species to study here, and that ease is itself the problem.
+Records are abundant, so the question is not whether there is enough data — it is
+how much of the apparent pattern is bobcats and how much is people with cameras
+and phones. The occupancy model is built to separate the two.
+
+## Occupancy, not just sightings
+
+A raw map of bobcat sightings shows where people looked as much as where bobcats
+are. An occupancy model pulls those apart. It treats each open-space unit as a
+site visited repeatedly, models the chance of *detecting* a bobcat given that it
+is present, and from that estimates the chance the unit is *occupied* at all. The
+detection part absorbs the effort; the occupancy part is what's left.
+
+The fit is a single-species occupancy model over 845 open-space units, built in a
+fixed two-stage order: the detection sub-model first, then occupancy with the
+detection structure held fixed. The covariate sets and the selection rule were
+written down before any fitted number was looked at (Decision 31), so the result
+is a test of a pre-registered model, not a search for one that fit.
+
+## Detection is effort, plainly
+
+The detection result is blunt. The single covariate is a per-visit record-count
+effort proxy, and it dominates: more recording effort, far higher detection, with
+a strength that leaves no room for doubt. Against a no-effort null the effort
+model is better by an AICc gap of 408 — not a subtle correction, the main signal
+in the detection process.
+
+This is the whole reason the occupancy model exists. A sightings map would read
+that effort as bobcat distribution. The model reads it as effort and sets it
+aside, so the occupancy surface underneath is not just a map of where people were
+looking.
+
+## What explains occupancy
+
+With effort handled, three landscape signals shape where bobcats are. The pattern
+needs all three parts together — terrain, land cover, and human footprint. The
+model that keeps only one of them falls far behind: a human-footprint-only or a
+land-cover-only model sits more than 40 AICc units below the full model, while the
+full model and its near-twin carry 85% of the weight between them.
+
+```{r}
+#| label: fig-bobc-coef
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Bobcat occupancy coefficients (logit scale, top model m_full), with 95% confidence intervals. Points right of the zero line raise the modelled chance a unit is occupied; points left lower it. Elevation is the strongest signal (positive); human modification (gHM) is the clearest negative. Tree cover leans positive but its interval touches zero. Terrain aspect, slope, grass, and housing density do not separate from zero. Source: Decision 31 occupancy fit (tbl_13)."
+#| fig-alt: "A coefficient plot with nine occupancy terms on the vertical axis and effect size on the logit horizontal axis, a dashed line at zero. Mean elevation sits well to the right at about +1.4 with an interval clear of zero. Human modification sits to the left at about -0.56 with an interval clear of zero. Tree cover is positive at about +0.62 with an interval just touching zero. Grass, northerly and easterly aspect, slope, and housing density all sit near zero with intervals crossing it."
+
+library(ggplot2)
+
+# Occupancy (psi) coefficients from the top model m_full (Decision 31 fit).
+# Estimates and SEs inlined from summary(mod); CI = estimate +/- 1.96*SE.
+co <- data.frame(
+  term = c("Mean elevation", "Slope", "Aspect (north)", "Aspect (east)",
+           "Tree cover", "Grass cover", "Human modification (gHM)",
+           "Housing density (log)"),
+  est  = c( 1.4011, 0.0896, 0.1561, -0.0860, 0.6166, 0.4125, -0.5608, 0.1691),
+  se   = c( 0.488,  0.275,  0.186,   0.168,  0.326,  0.272,   0.204,  0.168)
+)
+co$lo <- co$est - 1.96 * co$se
+co$hi <- co$est + 1.96 * co$se
+
+# Significance at the conventional 0.05 level drives colour, not the story —
+# the caption states the directions in words.
+co$sig <- ifelse(co$lo > 0 | co$hi < 0, "clear", "unresolved")
+
+# Order by effect size for readability.
+co$term <- factor(co$term, levels = co$term[order(co$est)])
+
+col_pos <- "#2f6b3a"  # forest green — raises occupancy
+col_neg <- "#9a4a2f"  # rust — lowers occupancy
+col_nul <- "#8a8f9a"  # grey — interval crosses zero
+
+co$col <- ifelse(co$sig == "unresolved", col_nul,
+                 ifelse(co$est > 0, col_pos, col_neg))
+
+ggplot(co, aes(x = est, y = term, color = col)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "#b9b4a8") +
+  geom_errorbarh(aes(xmin = lo, xmax = hi), height = 0.25, linewidth = 0.6) +
+  geom_point(size = 2.6) +
+  scale_color_identity() +
+  labs(
+    x = "Effect on occupancy (logit scale)",
+    y = NULL
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major.y = element_blank(),
+    panel.grid.major.x = element_line(color = "#edeae3"),
+    axis.text  = element_text(color = "#1a1a18"),
+    axis.title = element_text(color = "#1a1a18"),
+    plot.margin = margin(8, 14, 8, 8)
+  )
+```
+
+**Elevation is the strongest signal, and it is positive.** Bobcat occupancy rises
+with mean unit elevation — the higher, less-developed units of the Coast Ranges
+and Diablo are the strongholds. **Human modification is the clearest negative.**
+As the gHM index rises, modelled occupancy falls: this is the coexistence limit
+showing up directly in the numbers. **Tree cover leans positive** but its interval
+just touches zero, so it reads as a lean, not a firm effect. Grass cover, slope,
+terrain aspect, and housing density do not separate from zero in this fit.
+
+The housing result is worth one note. Housing density enters positive but
+unresolved, while gHM enters clearly negative. The two are correlated, and the
+project deliberately lets gHM carry the human-pressure axis (Decision 23). Read
+together, the human signal in bobcat occupancy is real and negative — it just
+lives in the gHM term, not the housing one.
+
+## Two more views, and why they need care
+
+The occupancy surface is the model-corrected view. Two descriptive layers sit
+alongside it, and both carry the effort problem the occupancy model was built to
+escape — so both are read with that caveat attached.
+
+**Kernel density.** A smoothed surface of where bobcat records fall. The smoothing
+scale — the bandwidth — is set by a pre-registered rule, not by hand and not by
+the data-driven default, because the default collapses toward a tiny bandwidth
+that just maps the densest clusters of *effort* (Decision 28). Even with the rule,
+a kernel-density surface of opportunistic records maps detection effort as much as
+bobcat density. It is shown as a descriptive layer, not as an abundance estimate.
+
+**Hot spots.** A Getis-Ord Gi\* analysis flags units with significantly high or low
+record counts relative to their neighbours. The honest problem, carried over from
+the tiger project: a raw-count hot spot is partly an observer-effort hot spot. So
+each hot unit is cross-read against the effort surface and labelled — TRUSTED
+where the cluster is not explained by effort, EFFORT-FLAGGED where it is. The map
+shows the label, not just the count.
+
+## The detection-bias caveat, stated once and carried
+
+Every descriptive map in this section — kernel density, hot spots, even the raw
+record counts behind them — reflects where people recorded bobcats, not only where
+bobcats are. That is not a footnote to bury; it is the point of Question 5, and it
+is why the occupancy surface, which models effort explicitly, is the layer to
+trust for distribution. The two other layers are shown because they are
+informative about pattern, with the effort caveat attached to each, not because
+they are unbiased.
+
+This is also the cleanest contrast in the whole project. The bobcat occupancy
+model *corrects* for effort and, where it does, its picture diverges from the raw
+kernel density. The puma corridors in the next section do not depend on effort at
+all — they are built from landscape resistance, not from sightings — so they
+converge with the density surface for a different reason. Same region, two species,
+two entirely different relationships between what was recorded and what is there.

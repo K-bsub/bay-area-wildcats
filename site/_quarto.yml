@@ -12,6 +12,8 @@ website:
         text: Story
       - href: landscape.qmd
         text: Landscape
+      - href: bobcat.qmd
+        text: Bobcat
       - href: methods.qmd
         text: Methods
       - href: data.qmd
