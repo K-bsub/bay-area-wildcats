@@ -1,129 +1,38 @@
 [
   {
-    "objectID": "puma.html",
-    "href": "puma.html",
-    "title": "Room to Move",
+    "objectID": "roads.html",
+    "href": "roads.html",
+    "title": "The Roads Between",
     "section": "",
-    "text": "The puma question is the opposite of the bobcat one. There are too few puma records to model where the animals are, and the precise locations that do exist are sensitive enough that publishing them would do harm. So this section does not map where pumas were seen. It maps where the landscape would let one move — built from the shape of the land, not from sightings."
+    "text": "The question this section was meant to answer is where pumas are killed by vehicles. That question cannot be answered here yet, because the data that would answer it are not in hand. So this section does two things instead: it states plainly what is missing, and it presents the best interim proxy the analysis can support — where the corridor and dangerous roads coincide — without dressing that proxy up as a mortality count."
   },
   {
-    "objectID": "puma.html#built-from-resistance-not-sightings",
-    "href": "puma.html#built-from-resistance-not-sightings",
-    "title": "Room to Move",
-    "section": "Built from resistance, not sightings",
-    "text": "Built from resistance, not sightings\nEvery layer in this section rests on a resistance surface: a map of how costly each 1 km cell is for a puma to cross, high where the land is developed, steep, or busy with roads, low where it is protected open ground. The surface is assembled from land cover, terrain, human modification, and traffic — not from where anyone recorded a puma.\nThat has one consequence worth stating up front, because it is the mirror image of the bobcat result. The bobcat occupancy model had to correct for recording effort, because it was built from sightings. The puma corridors carry no effort term at all — there are no sightings in them to be biased. Where the puma corridors agree with a density surface, they agree for a structural reason, not because both were shaped by the same observers. This is the clean half of Question 5."
+    "objectID": "roads.html#what-is-missing-and-why",
+    "href": "roads.html#what-is-missing-and-why",
+    "title": "The Roads Between",
+    "section": "What is missing, and why",
+    "text": "What is missing, and why\nDirect roadkill records for the Bay Area are held in the California Roadkill Observation System (CROS), maintained by the UC Davis Road Ecology Center. A data request is with F. Shilling there; at the time of writing, no reply has been received (Decision 11). The project does not scrape or reconstruct those records — they are used with authorisation or not at all. Until they arrive, there is no published mortality-point layer in this project, and none is fabricated to fill the gap. When the CROS records are available, they will overlay the risk surface below as a validation layer — confirming or correcting where the proxy points.\nThat is the honest state of Question 4: the mortality map is pending, not withheld."
   },
   {
-    "objectID": "puma.html#why-you-see-a-band-not-a-line",
-    "href": "puma.html#why-you-see-a-band-not-a-line",
-    "title": "Room to Move",
-    "section": "Why you see a band, not a line",
-    "text": "Why you see a band, not a line\nThe core result is a corridor between the two largest habitat blocks in the region: the Santa Cruz Mountains and the southern Diablo Range, linked across the south Bay through the Coyote Valley pinch where US-101 cuts the gap. The least-cost path between them runs 37.2 km and passes within 1.6 km of the verified Coyote Valley crossing.\nBut the maps below lead with a band, not that line, and the reason is a real limit, not a stylistic choice. A least-cost path is a single-cell-wide thread through a 1 km grid. It looks precise, and that precision is false: move the input weights a little and the thread shifts by a kilometre or more. The honest product is the swath — the zone of low-cost cells around the path — shown in two tiers:\n\na core band (the lowest-cost 2% of corridor cells, 409 km²) — high-confidence corridor,\na context band (the lowest-cost 5%, 1,021 km²) — the permeable flanks around it.\n\nThe swath says what the analysis can actually support: the corridor runs through here, in this zone, not the corridor is this exact line. The precise pinch at Coyote Valley is located separately, by road geometry in the crossing analysis below — not by the swath, whose 1 km grain is too coarse to resolve a sub-kilometre constriction.\n\n\n\n\n\n\n\n\nFigure 1: The Santa Cruz Mountains ↔︎ southern Diablo Range puma corridor, shown as a two-tier swath over the protected core habitat it connects. The darker core band is the lowest-cost 2% of corridor cells (409 km²), a high-confidence corridor; the lighter context band is the lowest-cost 5% (1,021 km²), the permeable flanks around it. Faint green blocks are the 164 core habitat patches; the two bold-outlined blocks are the corridor endpoints — Santa Cruz Mountains and the southern Diablo Range. The corridor runs through this zone, not along a single line — the band is the honest product at a 1 km grain. The precise US-101 pinch at Coyote Valley is located by road geometry in the crossing map below, not by this swath. No puma locations are shown; this is generalised corridor geometry. Source: least-cost corridor (Decision 33) over core patches (Decision 32)."
+    "objectID": "roads.html#the-interim-proxy-where-traffic-meets-the-corridor",
+    "href": "roads.html#the-interim-proxy-where-traffic-meets-the-corridor",
+    "title": "The Roads Between",
+    "section": "The interim proxy — where traffic meets the corridor",
+    "text": "The interim proxy — where traffic meets the corridor\nWhat the analysis can say comes from combining two things it already knows: how busy each road is (traffic volume, from the crossing analysis in the connectivity section) and whether that road sits inside the core corridor, where a puma is most likely to actually move. Collision risk is highest where both are true — a busy road and the core corridor in the same place.\nThis is a sharper filter than traffic alone. The connectivity section ranked road crossings by traffic, and several busy roads appeared near the top. But most of those busy roads clip the corridor at its permeable edges, not through its core. When the core-corridor filter is applied, the risk picture narrows sharply.\n\n\n\n\n\n\n\n\nFigure 1: Collision-risk proxy: road crossings where traffic and the core corridor coincide. Crossings inside the core corridor are coloured by traffic volume (amber to red); crossings outside the core are greyed — they are barriers, but not where a puma is most likely to cross. US-101 at Coyote Valley is the one crossing that is both high-traffic and inside the core corridor, which makes it the clear top collision risk. This is a proxy from road traffic and corridor overlap, not a mortality count; direct roadkill records (CROS) are pending. No puma locations are shown. Source: corridor × road crossings (Decisions 33–34).\n\n\n\n\nThe map makes the filter visible. Most of the busy roads the corridor crosses turn grey, because they clip the corridor outside its core. What stays coloured — busy and in the core — is dominated by one road: US-101 at Coyote Valley. It is the single crossing that is both high-traffic and inside the core corridor, and so it is the clear top collision-risk location, not merely the top barrier."
   },
   {
-    "objectID": "puma.html#where-the-corridor-meets-the-roads",
-    "href": "puma.html#where-the-corridor-meets-the-roads",
-    "title": "Room to Move",
-    "section": "Where the corridor meets the roads",
-    "text": "Where the corridor meets the roads\nA corridor is only as good as its worst crossing. Where the swath meets a major road, the road is a barrier whose severity scales with traffic, not just with presence — a quiet two-lane road and a freeway are not the same obstacle. So each crossing is ranked by traffic volume.\nThe top barrier is US-101 at Coyote Valley, at 142,000 vehicles a day. Getting that number right took a correction. An earlier version of the analysis, using a spatial traffic-data join, dropped US-101 here to a modelled floor of about 80,000 — a 43% underestimate — and let a lower-traffic arterial outrank it. The fix referenced the traffic data along the highway route by postmile, recovered the real 142k, and re-ran the corridor (Decision 34). US-101 is now correctly the top-ranked crossing.\nOne honest detail in that ranking: crossings are ranked within traffic-data confidence tiers, not on the raw number alone. A road whose volume is measured directly outranks one whose volume is filled in by name-matching, even when the filled-in number is close. This stops a lower-confidence estimate from masquerading as the top barrier — the exact failure the US-101 correction fixed.\n\n\n\n\n\n\n\n\nFigure 2: Where the puma corridor crosses roads, ranked by traffic, zoomed to the crossing zone in the south Bay. All 290 crossing segments are shown on a neutral road basemap so each sits on its road; line thickness scales with traffic volume (AADT) and solid lines are directly-measured volumes while dashed lines are estimated (modelled, name-filled, or spatially filled — read these as lower-confidence). The four named roads the corridor crosses are outlined and labelled; US-101 at Coyote Valley, at 142,000 vehicles a day, is the top barrier by a wide margin. Unnamed high-traffic links (freeway ramps) appear as thick base-layer lines but are not promoted to named barriers, since one class label covers many separate crossings. No puma locations are shown. Source: corridor × road crossings, AADT by Decision 34."
+    "objectID": "roads.html#the-risk-ranking",
+    "href": "roads.html#the-risk-ranking",
+    "title": "The Roads Between",
+    "section": "The risk ranking",
+    "text": "The risk ranking\nRanking the crossings by the two factors together — traffic volume and core-corridor membership — puts US-101 alone at the top. The next-busiest roads fall away because they sit outside the core; the other in-core roads are quiet.\n\nTop road crossings by traffic and core-corridor overlap. Only US-101 is both high-traffic and in-core — the combination that defines collision risk. Traffic values are directly measured; see the connectivity section for the full confidence-tiered ranking.\n\n\nRoad\nTraffic (AADT)\nIn core corridor\nBarrier rank\n\n\n\n\nUS-101 (Coyote Valley)\n142,000\nYes\n1\n\n\nSanta Cruz Highway\n64,900\nNo\n8\n\n\nRoute 17\n60,200\nNo\n28\n\n\nBig Basin Way\n7,200\nYes\n62\n\n\nSummit Road\n1,050\nYes\n69\n\n\n\nThe reading is straightforward and narrow, which is the honest result: one road carries most of the corridor’s collision risk. Santa Cruz Highway and Route 17 are busy, but the corridor crosses them at its edges, not its core. Big Basin Way and Summit Road are in the core, but they are quiet mountain roads. US-101 is the only place where heavy traffic and the core corridor meet — which is exactly why it is both the top barrier and the top mitigation priority."
   },
   {
-    "objectID": "puma.html#the-network-and-a-distinction-that-matters",
-    "href": "puma.html#the-network-and-a-distinction-that-matters",
-    "title": "Room to Move",
-    "section": "The network, and a distinction that matters",
-    "text": "The network, and a distinction that matters\nWidening from the single corridor to the whole system of large habitat blocks — the 29 cores of at least 30 km² — gives a connectivity network: each core linked to its geometric neighbours, each link routed through the resistance surface. Two findings come out of it, and holding them apart is the point.\nCoyote Valley is the efficient link, and the traffic barrier — but not the structural weak point. The cheapest connections in the network — the strongest links — run through the south Bay, between the cores on either side of the Coyote Valley gap. That is where the two halves of the region connect at low cost. Those south-Bay links are the efficient path; the cross-bay alternatives cost far more. So Coyote Valley matters twice — as the real, protectable connection, and as the 142k traffic barrier astride it — but it is a strong link, not a weak one.\nThe structural weak links are the cross-bay spans. The costliest connections in the network are the long, high-resistance routes that would join the Peninsula / Santa Cruz cluster to the East-Bay / Diablo cluster across the central urbanized Bay — spans of 40 to 60 km with no stepping stones between them. The central Bay effectively splits the system into two subnetworks, joined efficiently only at the south end, through Coyote Valley. This matches what is already known: Santa Cruz Mountains pumas are famously isolated, connected to the Diablo Range mainly via the south Bay.\nThe traffic pinch and the structural weak point are therefore two different things on two different axes. Coyote Valley is a traffic-mitigation priority — a real corridor with a dangerous road across it. The cross-bay gaps are a fragmentation finding — evidence of what is already disconnected.\nAnd the cross-bay links are not corridors to build. This distinction matters enough to state plainly: a 60 km least-cost path across the developed bayshore is at the edge of biological plausibility. The network method forces a route between geometric neighbours whether or not a real one exists, and the routing dutifully finds the least-bad line across an essentially impassable barrier. Those longest cross-bay links mean these clusters are effectively disconnected, not here is a corridor to protect. Read them as fragmentation evidence. The south-Bay connection, by contrast, is a real connection worth protecting.\n\n\n\n\n\n\n\n\nFigure 3: The puma core-connectivity network over the core habitat it links. Faint green blocks are the core habitat patches. Links between cores are drawn as schematic lines coloured by cost — green links are cheap and strong (the efficient south-Bay connections), red links are costly and weak. The lines show connectivity topology, not exact routes: at a 1 km grain a single-cell path would imply false precision, so the lines say which cores connect and how cheaply, not where a puma walks. The three-to-five costliest links — the structural weak points — are shown instead as red swaths, the honest band form, because those fragile cross-bay connections are the map’s real subject. Read the red cross-bay swaths as evidence of disconnection, not as corridors to protect: the method forces a route between geometric neighbours whether or not a real one exists, and a 40–60 km path across the developed bayshore is at the edge of plausibility. No puma locations are shown. Source: Gabriel-graph network (Decision 37, corrected by Decision 38)."
-  },
-  {
-    "objectID": "puma.html#what-this-section-is-and-is-not",
-    "href": "puma.html#what-this-section-is-and-is-not",
-    "title": "Room to Move",
-    "section": "What this section is, and is not",
-    "text": "What this section is, and is not\nThese corridors are hypotheses about movement drawn from a landscape-cost model, not tracks from collared animals. No puma was followed to draw them; there is no telemetry here to confirm them. Shifting the model’s weights within a plausible range moves the corridor by up to about 1.5 km, so the routes are stable in location but not exact to the metre. They are the best structural estimate of where connectivity runs — a well-founded hypothesis, and the right basis for asking where to look and where to protect, but a hypothesis.\nEvery puma layer here is shown as generalised geometry — bands and routes, never points. That is deliberate and required: precise puma locations are a poaching and disturbance risk, so the project never publishes them. Nothing in this section is fine enough to reverse-engineer a den, a kill site, or a camera. The corridors are about where an animal could move, at the scale of the landscape, not about where any individual animal is."
-  },
-  {
-    "objectID": "data.html",
-    "href": "data.html",
-    "title": "Data",
-    "section": "",
-    "text": "Placeholder. Built in Week 9.\nSources, licences and known issues are documented in docs/data-sources.md. No sensitive location data is published on this site."
-  },
-  {
-    "objectID": "landscape.html",
-    "href": "landscape.html",
-    "title": "The Protected-Land Fabric",
-    "section": "",
-    "text": "The first question is about the ground itself, before any animal moves across it. How much protected open space is there in the ten-county Bay Area, how is it held, and how does it break apart when you look at it the way a wide-ranging carnivore would — as a set of patches large enough to hold a home range, or not?"
-  },
-  {
-    "objectID": "landscape.html#two-kinds-of-protection",
-    "href": "landscape.html#two-kinds-of-protection",
-    "title": "The Protected-Land Fabric",
-    "section": "Two kinds of protection",
-    "text": "Two kinds of protection\nProtected land here comes in two forms, and the difference matters for a puma. Fee land is owned outright for conservation: the parks, watershed lands, and open-space preserves that most people picture. Easement land is private ground — often working ranchland — where the owner has sold or donated the right to develop it, so it stays open. To a puma crossing it, an easement grazing parcel next to a fee preserve is one continuous piece of habitat. Tenure is a legal distinction, not an ecological one.\nThe project keeps both. The connectivity track uses a union of the two sources: CPAD fee land and CCED conservation easements, merged into one protected-land layer, with fee taking precedence wherever the two map the same ground so no area is counted twice."
-  },
-  {
-    "objectID": "landscape.html#how-much-and-how-much-is-new",
-    "href": "landscape.html#how-much-and-how-much-is-new",
-    "title": "The Protected-Land Fabric",
-    "section": "How much, and how much is new",
-    "text": "How much, and how much is new\nThe union holds 5,996.5 km² of protected land across the ten counties. Fee land accounts for 4,720.8 km² of that, spread over 1,129 CPAD units. The easements add 1,275.7 km² of genuinely new protected ground — a roughly 27% increase over the fee footprint alone — after removing 498.2 km² where easements overlapped land already protected in fee.\nThat 27% is the point worth holding on to. Conservation easements are not a rounding error on the map of Bay Area protected land. More than a quarter of the connectivity fabric — much of it working ranchland along the inner Coast Ranges — exists only because of easements. Leave them out and the protected-land picture looks substantially more fragmented than it is.\nOne limit on this comes with the easement data. Where the easement layer has no record, that does not mean the land is unprotected — only that no easement is mapped there. The union labels tenure where the data exists; it does not fill gaps. Read the easement totals as a floor, not a full accounting."
-  },
-  {
-    "objectID": "landscape.html#from-protected-land-to-habitat-patches",
-    "href": "landscape.html#from-protected-land-to-habitat-patches",
-    "title": "The Protected-Land Fabric",
-    "section": "From protected land to habitat patches",
-    "text": "From protected land to habitat patches\nA wide-ranging carnivore does not experience protected land as a legal inventory. It experiences it as patches — connected pieces of open ground it can settle in or move through. So the next step dissolves the union: fee and easement melt together wherever they touch, and the result is cut into distinct patches by physical contiguity, not by ownership.\nMost of those patches are small. The patch-area distribution is a smooth size continuum, from thousands of tiny fragments up to a handful of very large blocks, with no natural break to cut on. A break would let the data choose the threshold; there isn’t one, so the threshold comes from the animal instead.\nA puma home range spans tens to hundreds of square kilometres. A protected patch smaller than about 5 km² cannot hold a meaningful fraction of even one such range, so it works as a stepping-stone at most, not as a place a resident animal lives. Setting that 5 km² floor — an ecological scale, not a number read off a curve — leaves 164 core patches large enough to anchor a home range. The floor still retains 82.5% of all protected area, because the area that gets dropped sits in thousands of tiny fragments that together hold very little ground.\n\n\n\n\n\n\n\n\nFigure 1: Patch count against the minimum-area floor. Each candidate floor is plotted with the number of patches that survive it; the amber point marks the chosen 5 km² floor, which keeps 164 patches and 82.5% of all protected area. The curve is a smooth continuum with no natural break, so the floor is set by the puma home-range scale rather than by a gap in the data. Source: Decision 32 floor scan (tbl_17).\n\n\n\n\n\nThis is the floor scan, not the raw size distribution: it shows how many patches survive each candidate threshold, and it is the evidence that the 5 km² cut is not severe. Most of what the floor removes is thousands of tiny fragments; the protected area they hold barely moves the total.\nThis is the structural shape of the problem. Of nearly 4,000 protected patches, only 164 are large enough to anchor a wide-ranging carnivore, and the habitat value concentrates in a small number of very large cores — the Santa Cruz Mountains block at 177 km², the southern Diablo Range at 500 km², and a short list of others. The rest of the protected fabric is stepping-stones and fragments between them."
-  },
-  {
-    "objectID": "landscape.html#what-this-section-does-and-does-not-claim",
-    "href": "landscape.html#what-this-section-does-and-does-not-claim",
-    "title": "The Protected-Land Fabric",
-    "section": "What this section does and does not claim",
-    "text": "What this section does and does not claim\nThis is a description of the protected land, built from protected-area boundaries alone. It uses no occurrence records, so the detection-effort caveat that governs the occurrence maps later in this project does not apply here — there is nothing in these numbers that reflects where people looked for animals. The patches are where the protected ground is, not where the cats were seen.\nWhat it does not tell you is whether an animal can actually move between those 164 cores. A patch being large is not the same as a patch being reachable. Two cores can sit a few kilometres apart on the map and be effectively cut off from each other by a freeway, a reservoir, or the developed bayshore. Turning this static fabric into a question about movement — which cores connect, and where the connections are weakest — is the work of the puma connectivity section (Question 3)."
-  },
-  {
-    "objectID": "methods.html",
-    "href": "methods.html",
-    "title": "Methods",
-    "section": "",
-    "text": "Placeholder. Built in Week 9.\nA plain-language summary of the analysis. The full processing log, parameter values and decisions live in docs/methodology.md."
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Wild Cats at the Urban Edge",
-    "section": "",
-    "text": "Two species share the same ground here, and they present opposite problems. Bobcats are common and easy to record. Pumas are rare, wide-ranging, and their precise locations are a risk to publish. One landscape, two data situations that point in different directions. This project keeps them on separate tracks and lets each tell its own story."
-  },
-  {
-    "objectID": "index.html#not-a-recovery-story",
-    "href": "index.html#not-a-recovery-story",
-    "title": "Wild Cats at the Urban Edge",
-    "section": "Not a recovery story",
-    "text": "Not a recovery story\nThe sister project to this one studied tiger recovery in India. That study had a national census: five repeated survey rounds that made “population change over time” the natural question to ask.\nThe Bay Area has no equivalent for either species. There is one recent statewide mountain lion abundance estimate and no statewide bobcat estimate at all. A recovery narrative is not available, because the census that would support it does not exist.\nWhat the region does have is dense, well-kept open data on land protection, road mortality, and landscape structure. So the question changes. This project is about distribution and coexistence at the urban–wildland edge — where the animals are, how they move, and where their movement meets the roads — not about recovery over time."
-  },
-  {
-    "objectID": "index.html#ten-counties-eight-million-people",
-    "href": "index.html#ten-counties-eight-million-people",
-    "title": "Wild Cats at the Urban Edge",
-    "section": "Ten counties, eight million people",
-    "text": "Ten counties, eight million people\nThe study area is the ten-county San Francisco Bay Area: Alameda, Contra Costa, Marin, Napa, San Francisco, San Mateo, Santa Clara, Santa Cruz, Solano, and Sonoma. Roughly eight million people live inside this frame, next to a patchwork of parks, watershed lands, ranch easements, and open-space preserves.\nPumas and bobcats persist here at the urban edge, not in wilderness. That edge is the subject. The relevant questions are about movement, permeability, and coexistence, not about a return to some earlier state."
-  },
-  {
-    "objectID": "index.html#two-species-two-tracks",
-    "href": "index.html#two-species-two-tracks",
-    "title": "Wild Cats at the Urban Edge",
-    "section": "Two species, two tracks",
-    "text": "Two species, two tracks\nThe two species are analysed in parallel and never pooled. This is a fixed rule of the project (Decision 3), and it follows directly from their data. Pooling sparse, sensitive puma records with abundant, low-risk bobcat records would hide the very contrast that makes each track work.\n\n\n\n\n\n\n\n\n\nPuma\nBobcat\n\n\n\n\nOccurrence records\nSparse\nAbundant\n\n\nLocation sensitivity\nHigh — precise points held, coarsened on publish\nLow\n\n\nHome range\nVery large (100s of km²)\nSmall (10s of km²)\n\n\nPrimary story\nIsolation and connectivity\nOccupancy and distribution\n\n\nPrimary method\nLeast-cost paths and corridors\nOccupancy models, KDE, Gi*\n\n\n\nThe puma track holds 1,028 precise, publicly shared occurrence points inside the study frame. That number is small for an animal that ranges over hundreds of square kilometres, so the puma work is built around connectivity: where the core habitat patches are, and how an animal could move between them. The precise points are never published — every puma map is generalised first. How that is done is set out in the sensitive-data policy and shown on each puma figure.\nThe bobcat track is the opposite. Records are abundant, so the work is about distribution: which open-space units bobcats occupy, and which landscape characteristics best explain that pattern."
-  },
-  {
-    "objectID": "index.html#five-questions",
-    "href": "index.html#five-questions",
-    "title": "Wild Cats at the Urban Edge",
-    "section": "Five questions",
-    "text": "Five questions\nThe analysis is organised around five pre-registered questions. Each belongs to one track, except the last, which cuts across both:\n\nLandscape. How is protected open space distributed across the ten counties, and how connected or fragmented is it from the view of a wide-ranging carnivore?\nBobcat. Where are bobcats present across open-space units, and which landscape characteristics best explain that pattern?\nPuma. Where are the likely movement corridors between core habitat patches, and where do those corridors cross major roads and high-traffic barriers?\nBoth. Where do the modelled puma corridors cross major roads and high-traffic barriers, and where is wildlife–vehicle collision risk therefore concentrated? Direct mortality records are pending; the road crossings serve as the interim risk proxy.\nCross-cutting. How much of the apparent spatial pattern reflects true distribution, and how much reflects observer and detection effort?\n\nThe fifth question is treated as a first-class result, not a footnote. Detection effort shapes every descriptive layer in the project, and the two species answer it in opposite ways: the bobcat model corrects for effort, while the puma corridors do not depend on it. That contrast runs through the sections that follow."
+    "objectID": "roads.html#what-would-change-this",
+    "href": "roads.html#what-would-change-this",
+    "title": "The Roads Between",
+    "section": "What would change this",
+    "text": "What would change this\nThis proxy stands in for mortality data, and it should be replaced by mortality data when that becomes available. The CROS records, once authorised, would show where vehicle strikes have actually happened — which may confirm the US-101 finding, or reveal risk on roads the proxy underweights. Two honest limits apply until then: the proxy assumes risk scales with traffic and corridor overlap, which is reasonable but untested here; and the corridor itself is a landscape-cost model, not observed movement, so both inputs to the risk picture are hypotheses. The proxy points to where to look first. It does not close the question."
   },
   {
     "objectID": "bobcat.html",
@@ -166,5 +75,131 @@
     "title": "Where Bobcats Are, and Why",
     "section": "The detection-bias caveat, stated once and carried",
     "text": "The detection-bias caveat, stated once and carried\nEvery descriptive map in this section — kernel density, hot spots, even the raw record counts behind them — reflects where people recorded bobcats, not only where bobcats are. That is not a footnote to bury; it is the point of Question 5, and it is why the occupancy surface, which models effort explicitly, is the layer to trust for distribution. The two other layers are shown because they are informative about pattern, with the effort caveat attached to each, not because they are unbiased.\nThis is also the cleanest contrast in the whole project. The bobcat occupancy model corrects for effort and, where it does, its picture diverges from the raw kernel density. The puma corridors in the next section do not depend on effort at all — they are built from landscape resistance, not from sightings — so they converge with the density surface for a different reason. Same region, two species, two entirely different relationships between what was recorded and what is there."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Wild Cats at the Urban Edge",
+    "section": "",
+    "text": "Two species share the same ground here, and they present opposite problems. Bobcats are common and easy to record. Pumas are rare, wide-ranging, and their precise locations are a risk to publish. One landscape, two data situations that point in different directions. This project keeps them on separate tracks and lets each tell its own story."
+  },
+  {
+    "objectID": "index.html#not-a-recovery-story",
+    "href": "index.html#not-a-recovery-story",
+    "title": "Wild Cats at the Urban Edge",
+    "section": "Not a recovery story",
+    "text": "Not a recovery story\nThe sister project to this one studied tiger recovery in India. That study had a national census: five repeated survey rounds that made “population change over time” the natural question to ask.\nThe Bay Area has no equivalent for either species. There is one recent statewide mountain lion abundance estimate and no statewide bobcat estimate at all. A recovery narrative is not available, because the census that would support it does not exist.\nWhat the region does have is dense, well-kept open data on land protection, road mortality, and landscape structure. So the question changes. This project is about distribution and coexistence at the urban–wildland edge — where the animals are, how they move, and where their movement meets the roads — not about recovery over time."
+  },
+  {
+    "objectID": "index.html#ten-counties-eight-million-people",
+    "href": "index.html#ten-counties-eight-million-people",
+    "title": "Wild Cats at the Urban Edge",
+    "section": "Ten counties, eight million people",
+    "text": "Ten counties, eight million people\nThe study area is the ten-county San Francisco Bay Area: Alameda, Contra Costa, Marin, Napa, San Francisco, San Mateo, Santa Clara, Santa Cruz, Solano, and Sonoma. Roughly eight million people live inside this frame, next to a patchwork of parks, watershed lands, ranch easements, and open-space preserves.\nPumas and bobcats persist here at the urban edge, not in wilderness. That edge is the subject. The relevant questions are about movement, permeability, and coexistence, not about a return to some earlier state."
+  },
+  {
+    "objectID": "index.html#two-species-two-tracks",
+    "href": "index.html#two-species-two-tracks",
+    "title": "Wild Cats at the Urban Edge",
+    "section": "Two species, two tracks",
+    "text": "Two species, two tracks\nThe two species are analysed in parallel and never pooled. This is a fixed rule of the project (Decision 3), and it follows directly from their data. Pooling sparse, sensitive puma records with abundant, low-risk bobcat records would hide the very contrast that makes each track work.\n\n\n\n\n\n\n\n\n\nPuma\nBobcat\n\n\n\n\nOccurrence records\nSparse\nAbundant\n\n\nLocation sensitivity\nHigh — precise points held, coarsened on publish\nLow\n\n\nHome range\nVery large (100s of km²)\nSmall (10s of km²)\n\n\nPrimary story\nIsolation and connectivity\nOccupancy and distribution\n\n\nPrimary method\nLeast-cost paths and corridors\nOccupancy models, KDE, Gi*\n\n\n\nThe puma track holds 1,028 precise, publicly shared occurrence points inside the study frame. That number is small for an animal that ranges over hundreds of square kilometres, so the puma work is built around connectivity: where the core habitat patches are, and how an animal could move between them. The precise points are never published — every puma map is generalised first. How that is done is set out in the sensitive-data policy and shown on each puma figure.\nThe bobcat track is the opposite. Records are abundant, so the work is about distribution: which open-space units bobcats occupy, and which landscape characteristics best explain that pattern."
+  },
+  {
+    "objectID": "index.html#five-questions",
+    "href": "index.html#five-questions",
+    "title": "Wild Cats at the Urban Edge",
+    "section": "Five questions",
+    "text": "Five questions\nThe analysis is organised around five pre-registered questions. Each belongs to one track, except the last, which cuts across both:\n\nLandscape. How is protected open space distributed across the ten counties, and how connected or fragmented is it from the view of a wide-ranging carnivore?\nBobcat. Where are bobcats present across open-space units, and which landscape characteristics best explain that pattern?\nPuma. Where are the likely movement corridors between core habitat patches, and where do those corridors cross major roads and high-traffic barriers?\nBoth. Where do the modelled puma corridors cross major roads and high-traffic barriers, and where is wildlife–vehicle collision risk therefore concentrated? Direct mortality records are pending; the road crossings serve as the interim risk proxy.\nCross-cutting. How much of the apparent spatial pattern reflects true distribution, and how much reflects observer and detection effort?\n\nThe fifth question is treated as a first-class result, not a footnote. Detection effort shapes every descriptive layer in the project, and the two species answer it in opposite ways: the bobcat model corrects for effort, while the puma corridors do not depend on it. That contrast runs through the sections that follow."
+  },
+  {
+    "objectID": "methods.html",
+    "href": "methods.html",
+    "title": "Methods",
+    "section": "",
+    "text": "Placeholder. Built in Week 9.\nA plain-language summary of the analysis. The full processing log, parameter values and decisions live in docs/methodology.md."
+  },
+  {
+    "objectID": "landscape.html",
+    "href": "landscape.html",
+    "title": "The Protected-Land Fabric",
+    "section": "",
+    "text": "The first question is about the ground itself, before any animal moves across it. How much protected open space is there in the ten-county Bay Area, how is it held, and how does it break apart when you look at it the way a wide-ranging carnivore would — as a set of patches large enough to hold a home range, or not?"
+  },
+  {
+    "objectID": "landscape.html#two-kinds-of-protection",
+    "href": "landscape.html#two-kinds-of-protection",
+    "title": "The Protected-Land Fabric",
+    "section": "Two kinds of protection",
+    "text": "Two kinds of protection\nProtected land here comes in two forms, and the difference matters for a puma. Fee land is owned outright for conservation: the parks, watershed lands, and open-space preserves that most people picture. Easement land is private ground — often working ranchland — where the owner has sold or donated the right to develop it, so it stays open. To a puma crossing it, an easement grazing parcel next to a fee preserve is one continuous piece of habitat. Tenure is a legal distinction, not an ecological one.\nThe project keeps both. The connectivity track uses a union of the two sources: CPAD fee land and CCED conservation easements, merged into one protected-land layer, with fee taking precedence wherever the two map the same ground so no area is counted twice."
+  },
+  {
+    "objectID": "landscape.html#how-much-and-how-much-is-new",
+    "href": "landscape.html#how-much-and-how-much-is-new",
+    "title": "The Protected-Land Fabric",
+    "section": "How much, and how much is new",
+    "text": "How much, and how much is new\nThe union holds 5,996.5 km² of protected land across the ten counties. Fee land accounts for 4,720.8 km² of that, spread over 1,129 CPAD units. The easements add 1,275.7 km² of genuinely new protected ground — a roughly 27% increase over the fee footprint alone — after removing 498.2 km² where easements overlapped land already protected in fee.\nThat 27% is the point worth holding on to. Conservation easements are not a rounding error on the map of Bay Area protected land. More than a quarter of the connectivity fabric — much of it working ranchland along the inner Coast Ranges — exists only because of easements. Leave them out and the protected-land picture looks substantially more fragmented than it is.\nOne limit on this comes with the easement data. Where the easement layer has no record, that does not mean the land is unprotected — only that no easement is mapped there. The union labels tenure where the data exists; it does not fill gaps. Read the easement totals as a floor, not a full accounting."
+  },
+  {
+    "objectID": "landscape.html#from-protected-land-to-habitat-patches",
+    "href": "landscape.html#from-protected-land-to-habitat-patches",
+    "title": "The Protected-Land Fabric",
+    "section": "From protected land to habitat patches",
+    "text": "From protected land to habitat patches\nA wide-ranging carnivore does not experience protected land as a legal inventory. It experiences it as patches — connected pieces of open ground it can settle in or move through. So the next step dissolves the union: fee and easement melt together wherever they touch, and the result is cut into distinct patches by physical contiguity, not by ownership.\nMost of those patches are small. The patch-area distribution is a smooth size continuum, from thousands of tiny fragments up to a handful of very large blocks, with no natural break to cut on. A break would let the data choose the threshold; there isn’t one, so the threshold comes from the animal instead.\nA puma home range spans tens to hundreds of square kilometres. A protected patch smaller than about 5 km² cannot hold a meaningful fraction of even one such range, so it works as a stepping-stone at most, not as a place a resident animal lives. Setting that 5 km² floor — an ecological scale, not a number read off a curve — leaves 164 core patches large enough to anchor a home range. The floor still retains 82.5% of all protected area, because the area that gets dropped sits in thousands of tiny fragments that together hold very little ground.\n\n\n\n\n\n\n\n\nFigure 1: Patch count against the minimum-area floor. Each candidate floor is plotted with the number of patches that survive it; the amber point marks the chosen 5 km² floor, which keeps 164 patches and 82.5% of all protected area. The curve is a smooth continuum with no natural break, so the floor is set by the puma home-range scale rather than by a gap in the data. Source: Decision 32 floor scan (tbl_17).\n\n\n\n\n\nThis is the floor scan, not the raw size distribution: it shows how many patches survive each candidate threshold, and it is the evidence that the 5 km² cut is not severe. Most of what the floor removes is thousands of tiny fragments; the protected area they hold barely moves the total.\nThis is the structural shape of the problem. Of nearly 4,000 protected patches, only 164 are large enough to anchor a wide-ranging carnivore, and the habitat value concentrates in a small number of very large cores — the Santa Cruz Mountains block at 177 km², the southern Diablo Range at 500 km², and a short list of others. The rest of the protected fabric is stepping-stones and fragments between them."
+  },
+  {
+    "objectID": "landscape.html#what-this-section-does-and-does-not-claim",
+    "href": "landscape.html#what-this-section-does-and-does-not-claim",
+    "title": "The Protected-Land Fabric",
+    "section": "What this section does and does not claim",
+    "text": "What this section does and does not claim\nThis is a description of the protected land, built from protected-area boundaries alone. It uses no occurrence records, so the detection-effort caveat that governs the occurrence maps later in this project does not apply here — there is nothing in these numbers that reflects where people looked for animals. The patches are where the protected ground is, not where the cats were seen.\nWhat it does not tell you is whether an animal can actually move between those 164 cores. A patch being large is not the same as a patch being reachable. Two cores can sit a few kilometres apart on the map and be effectively cut off from each other by a freeway, a reservoir, or the developed bayshore. Turning this static fabric into a question about movement — which cores connect, and where the connections are weakest — is the work of the puma connectivity section (Question 3)."
+  },
+  {
+    "objectID": "data.html",
+    "href": "data.html",
+    "title": "Data",
+    "section": "",
+    "text": "Placeholder. Built in Week 9.\nSources, licences and known issues are documented in docs/data-sources.md. No sensitive location data is published on this site."
+  },
+  {
+    "objectID": "puma.html",
+    "href": "puma.html",
+    "title": "Room to Move",
+    "section": "",
+    "text": "The puma question is the opposite of the bobcat one. There are too few puma records to model where the animals are, and the precise locations that do exist are sensitive enough that publishing them would do harm. So this section does not map where pumas were seen. It maps where the landscape would let one move — built from the shape of the land, not from sightings."
+  },
+  {
+    "objectID": "puma.html#built-from-resistance-not-sightings",
+    "href": "puma.html#built-from-resistance-not-sightings",
+    "title": "Room to Move",
+    "section": "Built from resistance, not sightings",
+    "text": "Built from resistance, not sightings\nEvery layer in this section rests on a resistance surface: a map of how costly each 1 km cell is for a puma to cross, high where the land is developed, steep, or busy with roads, low where it is protected open ground. The surface is assembled from land cover, terrain, human modification, and traffic — not from where anyone recorded a puma.\nThat has one consequence worth stating up front, because it is the mirror image of the bobcat result. The bobcat occupancy model had to correct for recording effort, because it was built from sightings. The puma corridors carry no effort term at all — there are no sightings in them to be biased. Where the puma corridors agree with a density surface, they agree for a structural reason, not because both were shaped by the same observers. This is the clean half of Question 5."
+  },
+  {
+    "objectID": "puma.html#why-you-see-a-band-not-a-line",
+    "href": "puma.html#why-you-see-a-band-not-a-line",
+    "title": "Room to Move",
+    "section": "Why you see a band, not a line",
+    "text": "Why you see a band, not a line\nThe core result is a corridor between the two largest habitat blocks in the region: the Santa Cruz Mountains and the southern Diablo Range, linked across the south Bay through the Coyote Valley pinch where US-101 cuts the gap. The least-cost path between them runs 37.2 km and passes within 1.6 km of the verified Coyote Valley crossing.\nBut the maps below lead with a band, not that line, and the reason is a real limit, not a stylistic choice. A least-cost path is a single-cell-wide thread through a 1 km grid. It looks precise, and that precision is false: move the input weights a little and the thread shifts by a kilometre or more. The honest product is the swath — the zone of low-cost cells around the path — shown in two tiers:\n\na core band (the lowest-cost 2% of corridor cells, 409 km²) — high-confidence corridor,\na context band (the lowest-cost 5%, 1,021 km²) — the permeable flanks around it.\n\nThe swath says what the analysis can actually support: the corridor runs through here, in this zone, not the corridor is this exact line. The precise pinch at Coyote Valley is located separately, by road geometry in the crossing analysis below — not by the swath, whose 1 km grain is too coarse to resolve a sub-kilometre constriction.\n\n\n\n\n\n\n\n\nFigure 1: The Santa Cruz Mountains ↔︎ southern Diablo Range puma corridor, shown as a two-tier swath over the protected core habitat it connects. The darker core band is the lowest-cost 2% of corridor cells (409 km²), a high-confidence corridor; the lighter context band is the lowest-cost 5% (1,021 km²), the permeable flanks around it. Faint green blocks are the 164 core habitat patches; the two bold-outlined blocks are the corridor endpoints — Santa Cruz Mountains and the southern Diablo Range. The corridor runs through this zone, not along a single line — the band is the honest product at a 1 km grain. The precise US-101 pinch at Coyote Valley is located by road geometry in the crossing map below, not by this swath. No puma locations are shown; this is generalised corridor geometry. Source: least-cost corridor (Decision 33) over core patches (Decision 32)."
+  },
+  {
+    "objectID": "puma.html#where-the-corridor-meets-the-roads",
+    "href": "puma.html#where-the-corridor-meets-the-roads",
+    "title": "Room to Move",
+    "section": "Where the corridor meets the roads",
+    "text": "Where the corridor meets the roads\nA corridor is only as good as its worst crossing. Where the swath meets a major road, the road is a barrier whose severity scales with traffic, not just with presence — a quiet two-lane road and a freeway are not the same obstacle. So each crossing is ranked by traffic volume.\nThe top barrier is US-101 at Coyote Valley, at 142,000 vehicles a day. Getting that number right took a correction. An earlier version of the analysis, using a spatial traffic-data join, dropped US-101 here to a modelled floor of about 80,000 — a 43% underestimate — and let a lower-traffic arterial outrank it. The fix referenced the traffic data along the highway route by postmile, recovered the real 142k, and re-ran the corridor (Decision 34). US-101 is now correctly the top-ranked crossing.\nOne honest detail in that ranking: crossings are ranked within traffic-data confidence tiers, not on the raw number alone. A road whose volume is measured directly outranks one whose volume is filled in by name-matching, even when the filled-in number is close. This stops a lower-confidence estimate from masquerading as the top barrier — the exact failure the US-101 correction fixed.\n\n\n\n\n\n\n\n\nFigure 2: Where the puma corridor crosses roads, ranked by traffic, zoomed to the crossing zone in the south Bay. All 290 crossing segments are shown on a neutral road basemap so each sits on its road; line thickness scales with traffic volume (AADT) and solid lines are directly-measured volumes while dashed lines are estimated (modelled, name-filled, or spatially filled — read these as lower-confidence). The four named roads the corridor crosses are outlined and labelled; US-101 at Coyote Valley, at 142,000 vehicles a day, is the top barrier by a wide margin. Unnamed high-traffic links (freeway ramps) appear as thick base-layer lines but are not promoted to named barriers, since one class label covers many separate crossings. No puma locations are shown. Source: corridor × road crossings, AADT by Decision 34."
+  },
+  {
+    "objectID": "puma.html#the-network-and-a-distinction-that-matters",
+    "href": "puma.html#the-network-and-a-distinction-that-matters",
+    "title": "Room to Move",
+    "section": "The network, and a distinction that matters",
+    "text": "The network, and a distinction that matters\nWidening from the single corridor to the whole system of large habitat blocks — the 29 cores of at least 30 km² — gives a connectivity network: each core linked to its geometric neighbours, each link routed through the resistance surface. Two findings come out of it, and holding them apart is the point.\nCoyote Valley is the efficient link, and the traffic barrier — but not the structural weak point. The cheapest connections in the network — the strongest links — run through the south Bay, between the cores on either side of the Coyote Valley gap. That is where the two halves of the region connect at low cost. Those south-Bay links are the efficient path; the cross-bay alternatives cost far more. So Coyote Valley matters twice — as the real, protectable connection, and as the 142k traffic barrier astride it — but it is a strong link, not a weak one.\nThe structural weak links are the cross-bay spans. The costliest connections in the network are the long, high-resistance routes that would join the Peninsula / Santa Cruz cluster to the East-Bay / Diablo cluster across the central urbanized Bay — spans of 40 to 60 km with no stepping stones between them. The central Bay effectively splits the system into two subnetworks, joined efficiently only at the south end, through Coyote Valley. This matches what is already known: Santa Cruz Mountains pumas are famously isolated, connected to the Diablo Range mainly via the south Bay.\nThe traffic pinch and the structural weak point are therefore two different things on two different axes. Coyote Valley is a traffic-mitigation priority — a real corridor with a dangerous road across it. The cross-bay gaps are a fragmentation finding — evidence of what is already disconnected.\nAnd the cross-bay links are not corridors to build. This distinction matters enough to state plainly: a 60 km least-cost path across the developed bayshore is at the edge of biological plausibility. The network method forces a route between geometric neighbours whether or not a real one exists, and the routing dutifully finds the least-bad line across an essentially impassable barrier. Those longest cross-bay links mean these clusters are effectively disconnected, not here is a corridor to protect. Read them as fragmentation evidence. The south-Bay connection, by contrast, is a real connection worth protecting.\n\n\n\n\n\n\n\n\nFigure 3: The puma core-connectivity network over the core habitat it links. Faint green blocks are the core habitat patches. Links between cores are drawn as schematic lines coloured by cost — green links are cheap and strong (the efficient south-Bay connections), red links are costly and weak. The lines show connectivity topology, not exact routes: at a 1 km grain a single-cell path would imply false precision, so the lines say which cores connect and how cheaply, not where a puma walks. The three-to-five costliest links — the structural weak points — are shown instead as red swaths, the honest band form, because those fragile cross-bay connections are the map’s real subject. Read the red cross-bay swaths as evidence of disconnection, not as corridors to protect: the method forces a route between geometric neighbours whether or not a real one exists, and a 40–60 km path across the developed bayshore is at the edge of plausibility. No puma locations are shown. Source: Gabriel-graph network (Decision 37, corrected by Decision 38)."
+  },
+  {
+    "objectID": "puma.html#what-this-section-is-and-is-not",
+    "href": "puma.html#what-this-section-is-and-is-not",
+    "title": "Room to Move",
+    "section": "What this section is, and is not",
+    "text": "What this section is, and is not\nThese corridors are hypotheses about movement drawn from a landscape-cost model, not tracks from collared animals. No puma was followed to draw them; there is no telemetry here to confirm them. Shifting the model’s weights within a plausible range moves the corridor by up to about 1.5 km, so the routes are stable in location but not exact to the metre. They are the best structural estimate of where connectivity runs — a well-founded hypothesis, and the right basis for asking where to look and where to protect, but a hypothesis.\nEvery puma layer here is shown as generalised geometry — bands and routes, never points. That is deliberate and required: precise puma locations are a poaching and disturbance risk, so the project never publishes them. Nothing in this section is fine enough to reverse-engineer a den, a kill site, or a camera. The corridors are about where an animal could move, at the scale of the landscape, not about where any individual animal is."
   }
 ]
