@@ -52,7 +52,7 @@ sub-kilometre constriction.
 #| echo: false
 #| message: false
 #| warning: false
-#| fig-cap: "The Santa Cruz Mountains ↔ southern Diablo Range puma corridor, shown as a two-tier swath. The darker core band is the lowest-cost 2% of corridor cells (409 km²), a high-confidence corridor; the lighter context band is the lowest-cost 5% (1,021 km²), the permeable flanks around it. The corridor runs through this zone, not along a single line — the band is the honest product at a 1 km grain. The precise US-101 pinch at Coyote Valley is located by road geometry in the crossing map below, not by this swath. No puma locations are shown; this is generalised corridor geometry. Source: least-cost corridor, Decision 33."
+#| fig-cap: "The Santa Cruz Mountains ↔ southern Diablo Range puma corridor, shown as a two-tier swath over the protected core habitat it connects. The darker core band is the lowest-cost 2% of corridor cells (409 km²), a high-confidence corridor; the lighter context band is the lowest-cost 5% (1,021 km²), the permeable flanks around it. Faint green blocks are the 164 core habitat patches; the two bold-outlined blocks are the corridor endpoints — Santa Cruz Mountains and the southern Diablo Range. The corridor runs through this zone, not along a single line — the band is the honest product at a 1 km grain. The precise US-101 pinch at Coyote Valley is located by road geometry in the crossing map below, not by this swath. No puma locations are shown; this is generalised corridor geometry. Source: least-cost corridor (Decision 33) over core patches (Decision 32)."
 
 library(sf)
 library(leaflet)
@@ -62,6 +62,13 @@ library(leaflet)
 sw <- st_read("../data/processed/lcp_puma_scmtns_to_diablo_swath_3310.gpkg",
               quiet = TRUE) |>
   st_transform(4326)
+
+# Core habitat patches for context — the protected blocks the corridor connects.
+# Endpoints are flagged in the data (linkage_role); no hardcoding.
+cp <- st_read("../data/processed/lcp_puma_core_patches_3310.gpkg", quiet = TRUE) |>
+  st_transform(4326)
+cp_plain    <- cp[is.na(cp$linkage_role), ]
+cp_endpoint <- cp[!is.na(cp$linkage_role), ]
 
 context_band <- sw[sw$tier == "context", ]
 core_band    <- sw[sw$tier == "core", ]
@@ -77,7 +84,20 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
   addTiles(
     urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
   ) |>
-  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399) |>
+  # core habitat patches — faint context underneath everything
+  addPolygons(
+    data = cp_plain,
+    fillColor = "#5a7d5a", fillOpacity = 0.22,
+    color = "#5a7d5a", weight = 0.4, opacity = 0.4,
+    label = ~sprintf("Core habitat patch %s (%.0f km²)", patch_id, area_km2)
+  ) |>
+  # the two corridor endpoints — same faint fill, bold border, named
+  addPolygons(
+    data = cp_endpoint,
+    fillColor = "#5a7d5a", fillOpacity = 0.28,
+    color = "#274427", weight = 2.0, opacity = 0.9,
+    label = ~sprintf("%s — corridor endpoint (%.0f km²)", range_name, area_km2)
+  ) |>
   # context flanks underneath
   addPolygons(
     data = context_band,
@@ -105,12 +125,19 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
          <div style='display:flex;align-items:center;gap:7px;'>
            <span style='width:15px;height:13px;background:%s;border:1px solid #b98545;
                         display:inline-block;flex:none;'></span>Context (1,021 km²)</div>
+         <div style='display:flex;align-items:center;gap:7px;'>
+           <span style='width:15px;height:13px;background:#5a7d5a55;border:2px solid #274427;
+                        display:inline-block;flex:none;'></span>Corridor endpoints</div>
+         <div style='display:flex;align-items:center;gap:7px;'>
+           <span style='width:15px;height:13px;background:#5a7d5a55;border:1px solid #5a7d5a;
+                        display:inline-block;flex:none;'></span>Other core habitat</div>
          <div style='margin-top:5px;color:#5a6070;font-size:11px;'>
            Corridor runs through this zone, not a single line. No puma locations shown.</div>
        </div>",
       col_core, col_context
     ))
-  )
+  ) |>
+  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
 ```
 
 ## Where the corridor meets the roads
