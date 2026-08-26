@@ -263,10 +263,10 @@ to its geometric neighbours, each link routed through the resistance surface. Tw
 findings come out of it, and holding them apart is the point.
 
 **Coyote Valley is the efficient link, and the traffic barrier — but not the
-structural weak point.** The network routes Santa Cruz to Diablo not as the forced
-direct line but as a cheap stepping-stone chain through the south-Bay cores, at
-roughly half the cost of the direct route. Those Coyote Valley cores are the
-*efficient* path; losing them forces the animal onto the costlier direct crossing.
+structural weak point.** The cheapest connections in the network — the strongest
+links — run through the south Bay, between the cores on either side of the Coyote
+Valley gap. That is where the two halves of the region connect at low cost. Those
+south-Bay links are the *efficient* path; the cross-bay alternatives cost far more.
 So Coyote Valley matters twice — as the real, protectable connection, and as the
 142k traffic barrier astride it — but it is a strong link, not a weak one.
 
@@ -291,8 +291,76 @@ route between geometric neighbours whether or not a real one exists, and the
 routing dutifully finds the least-bad line across an essentially impassable
 barrier. Those longest cross-bay links mean *these clusters are effectively
 disconnected*, not *here is a corridor to protect*. Read them as fragmentation
-evidence. The south-Bay Coyote Valley chain, by contrast, is a real connection
-worth protecting.
+evidence. The south-Bay connection, by contrast, is a real connection worth
+protecting.
+
+```{r}
+#| label: fig-puma-network
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "The puma core-connectivity network: each large habitat core linked to its geometric neighbours, each link routed through the resistance surface. Links are coloured by cost — green links are cheap and strong (the efficient south-Bay connections), red links are costly and weak (the long cross-bay spans). The three costliest links, dashed and labelled, are the structural weak points: long routes that would cross the central urbanized Bay. Read these red cross-bay links as evidence of disconnection, not as corridors to protect — the method forces a route between geometric neighbours whether or not a real one exists, and a 40–60 km path across the developed bayshore is at the edge of plausibility. No puma locations are shown. Source: Gabriel-graph network (Decision 37, corrected by Decision 38)."
+
+library(sf)
+library(leaflet)
+library(dplyr)
+
+net <- st_read("../data/processed/lcp_puma_network_3310.gpkg", quiet = TRUE) |>
+  st_transform(4326)
+
+# Cost ordering IS the strong-vs-weak story: cheap = strong, costly = weak.
+# (Decision 38: no labelled SC->Diablo chain — 1727 is not a network node.)
+pal <- colorNumeric(c("#2f8a3e", "#9acd32", "#e8b64c", "#d0691f", "#b3271a"),
+                    domain = range(net$cost_distance, na.rm = TRUE))
+
+# Weight: cheap/strong links drawn a touch bolder as the backbone.
+net$wt <- 2.4 - 1.0 * (net$cost_distance / max(net$cost_distance, na.rm = TRUE))
+
+# Top-3 cross-bay weak links: dashed casing + labels.
+weak_top <- net[order(net$weak_rank), ][1:3, ]
+
+leaflet(options = leafletOptions(minZoom = 7)) |>
+  addTiles(
+    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    attribution = "Tiles &copy; Esri"
+  ) |>
+  addTiles(
+    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
+  ) |>
+  # all network edges, coloured by cost (green strong -> red weak)
+  addPolylines(
+    data = net,
+    color = ~pal(cost_distance), weight = ~wt, opacity = 0.85,
+    label = ~sprintf("Link %s–%s — cost %.0f, %.0f km",
+                     from_patch, to_patch, cost_distance, length_km)
+  ) |>
+  # top-3 cross-bay weak links: dashed dark casing to flag them
+  addPolylines(
+    data = weak_top,
+    color = "#7a1010", weight = 2.5, opacity = 0.9, dashArray = "6 5",
+    label = ~sprintf("Weak link #%d (cross-bay) — cost %.0f, %.0f km — disconnection, not a corridor",
+                     weak_rank, cost_distance, length_km)
+  ) |>
+  addControl(
+    position = "bottomleft",
+    html = htmltools::HTML(
+      "<div style='background:#fff;padding:8px 10px;border-radius:4px;
+                   box-shadow:0 1px 4px rgba(0,0,0,0.2);font-size:12px;
+                   line-height:1.4;text-align:left;max-width:215px;'>
+         <div style='font-weight:600;margin-bottom:5px;'>Core-to-core links</div>
+         <div style='height:12px;border-radius:2px;margin-bottom:3px;
+                     background:linear-gradient(to right,#2f8a3e,#9acd32,#e8b64c,#d0691f,#b3271a);'></div>
+         <div style='display:flex;justify-content:space-between;margin-bottom:5px;'>
+           <span>cheap · strong</span><span>costly · weak</span></div>
+         <div style='display:flex;align-items:center;gap:7px;'>
+           <span style='width:20px;border-top:2.5px dashed #7a1010;display:inline-block;'></span>top weak links (cross-bay)</div>
+         <div style='margin-top:5px;color:#5a6070;font-size:11px;'>
+           Red cross-bay links = disconnection evidence, not corridors to protect. No puma locations shown.</div>
+       </div>"
+    )
+  ) |>
+  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
+```
 
 ## What this section is, and is not
 
