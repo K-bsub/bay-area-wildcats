@@ -1,0 +1,125 @@
+---
+title: "Room to Move"
+subtitle: "Question 3 — Puma connectivity"
+---
+
+The puma question is the opposite of the bobcat one. There are too few puma
+records to model where the animals are, and the precise locations that do exist
+are sensitive enough that publishing them would do harm. So this section does not
+map where pumas were seen. It maps where the landscape would let one move — built
+from the shape of the land, not from sightings.
+
+## Built from resistance, not sightings
+
+Every layer in this section rests on a resistance surface: a map of how costly
+each 1 km cell is for a puma to cross, high where the land is developed, steep, or
+busy with roads, low where it is protected open ground. The surface is assembled
+from land cover, terrain, human modification, and traffic — not from where anyone
+recorded a puma.
+
+That has one consequence worth stating up front, because it is the mirror image of
+the bobcat result. The bobcat occupancy model had to *correct* for recording
+effort, because it was built from sightings. The puma corridors carry no effort
+term at all — there are no sightings in them to be biased. Where the puma corridors
+agree with a density surface, they agree for a structural reason, not because both
+were shaped by the same observers. This is the clean half of Question 5.
+
+## Why you see a band, not a line
+
+The core result is a corridor between the two largest habitat blocks in the
+region: the Santa Cruz Mountains and the southern Diablo Range, linked across the
+south Bay through the Coyote Valley pinch where US-101 cuts the gap. The
+least-cost path between them runs 37.2 km and passes within 1.6 km of the verified
+Coyote Valley crossing.
+
+But the maps below lead with a **band**, not that line, and the reason is a real
+limit, not a stylistic choice. A least-cost path is a single-cell-wide thread
+through a 1 km grid. It looks precise, and that precision is false: move the input
+weights a little and the thread shifts by a kilometre or more. The honest product
+is the **swath** — the zone of low-cost cells around the path — shown in two tiers:
+
+- a **core** band (the lowest-cost 2% of corridor cells, 409 km²) — high-confidence corridor,
+- a **context** band (the lowest-cost 5%, 1,021 km²) — the permeable flanks around it.
+
+The swath says what the analysis can actually support: *the corridor runs through
+here, in this zone*, not *the corridor is this exact line*. The precise pinch at
+Coyote Valley is located separately, by road geometry in the crossing analysis
+below — not by the swath, whose 1 km grain is too coarse to resolve a
+sub-kilometre constriction.
+
+## Where the corridor meets the roads
+
+A corridor is only as good as its worst crossing. Where the swath meets a major
+road, the road is a barrier whose severity scales with traffic, not just with
+presence — a quiet two-lane road and a freeway are not the same obstacle. So each
+crossing is ranked by traffic volume.
+
+The top barrier is **US-101 at Coyote Valley, at 142,000 vehicles a day.** Getting
+that number right took a correction. An earlier version of the analysis, using a
+spatial traffic-data join, dropped US-101 here to a modelled floor of about 80,000
+— a 43% underestimate — and let a lower-traffic arterial outrank it. The fix
+referenced the traffic data along the highway route by postmile, recovered the
+real 142k, and re-ran the corridor (Decision 34). US-101 is now correctly the
+top-ranked crossing.
+
+One honest detail in that ranking: crossings are ranked *within* traffic-data
+confidence tiers, not on the raw number alone. A road whose volume is measured
+directly outranks one whose volume is filled in by name-matching, even when the
+filled-in number is close. This stops a lower-confidence estimate from
+masquerading as the top barrier — the exact failure the US-101 correction fixed.
+
+## The network, and a distinction that matters
+
+Widening from the single corridor to the whole system of large habitat blocks —
+the 29 cores of at least 30 km² — gives a connectivity network: each core linked
+to its geometric neighbours, each link routed through the resistance surface. Two
+findings come out of it, and holding them apart is the point.
+
+**Coyote Valley is the efficient link, and the traffic barrier — but not the
+structural weak point.** The network routes Santa Cruz to Diablo not as the forced
+direct line but as a cheap stepping-stone chain through the south-Bay cores, at
+roughly half the cost of the direct route. Those Coyote Valley cores are the
+*efficient* path; losing them forces the animal onto the costlier direct crossing.
+So Coyote Valley matters twice — as the real, protectable connection, and as the
+142k traffic barrier astride it — but it is a strong link, not a weak one.
+
+**The structural weak links are the cross-bay spans.** The costliest connections
+in the network are the long, high-resistance routes that would join the
+Peninsula / Santa Cruz cluster to the East-Bay / Diablo cluster *across the
+central urbanized Bay* — spans of 40 to 60 km with no stepping stones between them.
+The central Bay effectively splits the system into two subnetworks, joined
+efficiently only at the south end, through Coyote Valley. This matches what is
+already known: Santa Cruz Mountains pumas are famously isolated, connected to the
+Diablo Range mainly via the south Bay.
+
+The traffic pinch and the structural weak point are therefore two different things
+on two different axes. Coyote Valley is a traffic-mitigation priority — a real
+corridor with a dangerous road across it. The cross-bay gaps are a fragmentation
+finding — evidence of what is already disconnected.
+
+**And the cross-bay links are not corridors to build.** This distinction is
+load-bearing, so it is stated plainly: a 60 km least-cost path across the developed
+bayshore is at the edge of biological plausibility. The network method forces a
+route between geometric neighbours whether or not a real one exists, and the
+routing dutifully finds the least-bad line across an essentially impassable
+barrier. Those longest cross-bay links mean *these clusters are effectively
+disconnected*, not *here is a corridor to protect*. Read them as fragmentation
+evidence. The south-Bay Coyote Valley chain, by contrast, is a real connection
+worth protecting.
+
+## What this section is, and is not
+
+These corridors are hypotheses about movement drawn from a landscape-cost model,
+not tracks from collared animals. No puma was followed to draw them; there is no
+telemetry here to confirm them. Shifting the model's weights within a plausible
+range moves the corridor by up to about 1.5 km, so the routes are robust in
+location but not exact to the metre. They are the best structural estimate of where
+connectivity runs — a well-founded hypothesis, and the right basis for asking where
+to look and where to protect, but a hypothesis.
+
+Every puma layer here is shown as generalised geometry — bands and routes, never
+points. That is deliberate and required: precise puma locations are a poaching and
+disturbance risk, so the project never publishes them. Nothing in this section is
+fine enough to reverse-engineer a den, a kill site, or a camera. The corridors are
+about where an animal *could* move, at the scale of the landscape, not about where
+any individual animal *is*.

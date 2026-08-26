@@ -14,6 +14,8 @@ website:
         text: Landscape
       - href: bobcat.qmd
         text: Bobcat
+      - href: puma.qmd
+        text: Puma
       - href: methods.qmd
         text: Methods
       - href: data.qmd
