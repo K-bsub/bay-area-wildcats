@@ -1,0 +1,239 @@
+---
+title: "What was recorded, and what is there"
+subtitle: "Q5 — effort, and the two species read differently"
+---
+
+## The question behind the other four
+
+Every map on this site is built from records that people made. People do not
+look everywhere equally. They look near roads, near trails, near cities, and in
+the months of survey drives and community bio-blitzes. So a map of *where the
+records are* is partly a map of *where the observers were*. This is the effort
+problem, and Q5 asks it directly: how much of the pattern is the animal, and how
+much is the observer?
+
+This page does not add a new dataset. It reads the puma and the bobcat results
+against each other, because the two species answer the effort question in
+opposite ways — and the contrast is itself the finding.
+
+::: {.callout-note title="Read this after the Bobcat and Puma pages"}
+Q5 is a cross-read. It uses the bobcat occupancy result (the Bobcat page) and the
+puma corridor result (the Puma page). If you have not seen those, the short
+version is below each heading.
+:::
+
+## Two species, two relationships
+
+A descriptive surface — a kernel-density map of records, or a hot-spot map —
+carries the effort signal directly, because it is built from the raw records. The
+two analytical tracks then do different things with that signal.
+
+- **Bobcat — the model pulls away from effort.** The occupancy model has a
+  separate detection sub-model. It estimates *effort* and *presence* as two
+  things, then reports presence with the effort taken out. So the modelled result
+  is expected to move away from the raw record density.
+- **Puma — the model never sees effort at all.** The corridor is built from the
+  landscape: land cover, human modification, slope, and traffic (see the Methods
+  page and Decision 26). There is no record-density term anywhere in it. So if
+  the corridor lands on the observed record density, that agreement was not put
+  there by construction.
+
+The result is a divergence for one species and a convergence for the other, and
+both are honest for the same reason.
+
+### Bobcat: modelled occupancy DIVERGES from the record density
+
+The bobcat occupancy surface and the raw kernel-density surface do not match. The
+correlation between the two is near zero (r = 0.075).
+
+That is the correct outcome, not a failure. The raw density is effort-shaped —
+high where people surveyed. The occupancy model corrects for that, because its
+detection sub-model absorbs the survey effort and reports the presence pattern
+underneath. The two surfaces disagree *because the model is doing its job.* A high
+agreement here would have been a warning sign that the model had simply re-drawn
+the effort map.
+
+### Puma: modelled corridor CONVERGES with the record density
+
+The puma corridor is the opposite case, and it also reverses what we expected
+before we ran it.
+
+The pre-analysis guess was **divergence** — that the corridor, and especially the
+Coyote Valley pinch, would thread through *low-record* gaps, pumas slipping
+through a developed squeeze unseen. The data says the opposite:
+
+- The corridor runs through **above-median** record density along its whole
+  length. The least-cost path sits at the **77th percentile** of the density
+  surface (median across the route), and **none** of it falls below the median.
+- The **Coyote Valley pinch is at the 83rd percentile** — high record density,
+  not the predicted low.
+- Of the record hot-spots the corridor crosses, **six of seven are effort-checked
+  as trusted** — real record concentration, not survey artifact.
+
+Two methods that share no effort term — a structure-driven least-cost corridor and
+an effort-shaped record surface — agree on where the corridor is. Because the
+corridor model never saw the records, that agreement is evidence the puma pattern
+is real terrain-driven signal, not an effort shadow.
+
+## The convergence, on the map
+
+The surface below is the puma record density (kernel density, published at the
+1 km grain the sensitive-data policy requires — see the note at the foot of this
+page). On top of it are the two-tier corridor swath and the core habitat patches.
+Read it for one thing: **the corridor band sits on the warmer parts of the
+surface, not the gaps.**
+
+```{r}
+#| label: fig-puma-convergence
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Puma record density (kernel-density surface, 1 km) with the two-tier movement corridor and core habitat patches. The corridor band runs through above-median density along its length, including at the Coyote Valley pinch. Density is a smoothed record surface and is effort-shaped; it is read here only as a cross-check on the structure-built corridor, never as a distribution result on its own."
+
+library(terra)
+library(sf)
+library(leaflet)
+library(htmltools)
+
+# --- paths: page-relative from site/ (NEVER here::here) ---
+kde_path    <- "../data/processed/kde_puma_current_1km_3310.tif"
+swath_path  <- "../data/processed/lcp_puma_scmtns_to_diablo_swath_3310.gpkg"
+patch_path  <- "../data/processed/lcp_puma_core_patches_3310.gpkg"
+
+# --- read ---
+kde_r   <- terra::rast(kde_path)
+swath_sf <- sf::st_read(swath_path, quiet = TRUE)
+patch_sf <- sf::st_read(patch_path, quiet = TRUE)
+
+# --- reproject to WGS84 for leaflet ---
+kde_wgs   <- terra::project(kde_r, "EPSG:4326", method = "bilinear")
+swath_wgs <- sf::st_transform(swath_sf, 4326)
+patch_wgs <- sf::st_transform(patch_sf, 4326)
+
+# --- sqrt stretch (matches bobcat KDE page); NAs stay transparent ---
+v <- terra::values(kde_wgs)
+v <- v[is.finite(v) & v > 0]
+cap <- as.numeric(stats::quantile(v, 0.99, na.rm = TRUE))
+kde_stretch <- terra::clamp(kde_wgs, lower = 0, upper = cap, values = TRUE)
+kde_stretch <- terra::app(kde_stretch, fun = function(x) sqrt(x))
+
+rng <- terra::minmax(kde_stretch)
+dom <- c(as.numeric(rng[1]), as.numeric(rng[2]))
+
+# tiger-green ramp, consistent with the bobcat KDE map; NA -> transparent
+ramp_cols <- c("#f7fcf5", "#c7e9c0", "#74c476", "#31a354", "#006d2c")
+pal <- leaflet::colorNumeric(ramp_cols, domain = dom, na.color = "transparent")
+
+# --- corridor swath tiers ---
+swath_core    <- swath_wgs[swath_wgs$tier == "core", ]
+swath_context <- swath_wgs[swath_wgs$tier == "context", ]
+
+# --- endpoints from linkage_role (no hardcoded ids) ---
+patch_end <- patch_wgs[!is.na(patch_wgs$linkage_role), ]
+
+# --- custom left-aligned legend (addLegend cannot mix a ramp + swatch styles) ---
+legend_html <- paste0(
+  "<div style='background:rgba(255,255,255,0.9);padding:8px 10px;",
+  "border-radius:4px;font:12px/1.4 sans-serif;text-align:left;'>",
+  "<div style='font-weight:600;margin-bottom:4px;'>Puma cross-read</div>",
+  "<div><span style='display:inline-block;width:14px;height:10px;",
+  "background:linear-gradient(90deg,#f7fcf5,#31a354,#006d2c);",
+  "vertical-align:middle;margin-right:6px;'></span>Record density (low &rarr; high)</div>",
+  "<div><span style='display:inline-block;width:14px;height:10px;",
+  "background:#d94801;opacity:0.55;vertical-align:middle;margin-right:6px;'></span>",
+  "Corridor core band (&le; q2%)</div>",
+  "<div><span style='display:inline-block;width:14px;height:10px;",
+  "background:#fdae6b;opacity:0.45;vertical-align:middle;margin-right:6px;'></span>",
+  "Corridor context band (&le; q5%)</div>",
+  "<div><span style='display:inline-block;width:12px;height:12px;",
+  "border:1.5px solid #555;background:rgba(0,0,0,0);",
+  "vertical-align:middle;margin-right:6px;'></span>Core habitat patch</div>",
+  "</div>"
+)
+
+leaflet(options = leafletOptions(minZoom = 8)) |>
+  addTiles(urlTemplate = paste0(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/",
+    "World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"),
+    attribution = "Tiles &copy; Esri") |>
+  addTiles(urlTemplate = paste0(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/",
+    "World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}")) |>
+  # density surface
+  addRasterImage(kde_stretch, colors = pal, opacity = 0.75, project = FALSE) |>
+  # core patches, faint (context, not the point of the map)
+  addPolygons(data = patch_wgs, fill = FALSE, color = "#555555",
+              weight = 0.7, opacity = 0.5) |>
+  # corridor context band (wider, lighter), then core band on top
+  addPolygons(data = swath_context, stroke = FALSE,
+              fillColor = "#fdae6b", fillOpacity = 0.45) |>
+  addPolygons(data = swath_core, stroke = FALSE,
+              fillColor = "#d94801", fillOpacity = 0.55) |>
+  # endpoints, bold outline
+  addPolygons(data = patch_end, fill = FALSE, color = "#222222",
+              weight = 2.2, opacity = 0.9) |>
+  addControl(html = HTML(legend_html), position = "bottomleft") |>
+  # fitBounds MUST be last, or the auto-fit overrides it
+  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
+```
+
+The density surface is smoothed with a wide (5 km) bandwidth, set from a puma
+home-range prior. That width is why the map shows broad warm zones, not sharp
+points — and it is one reason the percentile figures stay in the text and not on
+the legend: a smoothed surface cannot honestly show a single-cell pinch value.
+
+## What this convergence is, and what it is not
+
+The agreement is real, but it must be read at its true strength — corroboration,
+not proof.
+
+- **It is corroboration.** Two methods with no shared effort term land in the same
+  places, and most of the record hot-spots on the corridor are effort-checked as
+  trusted. The puma pattern behaves like real terrain-driven signal.
+- **It is only weak-to-moderate, and partly structural.** The resistance surface
+  and the density surface share a land-cover and human-modification foundation. So
+  part of the agreement is two views of the *same* landscape gradient, not two
+  independent confirmations. A corridor built to follow good habitat, checked
+  against records that also concentrate in good habitat, is *expected* to agree —
+  the ecology literature says as much.
+- **It is not validation.** Strong, independent validation needs movement data —
+  GPS collars showing pumas actually using the route. This project has occurrence
+  records only. The corridor is a plausible, record-corroborated hypothesis, not a
+  confirmed path.
+
+Two things keep the convergence meaningful in spite of the shared foundation. The
+trusted hot-spots are record concentration that is **not** effort-driven — real
+presence on the corridor. And the corridor carries a **road-and-traffic term the
+density surface does not have** — so the two are not the same construct, and
+agreement across that difference is more than shared-terrain overlap.
+
+::: {.callout-important title="Why we lead with the band, not the line"}
+The corridor is shown as a two-tier **swath**, not a single line. Against
+simulated true movement, the precise least-cost centre-line is the least accurate
+connectivity form, while a swath overlaps true movement far better. The line is a
+tidy artifact of the algorithm; the band is the more honest product. This is why
+the pinch percentile (83rd) is the *cell* value near the route, not an on-line
+reading — at 1 km grain the centre-line passes about 1.6 km from the exact pinch
+cell.
+:::
+
+## The shared caveat, stated once
+
+Both species inherit the same ceiling, and it is the point of Q5: **descriptive
+record surfaces are effort-shaped.** A kernel-density map or a raw hot-spot map
+shows where records concentrate, and records concentrate where people looked. The
+two tracks handle this differently — the bobcat occupancy model removes the effort
+signal and so *diverges* from the raw surface; the puma corridor never contains an
+effort signal and so its *convergence* with the raw surface is informative rather
+than circular — but neither track escapes the fact that the underlying records
+were made by people, unevenly. Every descriptive map on this site should be read
+with that in mind.
+
+::: {.callout-note title="Sensitive-data note (puma)"}
+Precise puma locations are withheld. iNaturalist does not obscure mountain lions
+in California, so this project holds precise records that could expose real
+animals if published as points. The density surface on this page is published only
+at a 1 km grain, which cannot be reversed to a location, and it clears the
+project's publish gate at that grain. No puma points, den sites, or kill sites
+appear anywhere on this site.
+:::
