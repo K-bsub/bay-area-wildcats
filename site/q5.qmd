@@ -204,7 +204,7 @@ problem made visible on a single map.
 #| echo: false
 #| message: false
 #| warning: false
-#| fig-cap: "!expr caption_txt"
+#| fig-cap: "Getis-Ord Gi* hot-spot units for puma records, FDR-corrected. Solid red is a TRUSTED hotspot (record clustering not explained by effort); hollow dashed red is a hotspot that also coincides with a recording-effort hotspot, flagged effort-SUSPECT. About half of all puma hot units are effort-suspect — far more than bobcat — which is the effort problem made visible. Hot-spots are record-driven and effort-shaped; they are not a puma distribution. Source: sfdep Gi* with the Q5 effort cross-read."
 
 # libraries already attached by fig-puma-convergence (terra, sf, leaflet, htmltools)
 
@@ -215,61 +215,47 @@ hot_sf   <- sf::st_read(hot_path, quiet = TRUE)
 hot_all <- hot_sf[!is.na(hot_sf$hotspot) & hot_sf$hotspot == "hot", ]
 
 # TRUSTED = occ-hot but NOT effort-hot; SUSPECT = occ-hot AND effort-hot
-is_trusted <- grepl("TRUSTED", hot_all$q5_flag)
-is_suspect <- grepl("SUSPECT", hot_all$q5_flag)
+trusted_sf <- hot_all[grepl("TRUSTED", hot_all$q5_flag), ]
+suspect_sf <- hot_all[grepl("SUSPECT", hot_all$q5_flag), ]
 
 # --- SMALL-n COARSEN GUARD (sensitive-data policy §3) ---
 # A hot unit resting on 1-2 precise records can reverse-narrow toward a location.
-# Coarsen those: draw the polygon, but NO popup / NO label. Count only.
-SMALL_N <- 3L
-is_smalln <- !is.na(hot_all$n_occ) & hot_all$n_occ < SMALL_N
-n_coarsened <- sum(is_smalln)
-
-trusted_sf <- hot_all[is_trusted, ]
-suspect_sf <- hot_all[is_suspect, ]
-
-# popups ONLY for units at/above the small-n floor; coarsened units get no label
-mk_popup <- function(df) {
-  ifelse(!is.na(df$n_occ) & df$n_occ >= SMALL_N,
-         paste0("<b>", htmltools::htmlEscape(df$unit_name), "</b>"),
-         NA_character_)
-}
+# Coarsen those: draw the polygon, but give it NO hover label. Count only.
+SMALL_N     <- 3L
+n_coarsened <- sum(!is.na(hot_all$n_occ) & hot_all$n_occ < SMALL_N)
 
 trusted_wgs <- sf::st_transform(trusted_sf, 4326)
 suspect_wgs <- sf::st_transform(suspect_sf, 4326)
-trusted_wgs$popup <- mk_popup(trusted_sf)
-suspect_wgs$popup <- mk_popup(suspect_sf)
 
-# --- computed caption (numbers come from the data, never typed) ---
-caption_txt <- sprintf(
-  paste0("Puma record hot-spots (Getis-Ord Gi*, FDR-corrected) by open-space unit. ",
-         "Solid = trusted (%d units: record hot-spot, not an effort hot-spot); ",
-         "hollow dashed = effort-suspect (%d units: also an observer-effort hot-spot). ",
-         "About half of all puma hot units are effort-suspect \u2014 far more than bobcat ",
-         "\u2014 which is the effort problem made visible. %s ",
-         "Hot-spots are record-driven and effort-shaped; they are not a puma distribution."),
-  nrow(trusted_wgs), nrow(suspect_wgs),
-  if (n_coarsened > 0)
-    sprintf("%d hot unit(s) resting on fewer than %d precise records are drawn without a label, per the sensitive-data policy.",
-            n_coarsened, SMALL_N)
-  else
-    "No hot unit rested on fewer than three precise records."
-)
+# --- colours: match bobcat Gi* map exactly ---
+col_hot     <- "#B30000"
+stroke_hot  <- "#7a0000"
 
-# custom left-aligned legend (solid vs hollow-dashed swatches)
-legend_html2 <- paste0(
-  "<div style='background:rgba(255,255,255,0.9);padding:8px 10px;",
-  "border-radius:4px;font:12px/1.4 sans-serif;text-align:left;'>",
-  "<div style='font-weight:600;margin-bottom:4px;'>Puma record hot-spots (Gi*)</div>",
-  "<div><span style='display:inline-block;width:14px;height:10px;",
-  "background:#cb181d;opacity:0.7;vertical-align:middle;margin-right:6px;'></span>",
-  "Trusted (not effort-driven)</div>",
-  "<div><span style='display:inline-block;width:14px;height:10px;",
-  "background:rgba(0,0,0,0);border:1.5px dashed #cb181d;",
-  "vertical-align:middle;margin-right:6px;'></span>",
-  "Effort-suspect (where people looked)</div>",
-  "</div>"
-)
+# --- hover label (bobcat lab_common convention); NULL for small-n units ---
+lab_common <- function(d, verdict = NULL) {
+  keep <- !is.na(d$n_occ) & d$n_occ >= SMALL_N   # small-n get no detail
+  base <- sprintf("%s (unit %s)<br>Gi* z = %.2f, FDR p = %.3f",
+                  d$unit_name, d$unit_id, d$gistar_z, d$gistar_p_fdr)
+  if (!is.null(verdict)) base <- paste0(base, "<br><b>", verdict, "</b>")
+  base[!keep] <- ""                              # blank label = no tooltip shown
+  lapply(base, htmltools::HTML)
+}
+
+# --- legend: mirror the bobcat swatch style (%s22 hex-alpha for suspect fill) ---
+legend_html2 <- htmltools::HTML(sprintf(
+  "<div style='background:#fff;padding:8px 10px;border-radius:4px;
+               box-shadow:0 1px 4px rgba(0,0,0,0.2);font-size:12px;
+               line-height:1.5;text-align:left;'>
+     <div style='font-weight:600;margin-bottom:5px;'>Puma record hot-spots (Gi*, FDR-corrected)</div>
+     <div style='display:flex;align-items:center;gap:7px;'>
+       <span style='width:15px;height:13px;background:%s;border:1px solid #7a0000;
+                    display:inline-block;flex:none;'></span>Hotspot &mdash; trusted</div>
+     <div style='display:flex;align-items:center;gap:7px;'>
+       <span style='width:15px;height:13px;background:%s22;border:1.6px dashed %s;
+                    display:inline-block;flex:none;'></span>Hotspot &mdash; effort-suspect</div>
+   </div>",
+  col_hot, col_hot, col_hot
+))
 
 leaflet(options = leafletOptions(minZoom = 8)) |>
   addTiles(urlTemplate = paste0(
@@ -279,19 +265,29 @@ leaflet(options = leafletOptions(minZoom = 8)) |>
   addTiles(urlTemplate = paste0(
     "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/",
     "World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}")) |>
-  # suspect: hollow, dashed red outline, no fill
-  addPolygons(data = suspect_wgs, fill = FALSE,
-              color = "#cb181d", weight = 1.5, opacity = 0.9,
-              dashArray = "5", popup = ~popup) |>
-  # trusted: solid red fill on top
-  addPolygons(data = trusted_wgs, stroke = TRUE, color = "#cb181d",
-              weight = 0.6, opacity = 0.8,
-              fillColor = "#cb181d", fillOpacity = 0.7,
-              popup = ~popup) |>
-  addControl(html = HTML(legend_html2), position = "bottomleft") |>
+  # suspect hot — faint red fill + dashed outline (bobcat convention, NOT fully hollow)
+  addPolygons(data = suspect_wgs,
+              fillColor = col_hot, fillOpacity = 0.12,
+              color = col_hot, weight = 1.6, opacity = 0.95, dashArray = "4 3",
+              label = lab_common(suspect_sf,
+                "EFFORT-SUSPECT hotspot (coincides with an effort hotspot)")) |>
+  # trusted hot — solid red on top
+  addPolygons(data = trusted_wgs,
+              fillColor = col_hot, fillOpacity = 0.85,
+              color = stroke_hot, weight = 1.0, opacity = 0.9,
+              label = lab_common(trusted_sf,
+                "TRUSTED hotspot (not explained by effort)")) |>
+  addControl(html = legend_html2, position = "bottomleft") |>
   # fitBounds MUST be last
   fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
 ```
+
+::: {.aside}
+Of the puma hot units, the effort cross-read trusts fewer than half; the rest
+coincide with recording-effort hotspots and are flagged suspect. Any hot unit
+resting on fewer than three precise records is drawn without a hover label, so a
+location cannot be narrowed from it (sensitive-data policy §3).
+:::
 
 The hot-spot map and the corridor tell the same story from two directions. Where
 the corridor crosses record hot-spots, most of those units are **trusted** — real
