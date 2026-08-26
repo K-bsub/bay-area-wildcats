@@ -47,6 +47,72 @@ Coyote Valley is located separately, by road geometry in the crossing analysis
 below — not by the swath, whose 1 km grain is too coarse to resolve a
 sub-kilometre constriction.
 
+```{r}
+#| label: fig-puma-swath
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "The Santa Cruz Mountains ↔ southern Diablo Range puma corridor, shown as a two-tier swath. The darker core band is the lowest-cost 2% of corridor cells (409 km²), a high-confidence corridor; the lighter context band is the lowest-cost 5% (1,021 km²), the permeable flanks around it. The corridor runs through this zone, not along a single line — the band is the honest product at a 1 km grain. The precise US-101 pinch at Coyote Valley is located by road geometry in the crossing map below, not by this swath. No puma locations are shown; this is generalised corridor geometry. Source: least-cost corridor, Decision 33."
+
+library(sf)
+library(leaflet)
+
+# Rendered from site/; data one level up. Page-relative path (here::here can
+# mis-anchor under Quarto).
+sw <- st_read("../data/processed/lcp_puma_scmtns_to_diablo_swath_3310.gpkg",
+              quiet = TRUE) |>
+  st_transform(4326)
+
+context_band <- sw[sw$tier == "context", ]
+core_band    <- sw[sw$tier == "core", ]
+
+col_core    <- "#7d3f16"  # deep amber-brown — high-confidence corridor
+col_context <- "#d8a25e"  # light amber — permeable flanks
+
+leaflet(options = leafletOptions(minZoom = 7)) |>
+  addTiles(
+    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    attribution = "Tiles &copy; Esri"
+  ) |>
+  addTiles(
+    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
+  ) |>
+  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399) |>
+  # context flanks underneath
+  addPolygons(
+    data = context_band,
+    fillColor = col_context, fillOpacity = 0.45,
+    color = col_context, weight = 0.5, opacity = 0.7,
+    label = "Context band — lowest-cost 5% (1,021 km²), permeable flanks"
+  ) |>
+  # core corridor on top
+  addPolygons(
+    data = core_band,
+    fillColor = col_core, fillOpacity = 0.7,
+    color = "#4a2409", weight = 0.6, opacity = 0.8,
+    label = "Core band — lowest-cost 2% (409 km²), high-confidence corridor"
+  ) |>
+  addControl(
+    position = "bottomright",
+    html = htmltools::HTML(sprintf(
+      "<div style='background:#fff;padding:8px 10px;border-radius:4px;
+                   box-shadow:0 1px 4px rgba(0,0,0,0.2);font-size:12px;
+                   line-height:1.5;text-align:left;max-width:200px;'>
+         <div style='font-weight:600;margin-bottom:5px;'>Puma corridor swath</div>
+         <div style='display:flex;align-items:center;gap:7px;'>
+           <span style='width:15px;height:13px;background:%s;border:1px solid #4a2409;
+                        display:inline-block;flex:none;'></span>Core (409 km²)</div>
+         <div style='display:flex;align-items:center;gap:7px;'>
+           <span style='width:15px;height:13px;background:%s;border:1px solid #b98545;
+                        display:inline-block;flex:none;'></span>Context (1,021 km²)</div>
+         <div style='margin-top:5px;color:#5a6070;font-size:11px;'>
+           Corridor runs through this zone, not a single line. No puma locations shown.</div>
+       </div>",
+      col_core, col_context
+    ))
+  )
+```
+
 ## Where the corridor meets the roads
 
 A corridor is only as good as its worst crossing. Where the swath meets a major
@@ -97,8 +163,8 @@ on two different axes. Coyote Valley is a traffic-mitigation priority — a real
 corridor with a dangerous road across it. The cross-bay gaps are a fragmentation
 finding — evidence of what is already disconnected.
 
-**And the cross-bay links are not corridors to build.** This distinction is
-load-bearing, so it is stated plainly: a 60 km least-cost path across the developed
+**And the cross-bay links are not corridors to build.** This distinction matters
+enough to state plainly: a 60 km least-cost path across the developed
 bayshore is at the edge of biological plausibility. The network method forces a
 route between geometric neighbours whether or not a real one exists, and the
 routing dutifully finds the least-bad line across an essentially impassable
@@ -112,7 +178,7 @@ worth protecting.
 These corridors are hypotheses about movement drawn from a landscape-cost model,
 not tracks from collared animals. No puma was followed to draw them; there is no
 telemetry here to confirm them. Shifting the model's weights within a plausible
-range moves the corridor by up to about 1.5 km, so the routes are robust in
+range moves the corridor by up to about 1.5 km, so the routes are stable in
 location but not exact to the metre. They are the best structural estimate of where
 connectivity runs — a well-founded hypothesis, and the right basis for asking where
 to look and where to protect, but a hypothesis.
