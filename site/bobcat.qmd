@@ -180,7 +180,7 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
     label = ~sprintf("%s — \u03c8 = %.2f (SE %.2f)", unit_label, psi_pred, psi_se)
   ) |>
   addLegend(
-    position = "bottomright", pal = pal, values = c(0, 1),
+    position = "bottomleft", pal = pal, values = c(0, 1),
     title = "Predicted occupancy (\u03c8)", opacity = 0.8
   ) |>
   addControl(
@@ -246,7 +246,7 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
   fitBounds(-123.53354, 36.85065, -121.20830, 38.86399) |>
   addRasterImage(ks, colors = ramp, opacity = 0.75, project = TRUE) |>
   addControl(
-    position = "bottomright",
+    position = "bottomleft",
     html = htmltools::HTML(
       "<div style='background:#fff;padding:8px 10px;border-radius:4px;
                    box-shadow:0 1px 4px rgba(0,0,0,0.2);font-size:12px;
@@ -352,7 +352,7 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
     label = lab_common(hot_susp, "EFFORT-SUSPECT hotspot (coincides with an effort hotspot)")
   ) |>
   addControl(
-    position = "bottomright",
+    position = "bottomleft",
     html = htmltools::HTML(sprintf(
       "<div style='background:#fff;padding:8px 10px;border-radius:4px;
                    box-shadow:0 1px 4px rgba(0,0,0,0.2);font-size:12px;

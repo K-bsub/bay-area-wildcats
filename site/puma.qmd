@@ -113,7 +113,7 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
     label = "Core band — lowest-cost 2% (409 km²), high-confidence corridor"
   ) |>
   addControl(
-    position = "bottomright",
+    position = "bottomleft",
     html = htmltools::HTML(sprintf(
       "<div style='background:#fff;padding:8px 10px;border-radius:4px;
                    box-shadow:0 1px 4px rgba(0,0,0,0.2);font-size:12px;
