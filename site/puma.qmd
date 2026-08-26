@@ -166,7 +166,7 @@ masquerading as the top barrier — the exact failure the US-101 correction fixe
 #| echo: false
 #| message: false
 #| warning: false
-#| fig-cap: "Where the puma corridor crosses roads, ranked by traffic. All 290 crossing segments are shown; line thickness scales with traffic volume (AADT) and solid lines are directly-measured volumes while dashed lines are estimated (modelled, name-filled, or spatially filled — read these as lower-confidence). The four named roads the corridor crosses are highlighted and labelled; US-101 at Coyote Valley, at 142,000 vehicles a day, is the top barrier by a wide margin. Unnamed high-traffic links (freeway ramps) appear as thick base-layer lines but are not promoted to named barriers, since one class label covers many separate crossings. No puma locations are shown. Source: corridor × road crossings, AADT by Decision 34."
+#| fig-cap: "Where the puma corridor crosses roads, ranked by traffic, zoomed to the crossing zone in the south Bay. All 290 crossing segments are shown on a street basemap so each sits on its road; line thickness scales with traffic volume (AADT) and solid lines are directly-measured volumes while dashed lines are estimated (modelled, name-filled, or spatially filled — read these as lower-confidence). The four named roads the corridor crosses are outlined and labelled; US-101 at Coyote Valley, at 142,000 vehicles a day, is the top barrier by a wide margin. Unnamed high-traffic links (freeway ramps) appear as thick base-layer lines but are not promoted to named barriers, since one class label covers many separate crossings. No puma locations are shown. Source: corridor × road crossings, AADT by Decision 34."
 
 library(sf)
 library(leaflet)
@@ -175,6 +175,12 @@ library(dplyr)
 cr <- st_read("../data/processed/lcp_puma_scmtns_to_diablo_crossings_3310.gpkg",
               quiet = TRUE) |>
   st_transform(4326)
+
+# Core swath band as faint background context — the corridor these roads cross.
+core_ctx <- st_read("../data/processed/lcp_puma_scmtns_to_diablo_swath_3310.gpkg",
+                    quiet = TRUE) |>
+  st_transform(4326)
+core_ctx <- core_ctx[core_ctx$tier == "core", ]
 
 # Confidence: measured volumes solid, estimated volumes dashed.
 measured_tiers <- c("measured", "measured_route_pm")
@@ -195,24 +201,28 @@ hi <- cr[cr$road_label %in% named_roads, ]
 
 leaflet(options = leafletOptions(minZoom = 7)) |>
   addTiles(
-    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
     attribution = "Tiles &copy; Esri"
   ) |>
-  addTiles(
-    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
+  # core corridor band as faint background — the corridor the roads cross
+  addPolygons(
+    data = core_ctx,
+    fillColor = "#c0392b", fillOpacity = 0.12,
+    color = "#c0392b", weight = 0.5, opacity = 0.3,
+    label = "Core corridor band (the corridor these roads cross)"
   ) |>
   # all 290 crossing segments — base layer, thickness by AADT, dash by confidence
   addPolylines(
     data = cr,
-    color = ~pal(aadt), weight = ~wt, opacity = 0.75,
+    color = ~pal(aadt), weight = ~wt + 1, opacity = 0.95,
     dashArray = ~ifelse(is_measured, "", "5 5"),
     label = ~sprintf("%s — %s AADT (%s)", road_label,
                      format(round(aadt), big.mark = ","), aadt_source)
   ) |>
-  # named top roads — thin dark casing on top so they read as the ranked barriers
+  # named top roads — dark casing on top so they read as the ranked barriers
   addPolylines(
     data = hi,
-    color = "#111111", weight = 1.2, opacity = 0.9,
+    color = "#111111", weight = 2, opacity = 0.9, fill = FALSE,
     label = ~sprintf("%s — rank %d, %s AADT (%s)", road_label, rank_overall,
                      format(round(aadt), big.mark = ","), aadt_source),
     popup = ~sprintf("<b>%s</b><br>Rank %d of 290<br>%s vehicles/day<br>Source: %s",
@@ -234,12 +244,15 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
            <span style='width:20px;border-top:2.5px solid #555;display:inline-block;'></span>measured</div>
          <div style='display:flex;align-items:center;gap:7px;'>
            <span style='width:20px;border-top:2.5px dashed #555;display:inline-block;'></span>estimated</div>
+         <div style='display:flex;align-items:center;gap:7px;'>
+           <span style='width:15px;height:11px;background:#c0392b22;border:1px solid #c0392b88;
+                        display:inline-block;flex:none;'></span>corridor band</div>
          <div style='margin-top:5px;color:#5a6070;font-size:11px;'>
            Thicker = more traffic. Named roads have a dark outline. No puma locations shown.</div>
        </div>"
     )
   ) |>
-  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
+  fitBounds(-122.17587, 37.01977, -121.69144, 37.28626)
 ```
 
 ## The network, and a distinction that matters
