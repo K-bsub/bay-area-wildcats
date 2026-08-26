@@ -322,7 +322,7 @@ cp <- st_read("../data/processed/lcp_puma_core_patches_3310.gpkg", quiet = TRUE)
 # Cost ordering IS the strong-vs-weak story: cheap = strong, costly = weak.
 pal <- colorNumeric(c("#2f8a3e", "#9acd32", "#e8b64c", "#d0691f", "#b3271a"),
                     domain = range(net$cost_distance, na.rm = TRUE))
-net$wt <- 2.4 - 1.0 * (net$cost_distance / max(net$cost_distance, na.rm = TRUE))
+net$wt <- 4.5 - 1.8 * (net$cost_distance / max(net$cost_distance, na.rm = TRUE))
 
 leaflet(options = leafletOptions(minZoom = 7)) |>
   addTiles(
@@ -349,8 +349,8 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
   # top-5 weak-link SWATHS — the honest band form for the fragile cross-bay links
   addPolygons(
     data = ws,
-    fillColor = "#b3271a", fillOpacity = 0.28,
-    color = "#7a1010", weight = 1.2, opacity = 0.8, dashArray = "5 4",
+    fillColor = "#b3271a", fillOpacity = 0.15,
+    color = "#7a1010", weight = 1.5, opacity = 0.85, dashArray = "5 4",
     label = ~sprintf("Weak link #%d (cross-bay swath) — cost %.0f — disconnection, not a corridor",
                      weak_rank, cost_distance)
   ) |>
