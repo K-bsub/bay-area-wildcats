@@ -166,7 +166,7 @@ masquerading as the top barrier — the exact failure the US-101 correction fixe
 #| echo: false
 #| message: false
 #| warning: false
-#| fig-cap: "Where the puma corridor crosses roads, ranked by traffic, zoomed to the crossing zone in the south Bay. All 290 crossing segments are shown on a street basemap so each sits on its road; line thickness scales with traffic volume (AADT) and solid lines are directly-measured volumes while dashed lines are estimated (modelled, name-filled, or spatially filled — read these as lower-confidence). The four named roads the corridor crosses are outlined and labelled; US-101 at Coyote Valley, at 142,000 vehicles a day, is the top barrier by a wide margin. Unnamed high-traffic links (freeway ramps) appear as thick base-layer lines but are not promoted to named barriers, since one class label covers many separate crossings. No puma locations are shown. Source: corridor × road crossings, AADT by Decision 34."
+#| fig-cap: "Where the puma corridor crosses roads, ranked by traffic, zoomed to the crossing zone in the south Bay. All 290 crossing segments are shown on a neutral road basemap so each sits on its road; line thickness scales with traffic volume (AADT) and solid lines are directly-measured volumes while dashed lines are estimated (modelled, name-filled, or spatially filled — read these as lower-confidence). The four named roads the corridor crosses are outlined and labelled; US-101 at Coyote Valley, at 142,000 vehicles a day, is the top barrier by a wide margin. Unnamed high-traffic links (freeway ramps) appear as thick base-layer lines but are not promoted to named barriers, since one class label covers many separate crossings. No puma locations are shown. Source: corridor × road crossings, AADT by Decision 34."
 
 library(sf)
 library(leaflet)
@@ -201,14 +201,14 @@ hi <- cr[cr$road_label %in% named_roads, ]
 
 leaflet(options = leafletOptions(minZoom = 7)) |>
   addTiles(
-    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
-    attribution = "Tiles &copy; Esri"
+    urlTemplate = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    attribution = "&copy; OpenStreetMap contributors &copy; CARTO"
   ) |>
-  # core corridor band as faint background — the corridor the roads cross
+  # core corridor band as background — the corridor the roads cross
   addPolygons(
     data = core_ctx,
-    fillColor = "#c0392b", fillOpacity = 0.12,
-    color = "#c0392b", weight = 0.5, opacity = 0.3,
+    fillColor = "#7d3f16", fillOpacity = 0.20,
+    color = "#7d3f16", weight = 1.0, opacity = 0.5,
     label = "Core corridor band (the corridor these roads cross)"
   ) |>
   # all 290 crossing segments — base layer, thickness by AADT, dash by confidence
@@ -245,7 +245,7 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
          <div style='display:flex;align-items:center;gap:7px;'>
            <span style='width:20px;border-top:2.5px dashed #555;display:inline-block;'></span>estimated</div>
          <div style='display:flex;align-items:center;gap:7px;'>
-           <span style='width:15px;height:11px;background:#c0392b22;border:1px solid #c0392b88;
+           <span style='width:15px;height:11px;background:#7d3f1633;border:1px solid #7d3f16aa;
                         display:inline-block;flex:none;'></span>corridor band</div>
          <div style='margin-top:5px;color:#5a6070;font-size:11px;'>
            Thicker = more traffic. Named roads have a dark outline. No puma locations shown.</div>
