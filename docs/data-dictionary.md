@@ -353,6 +353,11 @@ satisfies policy §3 (geometry is the unit, never a point).
   an observer-effort hot spot (may be where people looked); `TRUSTED` = not.
 - Effort proxy is bobcat-shaped; for puma it is a looser mammal-observer proxy
   (Decision 30 caveat).
+- **Site use (Decision 39):** published on the Q5 story-site page (`q5.qmd`). All 47
+  hot units shown, split by `q5_flag` — TRUSTED solid, SUSPECT hollow/dashed. Hot
+  units with `n_occ < 3` are drawn without popup/label (small-n coarsen guard,
+  policy §3); the count is reported in a render-computed caption. Layer geometry is
+  the CPAD unit (T1), never a point.
 
 ---
 
