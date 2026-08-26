@@ -1161,7 +1161,7 @@ Notes: the Q5 puma-track deliverable. Reports the CONVERGENCE finding (corridor 
 ---
 
 ### `lcp_puma_network_3310.gpkg`  — puma core-connectivity network (Gabriel LCP edges)
-**Source:** Gabriel graph on ≥30 km² core centroids, `create_lcp` per edge (Decision 37) · **Geometry:** LINESTRING, one per routed edge · **CRS:** EPSG:3310 · **Records:** 38 routed edges (11 adjacencies are cost-0, not lines) · **By:** `07g_corridor_network.R` · **Storage:** `data/processed/` (generalised lines, policy §3) · **Decision:** 37
+**Source:** Gabriel graph on ≥20 km² core centroids (44 candidate nodes; cutoff corrected from a stale "30 km²" by Decision 38), `create_lcp` per edge (Decision 37) · **Geometry:** LINESTRING, one per routed edge · **CRS:** EPSG:3310 · **Records:** 38 routed edges (11 adjacencies are cost-0, not lines) · **By:** `07g_corridor_network.R` · **Storage:** `data/processed/` (generalised lines, policy §3) · **Decision:** 37 (corrected by 38)
 
 | Field | Type | Units | Description | Source | Nulls |
 |---|---|---|---|---|---|

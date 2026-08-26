@@ -2574,11 +2574,23 @@ Extends the single SC↔Diablo linkage (Decision 33) to a study-area connectivit
 network, to answer "how is the whole large-core system connected, and where is it
 weakest" (proposal Q3, network scale).
 
+> **CORRECTION (Decision 38, 2026-08-25):** two figures in this entry are wrong
+> against the code as run (`07g_corridor_network_stage1/2.R`). The node cutoff was
+> **20 km², not 30 km²** (`NODE_CUTOFF_KM2 <- 20`), giving **44 nodes**
+> (`tbl_24a_network_nodes.csv`), not 29. And the SC→Diablo chain in Finding 1
+> below was **never traced**: patch 1727 is not in the node set, the
+> `if (all(c("1727","3972") %in% V(g)$name))` guard was FALSE, and no chain
+> output was written. The "1727→2618→3250→3972, cost 185.5" figures are stale and
+> must not be cited. The weak-link ranking, the two-subnetwork finding, and the
+> traffic-pinch-vs-structural-weak-link distinction are unaffected and stand. See
+> Decision 38 for the full correction. The original text is kept below for audit.
+
 **Design.**
 - **Nodes = 29 large cores ≥ 30 km²** (cutoff from the observed core-area
   distribution scan: clean break 44→29→19 at 20/30/50 km²; 30 km² = "population
   anchor" tier, well above the 5 km² endpoint floor — small cores are
-  stepping-stones, not network nodes).
+  stepping-stones, not network nodes). *[Superseded — see correction above: cutoff
+  was 20 km², 44 nodes.]*
 - **Edges = Gabriel graph on core centroids** (`spdep::gabrielneigh` —
   version-independent; keeps near-neighbour alternatives so a weak link = a
   connection with no alternative, unlike an MST where every edge looks critical).
@@ -2599,6 +2611,11 @@ Mtns cluster, Diablo cluster, North Bay cluster), so fragility lives in the spar
 INTER-cluster links.
 
 *Finding 1 — SC→Diablo is a low-cost stepping-stone chain, not the direct link.*
+*[SUPERSEDED by Decision 38 — this specific chain was never traced by the code as
+run; 1727 is not a network node and the trace guard was FALSE. The node-cost
+CONTRAST it describes (south-Bay links cheap, cross-bay links costly) is real and
+is retained via the cost-distance ordering of the edges; the specific node path
+and the 185.5 figure are withdrawn. Original text kept for audit:]*
 The network routes SC Mtns → S Diablo as **1727 → 2618 → 3250 → 3972** (3 hops,
 total cost **185.5**) — roughly HALF the direct primary-corridor cost (~325,
 Decision 33). A puma would hop through the intermediate south-Bay cores (2618
@@ -2645,6 +2662,71 @@ so weak-link identities are robust but exact ranking is approximate.
 *Outputs:* `lcp_puma_network_3310.gpkg` (38 routed edges),
 `lcp_puma_network_weaklinks_swath_3310.gpkg` (5 costliest swaths), `tbl_24`,
 `fig_23`.
+
+** Decision 38 — Correction to Decision 37: node cutoff and the un-traced SC→Diablo chain
+*Date:* 2026-08-25 · *Status:* **CLOSED** (documentation correction; no re-run).
+
+Preparing the Week-9 network map surfaced two claims in Decision 37 that do not
+match `07g_corridor_network_stage1/2.R` as run. Both are corrected here; Decision
+37 is annotated, not rewritten, so the original record and its correction are both
+preserved.
+
+**What was wrong.**
+1. **Node cutoff and count.** Decision 37 states "29 large cores ≥ 30 km²." The
+   code sets `NODE_CUTOFF_KM2 <- 20` (stage 1, line 50) and `tbl_24a_network_nodes.csv`
+   contains **44 nodes**, area range 20.22–500.35 km². The correct statement is
+   **44 candidate nodes at ≥ 20 km²**. (Of these, the Gabriel graph + LCP routing
+   connected the subset that appears in the 38-edge routed layer.)
+2. **The SC→Diablo stepping-stone chain was never traced.** Decision 37 Finding 1
+   reports a chain "1727 → 2618 → 3250 → 3972 (3 hops, cost 185.5)." The chain
+   trace in stage 2 is guarded: `if (all(c("1727","3972") %in% V(g)$name))`. Patch
+   **1727 is not a network node** (confirmed: `"1727" %in% V(g)$name` is FALSE), so
+   the guard was FALSE, the trace did not execute, and `chain_note` kept its
+   fallback string. **No chain table was written** (only `tbl_24_network_weaklinks.csv`
+   and `tbl_24a_network_nodes.csv` exist). The "185.5 / 3-hop" figures are not a
+   product of this analysis and are withdrawn.
+
+**Why 1727 is absent.** 1727 (Santa Cruz Mountains, 177 km²) is the endpoint of the
+single SC↔Diablo *corridor* (Decision 33), identified by nearest-boundary snapping
+in the corridor layer. The *network* (Decision 37) selects its own nodes from the
+core layer by area; the SC-Mtns end is represented in the network by different
+core geometry, and the corridor-endpoint ID 1727 does not carry over as a network
+node. The two analyses use different node identities — a cross-layer subtlety that
+the Decision-37 text elided by reusing 1727 for both.
+
+**What still stands (unaffected).**
+- The **weak-link ranking** is correct and code-produced: `tbl_24` and the layer
+  agree (1053↔1899 cost 1063; 1053↔3289 cost 804; 752↔1899 cost 729).
+- The **two-subnetwork finding** (central Bay splits Peninsula/SC-Mtns from
+  East-Bay/Diablo) stands — it rests on the weak-link geography, not the chain.
+- The **traffic-pinch ≠ structural-weak-link distinction** stands. Coyote Valley /
+  US-101 remains the traffic barrier (142k, Decision 34); the structural weak
+  links remain the cross-bay spans.
+- The **strong-vs-weak contrast** is retained through the edge `cost_distance`
+  ordering directly: south-Bay edges are cheap (strong), cross-bay edges are
+  costly (weak). The contrast does not require the named chain.
+
+**Consequence for deliverables.**
+- The Week-9 network map shows edges coloured by cost (cheap/strong → costly/weak)
+  and flags the cross-bay weak links with the artifact caveat. It does **not** draw
+  a labelled "1727→…→3972" chain, because that path is not in the data.
+- Site prose (`puma.qmd`) is corrected to describe the cheap-south / costly-cross-bay
+  contrast without asserting the specific node path or the 185.5 figure.
+- No analysis is re-run. Producing an actual traced chain would require forcing
+  1727 into the node set or re-defining the SC-Mtns network node, which is new
+  analysis and is deferred, not done here.
+
+**Justification for correct-to-code over re-run.** Week 9 is content-and-deploy;
+correctness of the record takes priority when a genuine error is found (cf. the
+US-101 AADT correction, Decision 34), but the fix here is to the *documentation and
+the claim*, not the analysis — the analysis outputs are correct, only their
+description was wrong. Recording the discrepancy and withdrawing the unsupported
+figures is the pre-registration-consistent action; a re-run to manufacture the
+chain would be new analysis outside this week's scope.
+
+*Docs updated:* this entry; Decision 37 annotated (node count + Finding 1 flagged);
+Decision-log line for D37 corrected; `data-dictionary.md` network-layer cutoff
+(30→20 km²); site `puma.qmd` network prose. Next Decision number is 39.
 
 ---
 
@@ -2778,4 +2860,5 @@ is not redistributable.
 | 2026-08-20 | 5.5/7 | Sensitivity check 1 (road-confidence, Decision 26) PASSED/STABLE — v1(80k) vs v2(142k) corridor: LCP identical (Hausdorff 0 m), core swath IoU 1.000, context 0.990, cost Spearman 1.000; accumulated cost +4.4%. Rank-preserving because both AADT values map to the log-inverse high-resistance tail (transform compresses high-traffic tail by design) — path already avoided US-101 cells. Correction material for crossing SEVERITY ranking, immaterial for corridor GEOMETRY (two distinct findings). Verdict recorded qualitatively + raw metrics, no hard threshold. tbl_21, fig_20 |
 | 2026-08-20 | 6/7 | Decision 35 CLOSED — three pre-registered Decision-26 corridor sensitivity checks (07e_sensitivity.R), OAT plausible-range perturbation judged on corridor overlap (Beier 2009/Rayfield 2010/Marrec 2020). ALL STABLE (worst context IoU 0.941, worst LCP mean sep 1,312 m). (1) road-confidence PASS (LCP identical, swath edges only) — corroborates sensitivity check 1. (2) chaparral shrub 10→5 PASS, IoU 1.000/0.998 — **FVEG supplement NOT triggered, Decision-12 chaparral contingency closed** (under-mapping immaterial to connectivity). (3) weights ±10% PASS, IoU ≥0.975, but asymmetric: gHM-heavy shortened LCP 37.19→35.55 km (mean sep 1,312 m) = largest single Week-8 sensitivity; LC-heavy 0 m. Caveat recorded: corridor LOCATION robust, exact route/length has ~1.5 km play tied to the gHM author-prior weight (§7 limitation, not a re-fit). Variant surfaces in-memory only. tbl_22, fig_21 |
 | 2026-08-20 | 5.3/6 | Decision 36 CLOSED — puma Q5 corridor cross-read (07f_corridor_crossread.R). Three-part read (corridor ≠ density, so not a single ψ-vs-KDE correlation). Result CONVERGENCE (reverses the pre-analysis divergence guess, recorded honestly): LCP median 77th KDE percentile, 0% below median; Coyote Valley pinch 83rd (HIGH, not the predicted low); 7 Gi* hot units on the corridor, 6 TRUSTED. Corroboration but only WEAK-TO-MODERATE and PARTLY STRUCTURAL — NOT independent validation: resistance surface + KDE share a land-cover/gHM foundation (part of the agreement is two views of the same gradient; Larkin 2004/LaRue-Nielsen 2008 note corridor-through-occurrence is expected). Load-bearing counter-evidence: 6/7 TRUSTED hot units (effort-independent) + corridor's road term absent from KDE. Strong validation would need telemetry (we have occurrence only). Unnithan Kumar 2022: LCP centre-line is least-accurate form → lead the story with the SWATH not the line. CROSS-TRACK CONTRAST: bobcat ψ DIVERGED from KDE (r=0.075, model corrects effort); puma corridor CONVERGES (no effort term, yet lands on observed density). tbl_23, fig_22 |
-| 2026-08-20 | 5.5/6 | Decision 37 CLOSED — puma core-connectivity network (07g_corridor_network.R). 29 large-core anchors (≥30 km², cutoff from area-scan break), Gabriel graph (spdep), create_lcp per edge (2.x-only; create_lcp_network is 1.x). 49 edges: 38 routed + 11 same-cell adjacencies (cost 0, strongest links — cores cluster, 22% adjacency). Finding 1: SC→Diablo is a stepping-stone CHAIN 1727→2618→3250→3972 (cost 185.5, ~half the direct 325) — Coyote Valley intermediate cores are the efficient path. Finding 2: structural weak links are CROSS-BAY Peninsula↔East-Bay spans (1053-1899 cost 1063/61 km etc.), NOT Coyote Valley (cheap). Traffic pinch (US-101) ≠ structural weak point — different axes. Finding 3: central Bay splits the network into Peninsula/SC-Mtns + East-Bay/Diablo subnetworks, joined efficiently only at the south (matches known SC-Mtns puma isolation). CAVEAT: longest cross-bay links partly artifactual (Gabriel forces geometric-neighbour edges across an impassable barrier) = disconnection evidence, not protectable corridors. tbl_24, fig_23 |
+| 2026-08-20 | 5.5/6 | Decision 37 CLOSED — puma core-connectivity network (07g_corridor_network.R). Large-core anchors (Gabriel graph on core centroids, spdep), create_lcp per edge (2.x-only; create_lcp_network is 1.x). 49 edges: 38 routed + 11 same-cell adjacencies (cost 0, strongest links — cores cluster, 22% adjacency). Finding 2: structural weak links are CROSS-BAY Peninsula↔East-Bay spans (1053-1899 cost 1063/61 km etc.), NOT Coyote Valley (cheap). Traffic pinch (US-101) ≠ structural weak point — different axes. Finding 3: central Bay splits the network into Peninsula/SC-Mtns + East-Bay/Diablo subnetworks, joined efficiently only at the south (matches known SC-Mtns puma isolation). CAVEAT: longest cross-bay links partly artifactual (Gabriel forces geometric-neighbour edges across an impassable barrier) = disconnection evidence, not protectable corridors. tbl_24, fig_23. **[Node count "29 ≥30 km²" and Finding-1 chain "1727→2618→3250→3972 cost 185.5" CORRECTED by Decision 38 — actual cutoff 20 km²/44 nodes; the chain was never traced (1727 not a node). See D38.]** |
+| 2026-08-25 | 6 | Decision 38 CLOSED — documentation correction to D37 (no re-run). Node cutoff is 20 km²/44 nodes (code line 50, tbl_24a), not "29 ≥30 km²". The SC→Diablo chain (1727→2618→3250→3972, cost 185.5) was NEVER TRACED: 1727 is not a network node, the igraph trace guard was FALSE, no chain table written. Figures withdrawn. Weak-link ranking, two-subnetwork finding, and traffic-pinch≠structural-weak-link distinction all UNAFFECTED and stand; strong-vs-weak contrast retained via edge cost-distance ordering. Network map shows cost-coloured edges + cross-bay caveat, no labelled chain. D37 annotated (not rewritten); data-dictionary cutoff 30→20 km²; puma.qmd prose corrected. |
