@@ -182,6 +182,123 @@ home-range prior. That width is why the map shows broad warm zones, not sharp
 points — and it is one reason the percentile figures stay in the text and not on
 the legend: a smoothed surface cannot honestly show a single-cell pinch value.
 
+## The record hot-spots, and how many are just effort
+
+The density surface above is smooth. A hot-spot map is sharper: it marks the
+open-space units where puma records cluster **more than their neighbours**, tested
+for significance. But a record hot-spot has two possible causes — real puma
+presence, or a place people surveyed hard. The Q5 effort check separates them:
+
+- **Trusted** — the unit is a record hot-spot **and not** an effort hot-spot. Real
+  concentration.
+- **Suspect** — the unit is a record hot-spot **and also** an effort hot-spot. It
+  may just be where people looked.
+
+The map below draws trusted units as solid fill and suspect units as hollow,
+dashed outlines. Read the split, not just the count: for puma, **about half of all
+hot units are effort-suspect** — far more than for bobcat. That is the effort
+problem made visible on a single map.
+
+```{r}
+#| label: fig-puma-hotspots
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "!expr caption_txt"
+
+# libraries already attached by fig-puma-convergence (terra, sf, leaflet, htmltools)
+
+hot_path <- "../data/processed/hot_puma_gistar_unit_3310.gpkg"
+hot_sf   <- sf::st_read(hot_path, quiet = TRUE)
+
+# --- hot units only, split by Q5 effort flag ---
+hot_all <- hot_sf[!is.na(hot_sf$hotspot) & hot_sf$hotspot == "hot", ]
+
+# TRUSTED = occ-hot but NOT effort-hot; SUSPECT = occ-hot AND effort-hot
+is_trusted <- grepl("TRUSTED", hot_all$q5_flag)
+is_suspect <- grepl("SUSPECT", hot_all$q5_flag)
+
+# --- SMALL-n COARSEN GUARD (sensitive-data policy §3) ---
+# A hot unit resting on 1-2 precise records can reverse-narrow toward a location.
+# Coarsen those: draw the polygon, but NO popup / NO label. Count only.
+SMALL_N <- 3L
+is_smalln <- !is.na(hot_all$n_occ) & hot_all$n_occ < SMALL_N
+n_coarsened <- sum(is_smalln)
+
+trusted_sf <- hot_all[is_trusted, ]
+suspect_sf <- hot_all[is_suspect, ]
+
+# popups ONLY for units at/above the small-n floor; coarsened units get no label
+mk_popup <- function(df) {
+  ifelse(!is.na(df$n_occ) & df$n_occ >= SMALL_N,
+         paste0("<b>", htmltools::htmlEscape(df$unit_name), "</b>"),
+         NA_character_)
+}
+
+trusted_wgs <- sf::st_transform(trusted_sf, 4326)
+suspect_wgs <- sf::st_transform(suspect_sf, 4326)
+trusted_wgs$popup <- mk_popup(trusted_sf)
+suspect_wgs$popup <- mk_popup(suspect_sf)
+
+# --- computed caption (numbers come from the data, never typed) ---
+caption_txt <- sprintf(
+  paste0("Puma record hot-spots (Getis-Ord Gi*, FDR-corrected) by open-space unit. ",
+         "Solid = trusted (%d units: record hot-spot, not an effort hot-spot); ",
+         "hollow dashed = effort-suspect (%d units: also an observer-effort hot-spot). ",
+         "About half of all puma hot units are effort-suspect \u2014 far more than bobcat ",
+         "\u2014 which is the effort problem made visible. %s ",
+         "Hot-spots are record-driven and effort-shaped; they are not a puma distribution."),
+  nrow(trusted_wgs), nrow(suspect_wgs),
+  if (n_coarsened > 0)
+    sprintf("%d hot unit(s) resting on fewer than %d precise records are drawn without a label, per the sensitive-data policy.",
+            n_coarsened, SMALL_N)
+  else
+    "No hot unit rested on fewer than three precise records."
+)
+
+# custom left-aligned legend (solid vs hollow-dashed swatches)
+legend_html2 <- paste0(
+  "<div style='background:rgba(255,255,255,0.9);padding:8px 10px;",
+  "border-radius:4px;font:12px/1.4 sans-serif;text-align:left;'>",
+  "<div style='font-weight:600;margin-bottom:4px;'>Puma record hot-spots (Gi*)</div>",
+  "<div><span style='display:inline-block;width:14px;height:10px;",
+  "background:#cb181d;opacity:0.7;vertical-align:middle;margin-right:6px;'></span>",
+  "Trusted (not effort-driven)</div>",
+  "<div><span style='display:inline-block;width:14px;height:10px;",
+  "background:rgba(0,0,0,0);border:1.5px dashed #cb181d;",
+  "vertical-align:middle;margin-right:6px;'></span>",
+  "Effort-suspect (where people looked)</div>",
+  "</div>"
+)
+
+leaflet(options = leafletOptions(minZoom = 8)) |>
+  addTiles(urlTemplate = paste0(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/",
+    "World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"),
+    attribution = "Tiles &copy; Esri") |>
+  addTiles(urlTemplate = paste0(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/",
+    "World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}")) |>
+  # suspect: hollow, dashed red outline, no fill
+  addPolygons(data = suspect_wgs, fill = FALSE,
+              color = "#cb181d", weight = 1.5, opacity = 0.9,
+              dashArray = "5", popup = ~popup) |>
+  # trusted: solid red fill on top
+  addPolygons(data = trusted_wgs, stroke = TRUE, color = "#cb181d",
+              weight = 0.6, opacity = 0.8,
+              fillColor = "#cb181d", fillOpacity = 0.7,
+              popup = ~popup) |>
+  addControl(html = HTML(legend_html2), position = "bottomleft") |>
+  # fitBounds MUST be last
+  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
+```
+
+The hot-spot map and the corridor tell the same story from two directions. Where
+the corridor crosses record hot-spots, most of those units are **trusted** — real
+presence, not effort. That is the part of the convergence that is not circular. But
+across the whole region, the large share of **suspect** units is the reminder Q5
+exists to give: a red unit is not proof of pumas until the effort check clears it.
+
 ## What this convergence is, and what it is not
 
 The agreement is real, but it must be read at its true strength — corroboration,
