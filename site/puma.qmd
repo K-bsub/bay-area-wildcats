@@ -161,6 +161,87 @@ directly outranks one whose volume is filled in by name-matching, even when the
 filled-in number is close. This stops a lower-confidence estimate from
 masquerading as the top barrier — the exact failure the US-101 correction fixed.
 
+```{r}
+#| label: fig-puma-crossings
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Where the puma corridor crosses roads, ranked by traffic. All 290 crossing segments are shown; line thickness scales with traffic volume (AADT) and solid lines are directly-measured volumes while dashed lines are estimated (modelled, name-filled, or spatially filled — read these as lower-confidence). The four named roads the corridor crosses are highlighted and labelled; US-101 at Coyote Valley, at 142,000 vehicles a day, is the top barrier by a wide margin. Unnamed high-traffic links (freeway ramps) appear as thick base-layer lines but are not promoted to named barriers, since one class label covers many separate crossings. No puma locations are shown. Source: corridor × road crossings, AADT by Decision 34."
+
+library(sf)
+library(leaflet)
+library(dplyr)
+
+cr <- st_read("../data/processed/lcp_puma_scmtns_to_diablo_crossings_3310.gpkg",
+              quiet = TRUE) |>
+  st_transform(4326)
+
+# Confidence: measured volumes solid, estimated volumes dashed.
+measured_tiers <- c("measured", "measured_route_pm")
+cr$is_measured <- cr$aadt_source %in% measured_tiers
+
+# Line weight scales with traffic (sqrt so the 142k road doesn't dwarf everything).
+cr$wt <- 1.2 + 4.5 * sqrt(cr$aadt / max(cr$aadt, na.rm = TRUE))
+
+# Colour ramp by AADT — pale amber (quiet) to deep red (busy barrier).
+pal <- colorNumeric(c("#f2c98a", "#e8873c", "#c0392b", "#7a1f16"),
+                    domain = c(0, max(cr$aadt, na.rm = TRUE)))
+
+# Named roads to highlight (real road identities only; parenthetical class
+# labels like "(trunk_link)" lump many separate crossings, so they stay base-only).
+named_roads <- c("route 101 (motorway)", "Santa Cruz Highway",
+                 "route 17 (motorway)", "Saratoga-Los Gatos Road")
+hi <- cr[cr$road_label %in% named_roads, ]
+
+leaflet(options = leafletOptions(minZoom = 7)) |>
+  addTiles(
+    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    attribution = "Tiles &copy; Esri"
+  ) |>
+  addTiles(
+    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
+  ) |>
+  # all 290 crossing segments — base layer, thickness by AADT, dash by confidence
+  addPolylines(
+    data = cr,
+    color = ~pal(aadt), weight = ~wt, opacity = 0.75,
+    dashArray = ~ifelse(is_measured, "", "5 5"),
+    label = ~sprintf("%s — %s AADT (%s)", road_label,
+                     format(round(aadt), big.mark = ","), aadt_source)
+  ) |>
+  # named top roads — thin dark casing on top so they read as the ranked barriers
+  addPolylines(
+    data = hi,
+    color = "#111111", weight = 1.2, opacity = 0.9,
+    label = ~sprintf("%s — rank %d, %s AADT (%s)", road_label, rank_overall,
+                     format(round(aadt), big.mark = ","), aadt_source),
+    popup = ~sprintf("<b>%s</b><br>Rank %d of 290<br>%s vehicles/day<br>Source: %s",
+                     road_label, rank_overall,
+                     format(round(aadt), big.mark = ","), aadt_source)
+  ) |>
+  addControl(
+    position = "bottomleft",
+    html = htmltools::HTML(
+      "<div style='background:#fff;padding:8px 10px;border-radius:4px;
+                   box-shadow:0 1px 4px rgba(0,0,0,0.2);font-size:12px;
+                   line-height:1.4;text-align:left;max-width:210px;'>
+         <div style='font-weight:600;margin-bottom:5px;'>Road crossings</div>
+         <div style='height:12px;border-radius:2px;margin-bottom:3px;
+                     background:linear-gradient(to right,#f2c98a,#e8873c,#c0392b,#7a1f16);'></div>
+         <div style='display:flex;justify-content:space-between;margin-bottom:5px;'>
+           <span>quiet</span><span>busy (AADT)</span></div>
+         <div style='display:flex;align-items:center;gap:7px;'>
+           <span style='width:20px;border-top:2.5px solid #555;display:inline-block;'></span>measured</div>
+         <div style='display:flex;align-items:center;gap:7px;'>
+           <span style='width:20px;border-top:2.5px dashed #555;display:inline-block;'></span>estimated</div>
+         <div style='margin-top:5px;color:#5a6070;font-size:11px;'>
+           Thicker = more traffic. Named roads have a dark outline. No puma locations shown.</div>
+       </div>"
+    )
+  ) |>
+  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
+```
+
 ## The network, and a distinction that matters
 
 Widening from the single corridor to the whole system of large habitat blocks —
