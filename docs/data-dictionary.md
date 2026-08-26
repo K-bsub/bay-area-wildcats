@@ -257,6 +257,10 @@ published surface is coarsened to the 1 km policy floor; gated through
   no finer intermediate exists.
 - **Effort caveat:** intensity reflects detection effort as well as animal
   density; read against the Q5 effort layer (PART 2), not alone.
+- **Site use (Decision 39):** published on the Q5 story-site page (`q5.qmd`) as the
+  Decision-36 corridor convergence cross-read only — continuous ramp, corridor
+  swath + core patches overlaid; percentile breaks kept in prose. This is the only
+  puma KDE surface on the public site.
 
 ---
 
@@ -283,8 +287,12 @@ Passes `assert_publishable()` (≥ 1 km; home-range smoothing over already-rando
 - Exists because dropping ~49% of puma records would lose a first-class Q5 signal
   (Decision 29). Bobcat has **no** equivalent companion — the asymmetry is
   deliberate (bobcat ~29% obscured, precise-dominant, low-sensitivity).
-- `_caveat_` in the filename and this flag are the load-bearing labels; never
+- `_caveat_` in the filename and this flag are the labels that mark it; never
   present it as a puma density map.
+- **Site use (Decision 39): NONE.** Explicitly excluded from the public story site.
+  The Q5 page uses `kde_puma_current_1km_3310.tif` only. Provenance of this
+  companion was reconfirmed against this entry at Week-9 build time before excluding
+  it.
 
 ---
 

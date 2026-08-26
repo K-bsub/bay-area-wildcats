@@ -2727,6 +2727,50 @@ chain would be new analysis outside this week's scope.
 *Docs updated:* this entry; Decision 37 annotated (node count + Finding 1 flagged);
 Decision-log line for D37 corrected; `data-dictionary.md` network-layer cutoff
 (30→20 km²); site `puma.qmd` network prose. Next Decision number is 39.
+*[Cursor advanced: Decision 39 recorded 2026-08-26 (Q5 placement); next Decision
+number is now 40.]*
+
+---
+
+** Decision 39 — Puma density (KDE / Gi\*) placement: Q5 convergence check, not a standalone distribution result
+*Date:* 2026-08-26 · *Status:* **CLOSED** (content decision; no analysis re-run;
+Week-9 story-site build). Closed before the `q5.qmd` map chunk was written.
+
+*Context.* Week 9 builds the story site. The puma KDE / hot-spot layers had no
+settled home. For bobcat, KDE and Gi\* are primary descriptive results — the record
+count supports a standalone density read (Bobcat page). For puma, the record count
+is too low to treat density as a standalone distribution result. Its one honest
+role is the Q5 cross-read of Decision 36: the structure-built corridor runs through
+above-median observed density.
+
+*Rule (fixed before the page was written).*
+1. **Placement.** The puma KDE / Gi\* result is published only on the Q5 page, and
+   only as the convergence cross-read against the corridor (Decision 36). It is
+   **not** presented as a puma distribution result in its own right, and it does
+   **not** appear on the Puma (Q3) page. This is the reverse of bobcat, where the
+   KDE / Gi\* are primary.
+2. **Sensitive data.** Only `kde_puma_current_1km_3310.tif` is published. It was
+   confirmed to pass `assert_publishable()` at the ≥1 km floor (author-run this
+   session). `kde_puma_obscured_caveat_1km_3310.tif` is **not** used on the site —
+   its provenance was not confirmed at build time, so it is excluded by default.
+   No puma points, den or kill sites appear anywhere.
+3. **Honesty constraint.** The convergence is stated at the strength Decision 36
+   fixed: weak-to-moderate corroboration, partly structural, **not** validation.
+   The resistance surface and the KDE share a land-cover / gHM foundation, so part
+   of the agreement is two views of the same gradient. The map leads with the
+   two-tier swath, not the least-cost line (Unnithan Kumar 2022; Decision 36).
+4. **Legend.** The density surface is rendered as a continuous ramp. Percentile
+   breaks (median, 83rd-percentile pinch) stay in the prose, because the 5 km KDE
+   bandwidth (Decision 28) smooths the surface too much to mark a single-cell pinch
+   value honestly on a legend.
+
+*What this Decision does NOT do.* It adds no dataset, changes no figure, and
+re-runs nothing. It is a placement-and-presentation rule for an existing,
+already-closed result (Decision 36). The cross-track contrast it presents — bobcat
+ψ diverges from KDE, puma corridor converges — is Decision 36's finding, restated
+for a public reader.
+
+*Outputs:* `q5.qmd` (new story-site page). No new spatial layers, no new tables.
 
 ---
 
@@ -2862,3 +2906,4 @@ is not redistributable.
 | 2026-08-20 | 5.3/6 | Decision 36 CLOSED — puma Q5 corridor cross-read (07f_corridor_crossread.R). Three-part read (corridor ≠ density, so not a single ψ-vs-KDE correlation). Result CONVERGENCE (reverses the pre-analysis divergence guess, recorded honestly): LCP median 77th KDE percentile, 0% below median; Coyote Valley pinch 83rd (HIGH, not the predicted low); 7 Gi* hot units on the corridor, 6 TRUSTED. Corroboration but only WEAK-TO-MODERATE and PARTLY STRUCTURAL — NOT independent validation: resistance surface + KDE share a land-cover/gHM foundation (part of the agreement is two views of the same gradient; Larkin 2004/LaRue-Nielsen 2008 note corridor-through-occurrence is expected). Load-bearing counter-evidence: 6/7 TRUSTED hot units (effort-independent) + corridor's road term absent from KDE. Strong validation would need telemetry (we have occurrence only). Unnithan Kumar 2022: LCP centre-line is least-accurate form → lead the story with the SWATH not the line. CROSS-TRACK CONTRAST: bobcat ψ DIVERGED from KDE (r=0.075, model corrects effort); puma corridor CONVERGES (no effort term, yet lands on observed density). tbl_23, fig_22 |
 | 2026-08-20 | 5.5/6 | Decision 37 CLOSED — puma core-connectivity network (07g_corridor_network.R). Large-core anchors (Gabriel graph on core centroids, spdep), create_lcp per edge (2.x-only; create_lcp_network is 1.x). 49 edges: 38 routed + 11 same-cell adjacencies (cost 0, strongest links — cores cluster, 22% adjacency). Finding 2: structural weak links are CROSS-BAY Peninsula↔East-Bay spans (1053-1899 cost 1063/61 km etc.), NOT Coyote Valley (cheap). Traffic pinch (US-101) ≠ structural weak point — different axes. Finding 3: central Bay splits the network into Peninsula/SC-Mtns + East-Bay/Diablo subnetworks, joined efficiently only at the south (matches known SC-Mtns puma isolation). CAVEAT: longest cross-bay links partly artifactual (Gabriel forces geometric-neighbour edges across an impassable barrier) = disconnection evidence, not protectable corridors. tbl_24, fig_23. **[Node count "29 ≥30 km²" and Finding-1 chain "1727→2618→3250→3972 cost 185.5" CORRECTED by Decision 38 — actual cutoff 20 km²/44 nodes; the chain was never traced (1727 not a node). See D38.]** |
 | 2026-08-25 | 6 | Decision 38 CLOSED — documentation correction to D37 (no re-run). Node cutoff is 20 km²/44 nodes (code line 50, tbl_24a), not "29 ≥30 km²". The SC→Diablo chain (1727→2618→3250→3972, cost 185.5) was NEVER TRACED: 1727 is not a network node, the igraph trace guard was FALSE, no chain table written. Figures withdrawn. Weak-link ranking, two-subnetwork finding, and traffic-pinch≠structural-weak-link distinction all UNAFFECTED and stand; strong-vs-weak contrast retained via edge cost-distance ordering. Network map shows cost-coloured edges + cross-bay caveat, no labelled chain. D37 annotated (not rewritten); data-dictionary cutoff 30→20 km²; puma.qmd prose corrected. |
+| 2026-08-26 | 6 | Decision 39 CLOSED — puma KDE/Gi* placement (Week-9 content decision, no re-run). Puma density published ONLY on the Q5 page, ONLY as the Decision-36 convergence cross-read against the corridor — NOT a standalone distribution result, NOT on the Puma/Q3 page (reverse of bobcat, where KDE/Gi* are primary). Sensitive data: only kde_puma_current_1km_3310.tif (author-confirmed assert_publishable() PASS at ≥1 km); kde_puma_obscured_caveat_1km_3310.tif EXCLUDED (provenance unconfirmed at build). Honesty: weak-to-moderate, partly structural, NOT validation (shared land-cover/gHM foundation; lead with swath not line). Legend: continuous ramp, percentiles in prose (5 km bandwidth too smooth to mark the pinch on a legend). New page q5.qmd; no new layers/tables. |
