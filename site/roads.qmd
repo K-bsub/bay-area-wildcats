@@ -1,0 +1,160 @@
+---
+title: "The Roads Between"
+subtitle: "Question 4 — Collision risk"
+---
+
+The question this section was meant to answer is where pumas are killed by
+vehicles. That question cannot be answered here yet, because the data that would
+answer it are not in hand. So this section does two things instead: it states
+plainly what is missing, and it presents the best interim proxy the analysis can
+support — where the corridor and dangerous roads coincide — without dressing that
+proxy up as a mortality count.
+
+## What is missing, and why
+
+Direct roadkill records for the Bay Area are held in the California Roadkill
+Observation System (CROS), maintained by the UC Davis Road Ecology Center. A data
+request is with F. Shilling there; at the time of writing, no reply has been
+received (Decision 11). The project does not scrape or reconstruct those records —
+they are used with authorisation or not at all. Until they arrive, there is **no
+published mortality-point layer in this project**, and none is fabricated to fill
+the gap. When the CROS records are available, they will overlay the risk surface
+below as a validation layer — confirming or correcting where the proxy points.
+
+That is the honest state of Question 4: the mortality map is pending, not
+withheld.
+
+## The interim proxy — where traffic meets the corridor
+
+What the analysis *can* say comes from combining two things it already knows: how
+busy each road is (traffic volume, from the crossing analysis in the connectivity
+section) and whether that road sits inside the **core** corridor, where a puma is
+most likely to actually move. Collision risk is highest where both are true — a
+busy road *and* the core corridor in the same place.
+
+This is a sharper filter than traffic alone. The connectivity section ranked road
+crossings by traffic, and several busy roads appeared near the top. But most of
+those busy roads clip the corridor at its permeable edges, not through its core.
+When the core-corridor filter is applied, the risk picture narrows sharply.
+
+```{r}
+#| label: fig-puma-risk
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "Collision-risk proxy: road crossings where traffic and the core corridor coincide. Crossings inside the core corridor are coloured by traffic volume (amber to red); crossings outside the core are greyed — they are barriers, but not where a puma is most likely to cross. US-101 at Coyote Valley is the one crossing that is both high-traffic and inside the core corridor, which makes it the clear top collision risk. This is a proxy from road traffic and corridor overlap, not a mortality count; direct roadkill records (CROS) are pending. No puma locations are shown. Source: corridor × road crossings (Decisions 33–34)."
+
+library(sf)
+library(leaflet)
+library(dplyr)
+
+cr <- st_read("../data/processed/lcp_puma_scmtns_to_diablo_crossings_3310.gpkg",
+              quiet = TRUE) |>
+  st_transform(4326)
+
+# In-core crossings carry the risk story; out-of-core are context (greyed).
+cr$core <- cr$in_core == 1 | cr$in_core == TRUE
+in_core  <- cr[cr$core, ]
+out_core <- cr[!cr$core, ]
+
+# Core swath band underneath — the corridor the risk is measured against.
+core_ctx <- st_read("../data/processed/lcp_puma_scmtns_to_diablo_swath_3310.gpkg",
+                    quiet = TRUE) |>
+  st_transform(4326)
+core_ctx <- core_ctx[core_ctx$tier == "core", ]
+
+pal <- colorNumeric(c("#f2c98a", "#e8873c", "#c0392b", "#7a1f16"),
+                    domain = c(0, max(cr$aadt, na.rm = TRUE)))
+in_core$wt <- 2.5 + 4.5 * sqrt(in_core$aadt / max(cr$aadt, na.rm = TRUE))
+
+leaflet(options = leafletOptions(minZoom = 7)) |>
+  addTiles(
+    urlTemplate = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    attribution = "&copy; OpenStreetMap contributors &copy; CARTO"
+  ) |>
+  # core corridor band underneath
+  addPolygons(
+    data = core_ctx,
+    fillColor = "#7d3f16", fillOpacity = 0.15,
+    color = "#7d3f16", weight = 0.8, opacity = 0.4,
+    label = "Core corridor (risk measured against this zone)"
+  ) |>
+  # out-of-core crossings — greyed context, thin
+  addPolylines(
+    data = out_core,
+    color = "#9aa0a6", weight = 1.5, opacity = 0.6,
+    label = ~sprintf("%s — %s AADT — outside core (barrier, lower crossing risk)",
+                     road_label, format(round(aadt), big.mark = ","))
+  ) |>
+  # in-core crossings — the risk-relevant ones, coloured by traffic
+  addPolylines(
+    data = in_core,
+    color = ~pal(aadt), weight = ~wt, opacity = 0.95,
+    label = ~sprintf("%s — %s AADT — IN core corridor",
+                     road_label, format(round(aadt), big.mark = ",")),
+    popup = ~sprintf("<b>%s</b><br>%s vehicles/day<br>Inside core corridor<br>Barrier rank %d of 290",
+                     road_label, format(round(aadt), big.mark = ","), rank_overall)
+  ) |>
+  addControl(
+    position = "bottomleft",
+    html = htmltools::HTML(
+      "<div style='background:#fff;padding:8px 10px;border-radius:4px;
+                   box-shadow:0 1px 4px rgba(0,0,0,0.2);font-size:12px;
+                   line-height:1.4;text-align:left;max-width:215px;'>
+         <div style='font-weight:600;margin-bottom:5px;'>Collision-risk proxy</div>
+         <div style='height:12px;border-radius:2px;margin-bottom:3px;
+                     background:linear-gradient(to right,#f2c98a,#e8873c,#c0392b,#7a1f16);'></div>
+         <div style='display:flex;justify-content:space-between;margin-bottom:5px;'>
+           <span>quiet</span><span>busy (AADT)</span></div>
+         <div style='display:flex;align-items:center;gap:7px;'>
+           <span style='width:20px;border-top:2.5px solid #9aa0a6;display:inline-block;'></span>outside core (context)</div>
+         <div style='margin-top:5px;color:#5a6070;font-size:11px;'>
+           Coloured = busy road inside the core corridor = higher risk. Proxy, not mortality counts. No puma locations shown.</div>
+       </div>"
+    )
+  ) |>
+  fitBounds(-122.17587, 37.01977, -121.69144, 37.28626)
+```
+
+The map makes the filter visible. Most of the busy roads the corridor crosses turn
+grey, because they clip the corridor outside its core. What stays coloured — busy
+*and* in the core — is dominated by one road: **US-101 at Coyote Valley.** It is
+the single crossing that is both high-traffic and inside the core corridor, and so
+it is the clear top collision-risk location, not merely the top barrier.
+
+## The risk ranking
+
+Ranking the crossings by the two factors together — traffic volume and
+core-corridor membership — puts US-101 alone at the top. The next-busiest roads
+fall away because they sit outside the core; the other in-core roads are quiet.
+
+| Road | Traffic (AADT) | In core corridor | Barrier rank |
+|------|---------------:|:----------------:|:------------:|
+| US-101 (Coyote Valley) | 142,000 | Yes | 1 |
+| Santa Cruz Highway | 64,900 | No | 8 |
+| Route 17 | 60,200 | No | 28 |
+| Big Basin Way | 7,200 | Yes | 62 |
+| Summit Road | 1,050 | Yes | 69 |
+
+: Top road crossings by traffic and core-corridor overlap. Only US-101 is both
+high-traffic and in-core — the combination that defines collision risk. Traffic
+values are directly measured; see the connectivity section for the full
+confidence-tiered ranking. {.striped}
+
+The reading is straightforward and narrow, which is the honest result: **one road
+carries most of the corridor's collision risk.** Santa Cruz Highway and Route 17
+are busy, but the corridor crosses them at its edges, not its core. Big Basin Way
+and Summit Road are in the core, but they are quiet mountain roads. US-101 is the
+only place where heavy traffic and the core corridor meet — which is exactly why
+it is both the top barrier and the top mitigation priority.
+
+## What would change this
+
+This proxy stands in for mortality data, and it should be replaced by mortality
+data when that becomes available. The CROS records, once authorised, would show
+where vehicle strikes have *actually* happened — which may confirm the US-101
+finding, or reveal risk on roads the proxy underweights. Two honest limits apply
+until then: the proxy assumes risk scales with traffic and corridor overlap, which
+is reasonable but untested here; and the corridor itself is a landscape-cost
+model, not observed movement, so both inputs to the risk picture are hypotheses.
+The proxy points to where to look first. It does not close the question.

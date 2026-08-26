@@ -16,6 +16,8 @@ website:
         text: Bobcat
       - href: puma.qmd
         text: Puma
+      - href: roads.qmd
+        text: Collision risk
       - href: methods.qmd
         text: Methods
       - href: data.qmd
