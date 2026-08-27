@@ -25,6 +25,17 @@ every place on the map it asks: how many records are near here, and how near? Cl
 records count for more than far ones. The result is a heat surface — warm where
 records cluster, cool where they are sparse.
 
+![A worked kernel-density surface. The green circles are the raw point records. The
+grey bands are the density surface built from them — darker where points are dense,
+fading outward. Two dense cores are joined by a lower-density bridge, with a small
+outlying blob below. The bandwidth sets how far each point's influence spreads, and
+so how much the cores merge or stay separate.](../media/images/kde_method.png){#fig-kde-method
+fig-alt="Green point records over grey nested density contours, two dense cores linked by a lighter bridge" width="70%"}
+
+*Illustration from [Spatial Analysis Online](https://www.spatialanalysisonline.com/HTML/density__kernels_and_occupancy.htm)
+(de Smith, Goodchild & Longley), used to show the method. It is not Bay Area cat
+data.*
+
 **The one setting that matters: bandwidth.** Bandwidth is the width of the smoothing.
 A narrow bandwidth hugs each point tightly and gives a spiky surface; a wide
 bandwidth blurs the points together into broad zones. The choice changes the map, so
@@ -69,6 +80,19 @@ look "significant" by pure luck. A false-discovery-rate correction
 (Benjamini-Hochberg) tightens the bar so the surviving hot spots are ones you can
 trust are real clustering, not chance.
 
+![The Getis-Ord Gi\* flow, panel by panel. **Input data** — a value per unit (here
+median income, a generic example). **Z-scores** — each unit scored on how far its
+neighbourhood sum sits from the study-area average; strong positive (brown) and
+strong negative (purple) stand out. **P-values** — how likely each score is by
+chance. **Hot spots** — the final map, keeping only units that pass the
+significance bar: red are hot (high-value clusters), blue are cold (low-value
+clusters), pale is not significant.](../media/images/hotspot_method.png){#fig-gistar-method
+fig-alt="Four-panel Getis-Ord Gi* workflow: input data, Z-scores, P-values, and final hot-spot map" width="85%"}
+
+*Illustration from the [UCGIS GIS&T Body of Knowledge](https://gistbok-ltb.ucgis.org/current/concept/AM-03-058)
+(Hot Spots and Getis-Ord Gi\* Analysis). The example maps income, not wildlife — the
+method is the same; on this site the value is the puma or bobcat record count.*
+
 ::: {.callout-tip title="Worked example — the effort check on top"}
 A record hot spot has two possible causes: real animals, or hard surveying. So each
 hot spot is cross-read against a **map of survey effort**. If a unit is a record hot
@@ -99,6 +123,28 @@ parts and fits them in order:
 
 The output is a presence surface that has the survey effort taken out — which is why
 it can, and does, disagree with the raw record density.
+
+The two parts are two linked equations. For a unit $i$ and a visit $j$:
+
+$$
+\underbrace{z_i \sim \text{Bernoulli}(\psi_i)}_{\text{occupancy: is the unit occupied?}}
+\qquad
+\underbrace{y_{ij} \mid z_i \sim \text{Bernoulli}(z_i \, p_{ij})}_{\text{detection: was the animal recorded, if present?}}
+$$
+
+- $\psi_i$ is the probability the unit is **occupied** — what we want.
+- $p_{ij}$ is the probability of **recording** the animal on a visit, *given* it is
+  present. This is where survey effort enters.
+- $z_i$ is the true (hidden) presence, 0 or 1. The term $z_i\,p_{ij}$ encodes the
+  key rule: **you can only detect what is there** — if $z_i = 0$, no record is
+  possible, and a non-record where $z_i = 1$ is a *missed* detection, not an
+  absence.
+
+Each side is modelled on covariates through a logit link — occupancy on habitat
+($\text{logit}(\psi_i) = \beta_0 + \beta_1 x_{i}$) and detection on effort
+($\text{logit}(p_{ij}) = \alpha_0 + \alpha_1 \, \text{effort}_{ij}$). Fitting the
+detection side first is what lets the model tell "the animal was absent" apart from
+"nobody looked."
 
 ::: {.callout-tip title="Worked example — bobcat"}
 The bobcat detection part was fitted first. A term for recording effort (the number
@@ -139,6 +185,23 @@ It is a three-step chain, and the map below shows all three.
 2. **Cost-corridor surface (the output).** From the resistance surface, the model
    accumulates the total cost of routing between the two cores, in both directions.
    Low values trace the preferential route; high values are off-route.
+
+   ::: {.callout-note title="What 'least-cost' actually means"}
+   Think of the resistance surface as terrain where every 1 km step has a price —
+   cheap through forest, dear across a freeway. The **least-cost path** is the
+   route between the two cores whose **total price is lowest**, the same idea as a
+   sat-nav finding the shortest drive, except the "distance" is movement difficulty,
+   not kilometres.
+
+   The algorithm works outward from a core, giving every cell its *cumulative* cost —
+   the cheapest running total to reach it from the core. Do this from **both** cores
+   and add the two surfaces, and each cell then holds the cost of the best route
+   *through* it from core to core. That summed surface is the cost-corridor. The
+   single cheapest line through it is the least-cost path; the low-cost **slice**
+   around that line is the swath. A swath is used, not the bare line, because the
+   exact line is a fragile artifact — shift one weight slightly and it hops a cell —
+   while the slice is stable and honest about that uncertainty.
+   :::
 3. **The swath (the published product).** The swath is simply the **lowest-cost
    slice** of the cost-corridor surface — the cheapest ~5% of cells to move through
    (a narrower core ~2% inside it). That slice, drawn as a band, is the corridor you
