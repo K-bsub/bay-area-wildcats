@@ -23,7 +23,7 @@ website:
       - href: methods.qmd
         text: Methods
       - href: data.qmd
-        text: Data
+        text: Data & References
 
 format:
   html:
