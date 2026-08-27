@@ -29,7 +29,7 @@ records cluster, cool where they are sparse.
 grey bands are the density surface built from them — darker where points are dense,
 fading outward. Two dense cores are joined by a lower-density bridge, with a small
 outlying blob below. The bandwidth sets how far each point's influence spreads, and
-so how much the cores merge or stay separate.](../media/images/kde_method.png){#fig-kde-method
+so how much the cores merge or stay separate.](media/images/kde_method.png){#fig-kde-method
 fig-alt="Green point records over grey nested density contours, two dense cores linked by a lighter bridge" width="70%"}
 
 *Illustration from [Spatial Analysis Online](https://www.spatialanalysisonline.com/HTML/density__kernels_and_occupancy.htm)
@@ -86,7 +86,7 @@ neighbourhood sum sits from the study-area average; strong positive (brown) and
 strong negative (purple) stand out. **P-values** — how likely each score is by
 chance. **Hot spots** — the final map, keeping only units that pass the
 significance bar: red are hot (high-value clusters), blue are cold (low-value
-clusters), pale is not significant.](../media/images/hotspot_method.png){#fig-gistar-method
+clusters), pale is not significant.](media/images/hotspot_method.png){#fig-gistar-method
 fig-alt="Four-panel Getis-Ord Gi* workflow: input data, Z-scores, P-values, and final hot-spot map" width="85%"}
 
 *Illustration from the [UCGIS GIS&T Body of Knowledge](https://gistbok-ltb.ucgis.org/current/concept/AM-03-058)

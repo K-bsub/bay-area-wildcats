@@ -33,8 +33,3 @@ format:
 
 execute:
   freeze: auto
-
-# media/ lives at repo root (outside site/); declare it so image files are
-# copied into _site/ at render. Paths in pages are ../media/images/<file>.
-resources:
-  - "../media"
