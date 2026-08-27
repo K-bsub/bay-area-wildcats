@@ -20,6 +20,8 @@ website:
         text: Collision risk
       - href: q5.qmd
         text: Effort
+      - href: limitations.qmd
+        text: Limitations
       - href: methods.qmd
         text: Methods
       - href: data.qmd
