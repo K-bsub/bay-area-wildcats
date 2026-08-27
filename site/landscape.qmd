@@ -63,6 +63,113 @@ leaves **164 core patches** large enough to anchor a home range. The floor still
 retains 82.5% of all protected area, because the area that gets dropped sits in
 thousands of tiny fragments that together hold very little ground.
 
+The map below shows the whole fabric in three layers: the fee-owned CPAD land and
+the CCED easements underneath (each toggleable), and the 164 core patches drawn
+prominently on top. Hover any core patch for its name and area. Toggle the two
+tenure layers to see how much of the connectivity fabric — much of it inner-Coast-Range
+ranchland — exists only because of easements.
+
+```{r}
+#| label: fig-protected-fabric
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "The ten-county protected-land fabric in three layers. Fee-owned CPAD land (green) and CCED conservation easements (gold) form the protected base; toggle each with the control at top-right. The 164 core patches — protected blocks of at least 5 km², large enough to anchor a puma home range — are drawn in dark outline on top; hover any one for its name and area. The two named corridor endpoints (Santa Cruz Mountains, southern Diablo Range) are called out. Boundaries only; no occurrence data."
+
+library(sf)
+library(leaflet)
+library(htmltools)
+
+# page-relative paths (NEVER here::here)
+union_path <- "../data/interim/protected_union_bayarea_3310.gpkg"
+core_path  <- "../data/processed/lcp_puma_core_patches_3310.gpkg"
+
+union_sf <- sf::st_read(union_path, quiet = TRUE)
+core_sf  <- sf::st_read(core_path,  quiet = TRUE)
+
+# split the union by tenure (single layer, attribute-split)
+fee_sf      <- union_sf[union_sf$protection_type == "fee", ]
+easement_sf <- union_sf[union_sf$protection_type == "easement", ]
+
+fee_wgs      <- sf::st_transform(fee_sf, 4326)
+easement_wgs <- sf::st_transform(easement_sf, 4326)
+core_wgs     <- sf::st_transform(core_sf, 4326)
+
+# core hover label: named range where it exists, else "Core patch" + area
+core_wgs$lab <- ifelse(
+  !is.na(core_wgs$range_name),
+  sprintf("<b>%s</b><br>%.0f km\u00b2 (corridor endpoint)",
+          core_wgs$range_name, core_wgs$area_km2),
+  sprintf("Core patch<br>%.1f km\u00b2", core_wgs$area_km2)
+)
+core_lab <- lapply(core_wgs$lab, htmltools::HTML)
+
+# named endpoints, for a bolder outline on top
+core_named <- core_wgs[!is.na(core_wgs$range_name), ]
+
+col_fee  <- "#2e7d5b"  # green — fee land
+col_ease <- "#c8922b"  # gold  — easement
+col_core <- "#3b2f2f"  # dark ink — core patch outline
+
+legend_html <- htmltools::HTML(sprintf(
+  "<div style='background:#fff;padding:8px 10px;border-radius:4px;
+               box-shadow:0 1px 4px rgba(0,0,0,0.2);font-size:12px;
+               line-height:1.5;text-align:left;'>
+     <div style='font-weight:600;margin-bottom:5px;'>Protected-land fabric</div>
+     <div style='display:flex;align-items:center;gap:7px;'>
+       <span style='width:15px;height:13px;background:%s;opacity:0.55;
+         border:1px solid %s;display:inline-block;flex:none;'></span>Fee (CPAD)</div>
+     <div style='display:flex;align-items:center;gap:7px;'>
+       <span style='width:15px;height:13px;background:%s;opacity:0.55;
+         border:1px solid %s;display:inline-block;flex:none;'></span>Easement (CCED)</div>
+     <div style='display:flex;align-items:center;gap:7px;'>
+       <span style='width:15px;height:13px;background:rgba(0,0,0,0);
+         border:2px solid %s;display:inline-block;flex:none;'></span>Core patch (&ge; 5 km\u00b2)</div>
+   </div>",
+  col_fee, col_fee, col_ease, col_ease, col_core
+))
+
+leaflet(options = leafletOptions(minZoom = 8)) |>
+  addTiles(urlTemplate = paste0(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/",
+    "World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"),
+    attribution = "Tiles &copy; Esri") |>
+  addTiles(urlTemplate = paste0(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/",
+    "World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}")) |>
+  # fee land (toggle)
+  addPolygons(data = fee_wgs, fillColor = col_fee, fillOpacity = 0.45,
+              stroke = TRUE, color = col_fee, weight = 0.3, opacity = 0.6,
+              group = "Fee (CPAD)") |>
+  # easement land (toggle)
+  addPolygons(data = easement_wgs, fillColor = col_ease, fillOpacity = 0.5,
+              stroke = TRUE, color = col_ease, weight = 0.3, opacity = 0.6,
+              group = "Easement (CCED)") |>
+  # 164 core patches, prominent, one colour, hover labels
+  addPolygons(data = core_wgs, fill = FALSE,
+              color = col_core, weight = 1.4, opacity = 0.9,
+              label = core_lab,
+              highlightOptions = highlightOptions(weight = 3, color = "#000",
+                                                  bringToFront = TRUE),
+              group = "Core patches (164)") |>
+  # named endpoints, bolder outline on top
+  addPolygons(data = core_named, fill = FALSE,
+              color = "#111", weight = 2.6, opacity = 1,
+              group = "Core patches (164)") |>
+  addLayersControl(
+    overlayGroups = c("Fee (CPAD)", "Easement (CCED)", "Core patches (164)"),
+    options = layersControlOptions(collapsed = FALSE),
+    position = "topright") |>
+  addControl(html = legend_html, position = "bottomleft") |>
+  # fitBounds MUST be last
+  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
+```
+
+Turn the easement layer off and the map opens up with gaps along the inner Coast
+Ranges — that missing ground is the 27% of the fabric that easements carry. Turn it
+back on and those gaps close. The two named cores, the Santa Cruz Mountains and the
+southern Diablo Range, are the endpoints the puma connectivity section links.
+
 ```{r}
 #| label: fig-floor-scan
 #| echo: false
