@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Data – Wild Cats at the Urban Edge</title>
+<title>Data &amp; references – Wild Cats at the Urban Edge</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -125,7 +125,7 @@ ul.task-list li input[type="checkbox"] {
   </li>  
   <li class="nav-item">
     <a class="nav-link active" href="./data.html" aria-current="page"> 
-<span class="menu-text">Data</span></a>
+<span class="menu-text">Data &amp; References</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -138,15 +138,43 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-data-by-role" id="toc-the-data-by-role" class="nav-link active" data-scroll-target="#the-data-by-role">The data, by role</a>
+  <ul class="collapse">
+  <li><a href="#where-animals-were-recorded" id="toc-where-animals-were-recorded" class="nav-link" data-scroll-target="#where-animals-were-recorded">Where animals were recorded</a></li>
+  <li><a href="#where-habitat-is-protected" id="toc-where-habitat-is-protected" class="nav-link" data-scroll-target="#where-habitat-is-protected">Where habitat is protected</a></li>
+  <li><a href="#what-the-landscape-is-made-of" id="toc-what-the-landscape-is-made-of" class="nav-link" data-scroll-target="#what-the-landscape-is-made-of">What the landscape is made of</a></li>
+  <li><a href="#roads-and-traffic" id="toc-roads-and-traffic" class="nav-link" data-scroll-target="#roads-and-traffic">Roads and traffic</a></li>
+  <li><a href="#road-mortality-pending" id="toc-road-mortality-pending" class="nav-link" data-scroll-target="#road-mortality-pending">Road mortality (pending)</a></li>
+  <li><a href="#population-context-not-trend" id="toc-population-context-not-trend" class="nav-link" data-scroll-target="#population-context-not-trend">Population context, not trend</a></li>
+  </ul></li>
+  <li><a href="#licences" id="toc-licences" class="nav-link" data-scroll-target="#licences">Licences</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a>
+  <ul class="collapse">
+  <li><a href="#population-and-status-context-only-not-a-trend" id="toc-population-and-status-context-only-not-a-trend" class="nav-link" data-scroll-target="#population-and-status-context-only-not-a-trend">Population and status (context only, not a trend)</a></li>
+  <li><a href="#bay-area-felid-research" id="toc-bay-area-felid-research" class="nav-link" data-scroll-target="#bay-area-felid-research">Bay Area felid research</a></li>
+  <li><a href="#road-ecology" id="toc-road-ecology" class="nav-link" data-scroll-target="#road-ecology">Road ecology</a></li>
+  <li><a href="#methods-occupancy" id="toc-methods-occupancy" class="nav-link" data-scroll-target="#methods-occupancy">Methods — occupancy</a></li>
+  <li><a href="#methods-kernel-density-and-bandwidth" id="toc-methods-kernel-density-and-bandwidth" class="nav-link" data-scroll-target="#methods-kernel-density-and-bandwidth">Methods — kernel density and bandwidth</a></li>
+  <li><a href="#methods-hot-spots-getis-ord-gi" id="toc-methods-hot-spots-getis-ord-gi" class="nav-link" data-scroll-target="#methods-hot-spots-getis-ord-gi">Methods — hot spots (Getis-Ord Gi*)</a></li>
+  <li><a href="#methods-point-to-unit-assignment" id="toc-methods-point-to-unit-assignment" class="nav-link" data-scroll-target="#methods-point-to-unit-assignment">Methods — point-to-unit assignment</a></li>
+  <li><a href="#methods-connectivity-and-least-cost" id="toc-methods-connectivity-and-least-cost" class="nav-link" data-scroll-target="#methods-connectivity-and-least-cost">Methods — connectivity and least-cost</a></li>
+  <li><a href="#corridor-corroboration-grey-literature" id="toc-corridor-corroboration-grey-literature" class="nav-link" data-scroll-target="#corridor-corroboration-grey-literature">Corridor corroboration (grey literature)</a></li>
+  </ul></li>
+  <li><a href="#sensitive-data" id="toc-sensitive-data" class="nav-link" data-scroll-target="#sensitive-data">Sensitive data</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Data</h1>
+<h1 class="title">Data &amp; references</h1>
 </div>
 
 
@@ -163,10 +191,258 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p><em>Placeholder. Built in Week 9.</em></p>
-<p>Sources, licences and known issues are documented in <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md"><code>docs/data-sources.md</code></a>. No sensitive location data is published on this site.</p>
+<p>Every map on this site is built from public, open data. This page describes what those datasets are, where they come from, and how they are licensed, and then lists the literature the analysis and narrative rest on. The full machine-level provenance — version strings, file paths, record counts, access dates, and known issues — lives in <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md"><code>docs/data-sources.md</code></a>; this page is the plain-language version.</p>
+<p>Two principles govern the data on this project. First, <strong>Phase 1 uses open data only</strong> — no partner or restricted data is used or published. Second, <strong>no precise puma location is ever published</strong> (see the note at the foot of this page). Both are deliberate and central to the project, not incidental.</p>
+<section id="the-data-by-role" class="level2">
+<h2 class="anchored" data-anchor-id="the-data-by-role">The data, by role</h2>
+<section id="where-animals-were-recorded" class="level3">
+<h3 class="anchored" data-anchor-id="where-animals-were-recorded">Where animals were recorded</h3>
+<ul>
+<li><strong>GBIF</strong> (Global Biodiversity Information Facility) — the main occurrence source, pulled as a citable, DOI-stamped download rather than a live query, so the exact record set is reproducible. Records carry a coordinate-uncertainty value that the analysis respects when snapping points to units.</li>
+<li><strong>iNaturalist</strong> — community wildlife observations. A point worth stating plainly: iNaturalist obscures many sensitive species by default, but <strong>not</strong> mountain lions in California, which is exactly why the sensitive-data handling on this project has to be strict rather than assumed.</li>
+<li><strong>GBIF target-group background</strong> — for the bobcat occupancy model, a second, much larger GBIF pull of <em>all</em> vertebrate records across the region stands in for “where did people look at all,” which is what lets the model separate effort from presence.</li>
+</ul>
+</section>
+<section id="where-habitat-is-protected" class="level3">
+<h3 class="anchored" data-anchor-id="where-habitat-is-protected">Where habitat is protected</h3>
+<ul>
+<li><strong>CPAD</strong> (California Protected Areas Database) — parks, preserves, watershed lands and other fee-owned open space, with the unit hierarchy the occupancy site definition needs.</li>
+<li><strong>CCED</strong> (California Conservation Easement Database) — conservation easements on otherwise private land, held as a separate layer and combined with CPAD for total protected coverage.</li>
+<li><strong>TIGER/Line county boundaries</strong> (US Census, via <code>tigris</code>) — the ten-county study frame.</li>
+</ul>
+</section>
+<section id="what-the-landscape-is-made-of" class="level3">
+<h3 class="anchored" data-anchor-id="what-the-landscape-is-made-of">What the landscape is made of</h3>
+<ul>
+<li><strong>ESA WorldCover 2021</strong> — 10 m land cover (trees, shrub, built-up, cropland, and so on), the base habitat layer. A known trade-off is recorded honestly: WorldCover under-maps California chaparral badly compared with older US products, which is why the urban-intensity signal comes from human modification instead.</li>
+<li><strong>Global Human Modification (gHM) v3, 2022</strong> (Theobald et al.&nbsp;2024) — a 0–1 index of how heavily each area is modified by people; the dominant term in the puma resistance surface.</li>
+<li><strong>SILVIS housing density</strong> — block-level housing as a second human-footprint signal.</li>
+<li><strong>AWS Terrain Tiles</strong> (via <code>elevatr</code>) — elevation, from which slope is derived. The tiles blend several public elevation sources at roughly 30 m effective resolution here; the earlier “3DEP 10 m” wording was corrected as inaccurate.</li>
+</ul>
+</section>
+<section id="roads-and-traffic" class="level3">
+<h3 class="anchored" data-anchor-id="roads-and-traffic">Roads and traffic</h3>
+<ul>
+<li><strong>OpenStreetMap roads</strong> (Geofabrik NorCal extract) — the road network, classified by type. Because roads are a barrier only when busy, road presence alone is not enough.</li>
+<li><strong>Caltrans AADT</strong> — annual average daily traffic counts, which turn “a road is here” into “how much traffic crosses here.” A structural caveat is carried in the data: traffic count stations cluster on busy roads, so any spatial fill of the gaps has a built-in upward bias, handled with a source flag rather than pretended away.</li>
+</ul>
+</section>
+<section id="road-mortality-pending" class="level3">
+<h3 class="anchored" data-anchor-id="road-mortality-pending">Road mortality (pending)</h3>
+<ul>
+<li><strong>CROS</strong> (California Roadkill Observation System) / <strong>UC Davis Road Ecology Center</strong> — the intended wildlife–vehicle collision source. Record-level access is still pending, so the collision-risk question is currently answered as a risk-overlap proxy, not as a mortality point layer, and the page says so.</li>
+</ul>
+</section>
+<section id="population-context-not-trend" class="level3">
+<h3 class="anchored" data-anchor-id="population-context-not-trend">Population context, not trend</h3>
+<p>There is <strong>no</strong> repeated regional census of Bay Area pumas or bobcats — nothing like the national tiger census that anchors the sister project. A single statewide puma abundance estimate exists (the California Mountain Lion Project, roughly 3,200–4,500 statewide) and is cited only as one-time context, never as a trend. <strong>No statewide bobcat abundance estimate exists at all</strong> — an asymmetry stated wherever puma status appears, so the bobcat track is not implied to have an equivalent.</p>
+</section>
+</section>
+<section id="licences" class="level2">
+<h2 class="anchored" data-anchor-id="licences">Licences</h2>
+<p>Every dataset is used within its licence, with attribution where required. The summary below matches <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md"><code>docs/data-sources.md</code></a> §7, which holds the full terms.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Dataset</th>
+<th>Licence</th>
+<th>Attribution</th>
+<th>Redistribution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>CPAD / CCED</td>
+<td>Open (CC-BY; “no restrictions on public use”)</td>
+<td>Yes</td>
+<td>Allowed</td>
+</tr>
+<tr class="even">
+<td>GBIF</td>
+<td>CC0 / CC-BY (varies per record)</td>
+<td>Yes</td>
+<td>Check per record</td>
+</tr>
+<tr class="odd">
+<td>iNaturalist</td>
+<td>CC-BY / CC-BY-NC (varies per observer)</td>
+<td>Yes</td>
+<td>Check per record</td>
+</tr>
+<tr class="even">
+<td>CROS</td>
+<td>Confirm terms (pending)</td>
+<td>Yes</td>
+<td>Confirm</td>
+</tr>
+<tr class="odd">
+<td>AWS Terrain / TIGER</td>
+<td>Public domain</td>
+<td>No</td>
+<td>Allowed</td>
+</tr>
+<tr class="even">
+<td>ESA WorldCover</td>
+<td>CC-BY 4.0</td>
+<td>Yes</td>
+<td>Allowed</td>
+</tr>
+<tr class="odd">
+<td>gHM v3 (Theobald 2024)</td>
+<td>CC-BY 4.0</td>
+<td>Yes</td>
+<td>Allowed</td>
+</tr>
+<tr class="even">
+<td>SILVIS housing</td>
+<td>USDA FS / SILVIS (acknowledgement requested)</td>
+<td>Yes</td>
+<td>Allowed</td>
+</tr>
+<tr class="odd">
+<td>OpenStreetMap</td>
+<td>ODbL</td>
+<td>Yes</td>
+<td>Share-alike</td>
+</tr>
+<tr class="even">
+<td>Caltrans AADT</td>
+<td>California public data</td>
+<td>Yes</td>
+<td>Informational</td>
+</tr>
+<tr class="odd">
+<td>Felidae (deferred)</td>
+<td>Written agreement</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Dataset citations (the datasets themselves, with DOIs and access dates) are in <code>docs/data-sources.md</code>. The literature the analysis and narrative lean on is below.</p>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<p>The list is grouped by role. It is author–date; a <code>.bib</code> conversion is planned if the site moves to Quarto citation handling.</p>
+<section id="population-and-status-context-only-not-a-trend" class="level3">
+<h3 class="anchored" data-anchor-id="population-and-status-context-only-not-a-trend">Population and status (context only, not a trend)</h3>
+<ul>
+<li>Dellinger, J.A., Gustafson, K.D., Gammons, D.J., Ernest, H.B., &amp; Torres, S.G. (2020). Minimum habitat thresholds required for conserving mountain lion genetic diversity. <em>Ecology and Evolution</em>, 10(19), 10687–10696. — method paper behind the statewide abundance estimate.</li>
+<li>Dellinger, J.A., et al.&nbsp;(2019). Using mountain lion habitat selection in management. <em>The Journal of Wildlife Management</em>, 84(2). DOI: 10.1002/jwmg.21798.</li>
+<li>California Department of Fish and Wildlife (2025). <em>Status Review of the Petitioned Southern California / Central Coast ESU of Mountain Lion in California.</em> December 2025 (CDFW document portal, DocumentID 239679 / 239696) — the review the Fish and Game Commission relied on.</li>
+<li>California Fish and Game Commission (2026). Vote to list the Southern California / Central Coast Distinct Population Segment of mountain lion (<em>Puma concolor</em>) as <strong>threatened</strong> under CESA, February 12, 2026. Cite the date of the vote; the formal findings and regulatory effective date follow at a later meeting.</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled" title="On the puma listing">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>On the puma listing
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The Santa Cruz Mountains population — the one anchoring this project’s connectivity story — falls within the listed DPS. The listing is recent and post-dates the project’s model training; it was verified against the primary Commission notice. Because the formal effective date follows the vote, this site cites the <strong>February 12, 2026 vote</strong>, not an effective date, and points to the primary Commission notice for the adopted findings.</p>
+</div>
+</div>
+</section>
+<section id="bay-area-felid-research" class="level3">
+<h3 class="anchored" data-anchor-id="bay-area-felid-research">Bay Area felid research</h3>
+<ul>
+<li>Hansen, K.W., Morgan, J.J., De Alfaro, L., Wilmers, C.C., &amp; Ocampo-Peñuela, N. (2025). <em>Variation in anthropogenic tolerance alters dispersal capacity of a large carnivore.</em> bioRxiv 2025.09.29.677867 (preprint). Step-selection models for 84 GPS-collared Santa Cruz Mountains pumas (2009–2024). <strong>The local calibration source for the puma resistance surface</strong> — covariate choice, effect directions, and the log-inverse traffic transform. Data/code: Dryad 10.5061/dryad.44j0zpctn.</li>
+<li>Wilmers, C.C., Wang, Y., Nickel, B., et al.&nbsp;(2013). Scale-dependent behavioral responses to human development by a large predator, the puma. <em>PLoS ONE</em>, 8(4), e60590. — housing-density-as-covariate precedent for Santa Cruz pumas.</li>
+<li>Nisi, A.C., Benson, J.F., King, R., &amp; Wilmers, C.C. (2023). Habitat fragmentation reduces survival and drives source–sink dynamics for a large carnivore. <em>Ecological Applications</em>, 33(4), e2822. — basis for weighting roads and traffic as a barrier.</li>
+<li>Felidae Conservation Fund / Bay Area Puma Project publications — relevant to the deferred partner data and the coexistence framing.</li>
+</ul>
+</section>
+<section id="road-ecology" class="level3">
+<h3 class="anchored" data-anchor-id="road-ecology">Road ecology</h3>
+<ul>
+<li>UC Davis Road Ecology Center (Shilling et al.) — annual California wildlife–vehicle collision hotspot reports; the published-hotspot fallback if record-level CROS access is not granted.</li>
+<li>Comparative analysis of puma road-crossing locations versus roadkill hotspots for siting crossings and fencing.</li>
+</ul>
+</section>
+<section id="methods-occupancy" class="level3">
+<h3 class="anchored" data-anchor-id="methods-occupancy">Methods — occupancy</h3>
+<ul>
+<li>MacKenzie, D.I., Nichols, J.D., Lachman, G.B., Droege, S., Royle, J.A., &amp; Langtimm, C.A. (2002). Estimating site occupancy rates when detection probabilities are less than one. <em>Ecology</em>, 83(8), 2248–2255.</li>
+<li>MacKenzie, D.I., et al.&nbsp;(2017). <em>Occupancy Estimation and Modeling</em> (2nd ed.). Elsevier.</li>
+<li>Fiske, I., &amp; Chandler, R. (2011). unmarked: An R package for fitting hierarchical models of wildlife occurrence and abundance. <em>Journal of Statistical Software</em>, 43(10), 1–23.</li>
+<li>Doser, J.W., Finley, A.O., Kéry, M., &amp; Zipkin, E.F. (2022). spOccupancy: An R package for single-species, multi-species, and integrated spatial occupancy models. <em>Methods in Ecology and Evolution</em>, 13(8), 1670–1678.</li>
+</ul>
+</section>
+<section id="methods-kernel-density-and-bandwidth" class="level3">
+<h3 class="anchored" data-anchor-id="methods-kernel-density-and-bandwidth">Methods — kernel density and bandwidth</h3>
+<ul>
+<li>Baddeley, A., Rubak, E., &amp; Turner, R. (2015). <em>Spatial Point Patterns: Methodology and Applications with R.</em> Chapman &amp; Hall/CRC. — the <code>spatstat</code> reference.</li>
+<li>Diggle, P.J. (1985). A kernel method for smoothing point process data. <em>Applied Statistics (JRSS-C)</em>, 34(2), 138–147.</li>
+<li>Berman, M., &amp; Diggle, P.J. (1989). Estimating weighted integrals of the second-order intensity of a spatial point process. <em>JRSS-B</em>, 51(1), 81–92.</li>
+<li>Loader, C. (1999). <em>Local Regression and Likelihood.</em> Springer. — the LCV criterion behind <code>bw.ppl</code>.</li>
+<li>Macdonald, J.A., et al.&nbsp;(2025). Bandwidth selection for kernel intensity estimators for spatial point processes. <em>Scandinavian Journal of Statistics</em>. DOI: 10.1111/sjos.12782. — supports the pre-registered bandwidth rule.</li>
+</ul>
+</section>
+<section id="methods-hot-spots-getis-ord-gi" class="level3">
+<h3 class="anchored" data-anchor-id="methods-hot-spots-getis-ord-gi">Methods — hot spots (Getis-Ord Gi*)</h3>
+<ul>
+<li>Getis, A., &amp; Ord, J.K. (1992). The analysis of spatial association by use of distance statistics. <em>Geographical Analysis</em>, 24(3), 189–206.</li>
+<li>Ord, J.K., &amp; Getis, A. (1995). Local spatial autocorrelation statistics: distributional issues and an application. <em>Geographical Analysis</em>, 27(4), 286–306.</li>
+<li>Parry, J. <em>sfdep: Spatial Dependence for Simple Features</em> [R package]. CRAN. — <code>local_gstar_perm</code> and neighbour construction.</li>
+<li>Bivand, R.S., &amp; Wong, D.W.S. (2018). Comparing implementations of global and local indicators of spatial association. <em>TEST</em>, 27(3), 716–748. DOI: 10.1007/s11749-018-0599-x.</li>
+</ul>
+</section>
+<section id="methods-point-to-unit-assignment" class="level3">
+<h3 class="anchored" data-anchor-id="methods-point-to-unit-assignment">Methods — point-to-unit assignment</h3>
+<ul>
+<li>Johnson, B.A., Pinilla-Buitrago, G.E., &amp; Anderson, R.P. (2025). A neighborhood approach for using remotely sensed data to estimate current ranges for conservation assessments. <em>Ecology and Evolution</em>, 15(7), e71631. DOI: 10.1002/ece3.71631. — grounds the snap tolerance in each record’s own coordinate uncertainty.</li>
+</ul>
+</section>
+<section id="methods-connectivity-and-least-cost" class="level3">
+<h3 class="anchored" data-anchor-id="methods-connectivity-and-least-cost">Methods — connectivity and least-cost</h3>
+<ul>
+<li>McRae, B.H., Dickson, B.G., Keitt, T.H., &amp; Shah, V.B. (2008). Using circuit theory to model connectivity in ecology, evolution, and conservation. <em>Ecology</em>, 89(10), 2712–2724.</li>
+<li>Adriaensen, F., et al.&nbsp;(2003). The application of ‘least-cost’ modelling as a functional landscape model. <em>Landscape and Urban Planning</em>, 64(4), 233–247.</li>
+<li>Lewis, J. <em>leastcostpath: Modelling Pathways and Movement Potential Within a Landscape</em> [R package], v2.0.13. CRAN. — the corridor implementation.</li>
+<li>Antikainen, H. (2013). Comparison of different strategies for determining raster-based least-cost paths with a minimum amount of distortion. <em>Transactions in GIS</em>, 17(1), 96–108. DOI: 10.1111/j.1467-9671.2012.01355.x. — the 16-direction movement choice.</li>
+<li>Shirabe, T. (2016). A method for finding a least-cost wide path in raster space. <em>International Journal of Geographical Information Science</em>, 30(8), 1469–1485. DOI: 10.1080/13658816.2015.1124435. — the wide-path (swath) basis.</li>
+<li>Beier, P., Majka, D.R., &amp; Newell, S.L. (2009). Uncertainty analysis of least-cost modeling for designing wildlife linkages. <em>Ecological Applications</em>, 19(8), 2067–2077.</li>
+<li>Rayfield, B., Fortin, M.-J., &amp; Fall, A. (2010). The sensitivity of least-cost habitat graphs to relative cost surface values. <em>Landscape Ecology</em>, 25(4), 519–532. DOI: 10.1007/s10980-009-9436-7.</li>
+<li>Marrec, R., et al.&nbsp;(2020). A conceptual framework and uncertainty analysis for large-scale, species-agnostic modelling of landscape connectivity. <em>Scientific Reports</em>, 10, 21073.</li>
+<li>Gabriel, K.R., &amp; Sokal, R.R. (1969). A new statistical approach to geographic variation analysis. <em>Systematic Zoology</em>, 18(3), 259–278. — the core-connectivity network graph.</li>
+<li>Csárdi, G., &amp; Nepusz, T. (2006). The igraph software package for complex network research. <em>InterJournal Complex Systems</em>, 1695.</li>
+</ul>
+</section>
+<section id="corridor-corroboration-grey-literature" class="level3">
+<h3 class="anchored" data-anchor-id="corridor-corroboration-grey-literature">Corridor corroboration (grey literature)</h3>
+<ul>
+<li>Bay Area Critical Linkages / Conservation Lands Network — Santa Cruz Mountains and Coyote Valley linkage assessments. Open Space Authority of Santa Clara Valley, <em>Coyote Valley Landscape Linkage</em>; Santa Cruz Mountains Linkage <em>Conceptual Area Protection Plan</em>. Cited as field corroboration of the modelled corridor, not as method.</li>
+</ul>
+</section>
+</section>
+<section id="sensitive-data" class="level2">
+<h2 class="anchored" data-anchor-id="sensitive-data">Sensitive data</h2>
+<div class="callout callout-style-default callout-important callout-titled" title="No precise puma locations are published">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>No precise puma locations are published
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>iNaturalist does not obscure mountain lions in California, so this project holds precise puma records that could expose real animals if published as points. Published puma outputs are therefore always generalised — continuous surfaces at a 1 km grain, or summaries at the open-space-unit level — never point maps, camera locations, den sites, or kill sites. Bobcat data, lower-sensitivity, is published at finer resolution but reviewed under the same process. The full policy is in <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/sensitive-data-policy.md"><code>docs/sensitive-data-policy.md</code></a>.</p>
+</div>
+</div>
+<p>The complete data provenance, including every version, access date, DOI, and known issue, is in <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md"><code>docs/data-sources.md</code></a>; the full literature bibliography is in <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/references.md"><code>docs/references.md</code></a>.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
