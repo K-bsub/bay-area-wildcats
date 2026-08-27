@@ -1,8 +1,277 @@
 ---
-title: "Methods"
+title: "Methods, in plain language"
 ---
 
-*Placeholder. Built in Week 9.*
+This page explains the four main methods behind the maps on this site, for a
+reader who is not a spatial analyst. Each one gets a plain definition, a worked
+example, and a note on what it can and cannot tell you. The full processing log,
+every parameter value, and the numbered decisions live in
+[`docs/methodology.md`](https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/methodology.md).
 
-A plain-language summary of the analysis. The full processing log, parameter
-values and decisions live in [`docs/methodology.md`](https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/methodology.md).
+One idea runs through all four, and it is worth stating once at the top: **a record
+is not the animal.** Every method here starts from points that people reported —
+where a puma or a bobcat was seen or photographed. People do not look everywhere
+equally. So each method is, in part, a way to deal with that unevenness. Two of the
+methods below describe the records; one tries to remove the effort from them; one
+does not use the records at all. Keeping track of which is which is the whole point
+of the Effort page.
+
+---
+
+## Kernel density (KDE)
+
+**What it is.** Kernel density turns a scatter of points into a smooth surface. At
+every place on the map it asks: how many records are near here, and how near? Close
+records count for more than far ones. The result is a heat surface — warm where
+records cluster, cool where they are sparse.
+
+**The one setting that matters: bandwidth.** Bandwidth is the width of the smoothing.
+A narrow bandwidth hugs each point tightly and gives a spiky surface; a wide
+bandwidth blurs the points together into broad zones. The choice changes the map, so
+it must be made on a rule, not by eye.
+
+::: {.callout-tip title="Worked example — the two cats used different bandwidths, on purpose"}
+For **bobcat**, an automatic selector (`bw.ppl`) passed the pre-set rule and chose a
+bandwidth of about **1,110 m**. Bobcat records are dense, so a tight smoothing still
+gives a stable surface.
+
+For **puma**, the same automatic selectors failed the rule — they returned values so
+small (as low as 49 m) that the surface would have been a scatter of pinpricks, not a
+density. So the bandwidth was set from biology instead: about **5,000 m**, roughly a
+puma home-range scale. This is why the puma density map shows broad warm regions,
+not sharp spots.
+:::
+
+**What it can and cannot tell you.** KDE shows where records concentrate. It does
+**not** show where animals are, because the records are effort-shaped — warm can mean
+"many pumas" or "many observers." On this site the KDE surfaces are always read with
+that caveat, and the puma KDE is used only as a cross-check, never as a distribution
+result.
+
+---
+
+## Hot spots (Getis-Ord Gi\*)
+
+**What it is.** A hot-spot statistic asks a sharper question than KDE: is the
+clustering here **more than you would expect by chance?** For each open-space unit,
+Gi\* compares that unit **and its neighbours** against the whole study area. A unit
+with a high count, surrounded by other high-count units, becomes a statistically
+significant **hot spot**. The reverse — low counts among low counts — is a **cold
+spot**.
+
+**"Neighbours" has to be defined.** A unit's Gi\* score depends on which units count
+as its neighbours. Here, neighbours are units within a set distance (about
+**6,342 m**), with a floor so that even a remote unit still has some neighbours to
+compare against.
+
+**Why the correction matters.** Testing over a thousand units at once means some will
+look "significant" by pure luck. A false-discovery-rate correction
+(Benjamini-Hochberg) tightens the bar so the surviving hot spots are ones you can
+trust are real clustering, not chance.
+
+::: {.callout-tip title="Worked example — the effort check on top"}
+A record hot spot has two possible causes: real animals, or hard surveying. So each
+hot spot is cross-read against a **map of survey effort**. If a unit is a record hot
+spot **and** an effort hot spot, it is flagged **suspect** — it may just be where
+people looked. If it is a record hot spot but **not** an effort hot spot, it is
+**trusted**. On the Effort page you can see this split drawn directly: solid units are
+trusted, dashed units are suspect.
+:::
+
+**What it can and cannot tell you.** Gi\* tells you where clustering is stronger than
+chance, and — with the effort check — how much of that is likely real. It still
+rests on the same effort-shaped records, so the effort flag is part of the result,
+not a footnote.
+
+---
+
+## Occupancy modelling
+
+**What it is.** Occupancy modelling is the one method here that tries to **remove**
+the effort problem instead of just flagging it. It splits the question into two
+parts and fits them in order:
+
+1. **Detection.** Given that a bobcat is present in a unit, how likely was it to be
+   *recorded*, given how much people surveyed there? This is fitted first, with
+   presence held constant, so the model learns the shape of the effort signal.
+2. **Occupancy.** With the detection part fixed, the model then estimates the
+   probability the animal is actually **present**, corrected for that effort.
+
+The output is a presence surface that has the survey effort taken out — which is why
+it can, and does, disagree with the raw record density.
+
+::: {.callout-tip title="Worked example — bobcat"}
+The bobcat detection part was fitted first. A term for recording effort (the number
+of prior records in a unit) beat a no-effort model by a wide margin (about 408 AICc
+units — a very strong preference), confirming effort really does shape the raw
+records. With that fixed, the presence model was fitted over **845** open-space
+units. The result is the ψ (psi) surface on the Bobcat page — and it barely
+correlates with the raw density map (r = 0.075), because the model pulled the effort
+signal out. That disagreement is the method working, not failing.
+:::
+
+**Why puma does not get this.** Occupancy modelling needs enough repeat records per
+unit to separate detection from presence. Puma records are too few and too obscured
+for a defensible fit, so the puma track uses connectivity (below) instead. This was
+a planned fork, not a shortfall.
+
+**What it can and cannot tell you.** Occupancy gives the cleanest presence estimate
+on the site, but only for bobcat, and only where enough units had repeat surveys —
+284 units could not be modelled and are drawn as a distinct grey, never as "low
+occupancy."
+
+---
+
+## Cost-corridor (puma connectivity)
+
+**What it is.** The puma corridor is built from the **landscape**, not from records.
+It answers a movement question: if a puma travels between two large habitat cores,
+which route costs it the least? "Cost" here means difficulty of movement — open
+built-up land and busy roads are expensive to cross; forest and shrub are cheap.
+
+It is a three-step chain, and the map below shows all three.
+
+1. **Resistance surface (the input).** Every 1 km cell is scored 1–100 for how hard
+   it is to move through. The score is a weighted blend: **45% human modification,
+   40% land cover, 15% slope**, with busy roads overriding the blend where they
+   cross. 1 is freely permeable (good forest); 100 is a wall (dense city, a major
+   freeway).
+2. **Cost-corridor surface (the output).** From the resistance surface, the model
+   accumulates the total cost of routing between the two cores, in both directions.
+   Low values trace the preferential route; high values are off-route.
+3. **The swath (the published product).** The swath is simply the **lowest-cost
+   slice** of the cost-corridor surface — the cheapest ~5% of cells to move through
+   (a narrower core ~2% inside it). That slice, drawn as a band, is the corridor you
+   see on the Puma page.
+
+::: {.callout-note title="Why the corridor uses no records"}
+Because resistance is built only from land cover, human modification, slope, and
+traffic, the corridor never "sees" where pumas were reported. That is deliberate: it
+means when the corridor lands on the observed record density (the Effort page
+convergence finding), the agreement was not built in — it is evidence the pattern is
+real, not an effort shadow.
+:::
+
+The map below shows the chain. The resistance surface (the input) underneath, the
+cheapest-route cost-corridor over it, and the two-tier swath outline on top — so you
+can read "the swath is the lowest-cost slice of this surface" directly.
+
+```{r}
+#| label: fig-cost-corridor
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: "The puma connectivity method, in three layers. Base: the movement-resistance surface (1 = freely permeable, 100 = near-impassable), built from human modification, land cover, slope, and major roads — no records used. Middle: the cost-corridor surface, the accumulated least-cost of routing between the two habitat cores. Top: the two-tier swath outline — the lowest-cost slice of that surface (core ≤ q2%, context ≤ q5%), which is the corridor published on the Puma page. Both rasters are published at the 1 km grain the sensitive-data policy requires. This is a method illustration, not a result."
+
+library(terra)
+library(sf)
+library(leaflet)
+library(htmltools)
+
+# page-relative paths (NEVER here::here)
+resist_path   <- "../outputs/rasters/resist_puma_baseline_3310.tif"
+costcorr_path <- "../outputs/rasters/lcp_puma_scmtns_to_diablo_costcorr_3310.tif"
+swath_path    <- "../data/processed/lcp_puma_scmtns_to_diablo_swath_3310.gpkg"
+
+resist_r   <- terra::rast(resist_path)
+costcorr_r <- terra::rast(costcorr_path)
+swath_sf   <- sf::st_read(swath_path, quiet = TRUE)
+
+# reproject for leaflet
+resist_wgs   <- terra::project(resist_r,   "EPSG:4326", method = "bilinear")
+costcorr_wgs <- terra::project(costcorr_r, "EPSG:4326", method = "bilinear")
+swath_wgs    <- sf::st_transform(swath_sf, 4326)
+
+# --- resistance ramp: permeable (green) -> barrier (brown/red), 1..100 ---
+resist_cols <- c("#1a9850", "#a6d96a", "#fee08b", "#f46d43", "#a50026")
+pal_resist  <- leaflet::colorNumeric(resist_cols, domain = c(1, 100),
+                                     na.color = "transparent")
+
+# --- cost-corridor ramp: low cost (preferential route) highlighted; sqrt stretch ---
+cc_v   <- terra::values(costcorr_wgs)
+cc_v   <- cc_v[is.finite(cc_v)]
+cc_cap <- as.numeric(stats::quantile(cc_v, 0.98, na.rm = TRUE))
+cc_str <- terra::clamp(costcorr_wgs, lower = 0, upper = cc_cap, values = TRUE)
+cc_str <- terra::app(cc_str, function(x) sqrt(x))
+cc_rng <- as.numeric(terra::minmax(cc_str))
+# low cost = dark purple (on-route), high = fade out
+pal_cc <- leaflet::colorNumeric(c("#3f007d", "#807dba", "#dadaeb"),
+                                domain = cc_rng, na.color = "transparent")
+
+swath_core    <- swath_wgs[swath_wgs$tier == "core", ]
+swath_context <- swath_wgs[swath_wgs$tier == "context", ]
+
+legend_html <- htmltools::HTML(
+  "<div style='background:#fff;padding:8px 10px;border-radius:4px;
+               box-shadow:0 1px 4px rgba(0,0,0,0.2);font-size:12px;
+               line-height:1.5;text-align:left;'>
+     <div style='font-weight:600;margin-bottom:5px;'>Puma connectivity method</div>
+     <div style='display:flex;align-items:center;gap:7px;'>
+       <span style='width:15px;height:13px;flex:none;display:inline-block;
+         background:linear-gradient(90deg,#1a9850,#fee08b,#a50026);'></span>
+       Resistance (permeable &rarr; barrier)</div>
+     <div style='display:flex;align-items:center;gap:7px;'>
+       <span style='width:15px;height:13px;flex:none;display:inline-block;
+         background:linear-gradient(90deg,#3f007d,#dadaeb);'></span>
+       Cost-corridor (on-route &rarr; off)</div>
+     <div style='display:flex;align-items:center;gap:7px;'>
+       <span style='width:15px;height:13px;flex:none;display:inline-block;
+         border:2px solid #d94801;background:rgba(217,72,1,0.12);'></span>
+       Swath (&le; q5% slice)</div>
+   </div>"
+)
+
+leaflet(options = leafletOptions(minZoom = 8)) |>
+  addTiles(urlTemplate = paste0(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/",
+    "World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"),
+    attribution = "Tiles &copy; Esri") |>
+  # 1. resistance surface (the input), semi-transparent base
+  addRasterImage(resist_wgs, colors = pal_resist, opacity = 0.55,
+                 project = FALSE, group = "Resistance (input)") |>
+  # 2. cost-corridor surface (the output) over it
+  addRasterImage(cc_str, colors = pal_cc, opacity = 0.6,
+                 project = FALSE, group = "Cost-corridor (output)") |>
+  # 3. swath outline on top (the published product), hollow so rasters show through
+  addPolygons(data = swath_context, fill = FALSE,
+              color = "#d94801", weight = 1.4, opacity = 0.9,
+              dashArray = "4 3", group = "Swath (published)") |>
+  addPolygons(data = swath_core, fill = FALSE,
+              color = "#d94801", weight = 2.2, opacity = 1,
+              group = "Swath (published)") |>
+  addLayersControl(
+    overlayGroups = c("Resistance (input)", "Cost-corridor (output)",
+                      "Swath (published)"),
+    options = layersControlOptions(collapsed = FALSE),
+    position = "topright") |>
+  addControl(html = legend_html, position = "bottomleft") |>
+  # fitBounds MUST be last
+  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
+```
+
+You can toggle the three layers with the control at top-right — turn the resistance
+base off to see the cheapest-route cost-corridor alone, or turn everything off but
+the swath to see the published corridor. The point of stacking them is to make the
+chain legible: the corridor is not drawn by hand, and it is not drawn from
+sightings; it falls out of the landscape, one step at a time.
+
+::: {.callout-important title="A method illustration, not a result"}
+This map is here to explain how the corridor is built. The corridor **result** —
+where it runs, where it crosses roads, and how it reads against the record density —
+is on the Puma and Effort pages. The exact route has some play in it (about 1.5 km,
+tied to the human-modification weight); the two-tier swath, not the centre-line, is
+the honest product.
+:::
+
+---
+
+## Where the detail lives
+
+Every choice on this page — the bandwidth rule, the neighbour distance, the model
+sets, the resistance weights and their sources, and the sensitivity checks that
+tested them — is recorded as a numbered decision in
+[`docs/methodology.md`](https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/methodology.md),
+with the data sources in
+[`docs/data-sources.md`](https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md)
+and the layer schemas in
+[`docs/data-dictionary.md`](https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-dictionary.md).
