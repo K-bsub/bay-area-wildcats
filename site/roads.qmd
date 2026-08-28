@@ -42,7 +42,7 @@ When the core-corridor filter is applied, the risk picture narrows sharply.
 #| echo: false
 #| message: false
 #| warning: false
-#| fig-cap: "Collision-risk proxy: road crossings where traffic and the core corridor coincide. Crossings inside the core corridor are coloured by traffic volume (amber to red); crossings outside the core are greyed — they are barriers, but not where a puma is most likely to cross. US-101 at Coyote Valley is the one crossing that is both high-traffic and inside the core corridor, which makes it the clear top collision risk. This is a proxy from road traffic and corridor overlap, not a mortality count; direct roadkill records (CROS) are pending. No puma locations are shown. Source: corridor × road crossings (Decisions 33–34)."
+#| fig-cap: "Collision-risk proxy: road crossings where traffic and the core corridor coincide. Crossings inside the core corridor are coloured by traffic volume (blue for quiet to magenta for busy); crossings outside the core are greyed — they are barriers, but not where a puma is most likely to cross. US-101 at Coyote Valley is the one crossing that is both high-traffic and inside the core corridor, which makes it the clear top collision risk. This is a proxy from road traffic and corridor overlap, not a mortality count; direct roadkill records (CROS) are pending. No puma locations are shown. Source: corridor × road crossings (Decisions 33–34)."
 
 library(sf)
 library(leaflet)
@@ -63,14 +63,19 @@ core_ctx <- st_read("../data/processed/lcp_puma_scmtns_to_diablo_swath_3310.gpkg
   st_transform(4326)
 core_ctx <- core_ctx[core_ctx$tier == "core", ]
 
-pal <- colorNumeric(c("#f2c98a", "#e8873c", "#c0392b", "#7a1f16"),
+pal <- colorNumeric(c("#3b8bc2", "#5e4fa2", "#8c2d8f", "#c31d6b"),
                     domain = c(0, max(cr$aadt, na.rm = TRUE)))
 in_core$wt <- 2.5 + 4.5 * sqrt(in_core$aadt / max(cr$aadt, na.rm = TRUE))
 
 leaflet(options = leafletOptions(minZoom = 7)) |>
   addTiles(
-    urlTemplate = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-    attribution = "&copy; OpenStreetMap contributors &copy; CARTO"
+    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    attribution = "Tiles &copy; Esri"
+  ) |>
+  # road overlay: grey roads + labels on the neutral base, no relief/colour
+  addTiles(
+    urlTemplate = "https://services.arcgisonline.com/arcgis/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
+    attribution = "Roads &copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors"
   ) |>
   # core corridor band underneath
   addPolygons(
@@ -103,7 +108,7 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
                    line-height:1.4;text-align:left;max-width:215px;'>
          <div style='font-weight:600;margin-bottom:5px;'>Collision-risk proxy</div>
          <div style='height:12px;border-radius:2px;margin-bottom:3px;
-                     background:linear-gradient(to right,#f2c98a,#e8873c,#c0392b,#7a1f16);'></div>
+                     background:linear-gradient(to right,#3b8bc2,#5e4fa2,#8c2d8f,#c31d6b);'></div>
          <div style='display:flex;justify-content:space-between;margin-bottom:5px;'>
            <span>quiet</span><span>busy (AADT)</span></div>
          <div style='display:flex;align-items:center;gap:7px;'>
