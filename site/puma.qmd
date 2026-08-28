@@ -189,8 +189,9 @@ cr$is_measured <- cr$aadt_source %in% measured_tiers
 # Line weight scales with traffic (sqrt so the 142k road doesn't dwarf everything).
 cr$wt <- 1.2 + 4.5 * sqrt(cr$aadt / max(cr$aadt, na.rm = TRUE))
 
-# Colour ramp by AADT — pale amber (quiet) to deep red (busy barrier).
-pal <- colorNumeric(c("#f2c98a", "#e8873c", "#c0392b", "#7a1f16"),
+# Colour ramp by AADT — cool blue (quiet) to magenta (busy barrier), chosen to
+# stand clear of the warm orange/red road colours on the basemap.
+pal <- colorNumeric(c("#3b8bc2", "#5e4fa2", "#8c2d8f", "#c31d6b"),
                     domain = c(0, max(cr$aadt, na.rm = TRUE)))
 
 # Named roads to highlight (real road identities only; parenthetical class
@@ -242,7 +243,7 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
                    line-height:1.4;text-align:left;max-width:210px;'>
          <div style='font-weight:600;margin-bottom:5px;'>Road crossings</div>
          <div style='height:12px;border-radius:2px;margin-bottom:3px;
-                     background:linear-gradient(to right,#f2c98a,#e8873c,#c0392b,#7a1f16);'></div>
+                     background:linear-gradient(to right,#3b8bc2,#5e4fa2,#8c2d8f,#c31d6b);'></div>
          <div style='display:flex;justify-content:space-between;margin-bottom:5px;'>
            <span>quiet</span><span>busy (AADT)</span></div>
          <div style='display:flex;align-items:center;gap:7px;'>
