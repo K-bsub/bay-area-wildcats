@@ -41,8 +41,8 @@
 | **6** | Descriptive spatial analysis | KDE and Gi\* for both species; unit-level statistics | ✅ Complete |
 | **7** | Occupancy modelling | Bobcat occupancy fitted and validated; puma feasibility assessed | ✅ Complete |
 | **8** | Connectivity analysis | Least-cost paths + core-patch linkages; three pre-registered sensitivity checks | ✅ Complete — core patches (D32), primary LCP + swath + AADT-tiered crossings (D33), AADT route-PM correction + full re-run (D34), 3 sensitivity checks STABLE / FVEG contingency closed (D35), Q5 KDE-Gi* cross-read (D36), Gabriel connectivity network + weak links (D37). All documented; sensitive-data gated. |
-| **9** | Story site build | Quarto site, maps, charts, narrative | ⚪ Not started |
-| **10** | Review and publication | QA, accessibility check, GitHub Pages deployment, docs finalised | ⚪ Not started |
+| **9** | Story site build | Quarto site, maps, charts, narrative | ✅ Complete — full Quarto story site built + deployed (GitHub Pages): Story, Q1 Landscape (+ CPAD∪CCED∪core-patch map), Q2 Bobcat, Q3 Puma connectivity (swath-led), Q4 collision-risk proxy (CROS parked), Q5 Effort (divergence/convergence), Limitations, Methods, Data & References. Puma data generalised ≥1 km, no points (§3 review passed). Decision 39 (Q5 KDE/Gi* placement). Two basemap fixes (CARTO→ESRI, roads visible, cool AADT ramp). |
+| **10** | Review and publication | Author review/QC pass, prose simplification, add species/open-space imagery, docs finalised | ⚪ Not started |
 
 **Status legend:** 🟢 In progress · 🟡 At risk · 🔴 Blocked · ✅ Complete · ⚪ Not started
 
@@ -686,61 +686,67 @@ match the tiger story-site structure. Next Decision number is 38 (only if needed
 - Site skeleton already live at k-bsub.github.io/bay-area-wildcats (README).
 
 *Publishing infrastructure (confirm before content)*
-- [ ] Confirm the Quarto site builds locally (`quarto render site`) and the
+- [x] Confirm the Quarto site builds locally (`quarto render site`) and the
       `site/_freeze/` freeze commits; the publish Action needs only Quarto, not the
       R spatial stack (README "Notes on publishing"). Verify GitHub Pages serves
-      from the `gh-pages` branch / root, NOT `/docs`.
-- [ ] `renv::snapshot()` to bank the Week-8 additions (`leastcostpath`, `gdistance`,
-      `igraph`) into `renv.lock` before the site references any of it.
+      from the `gh-pages` branch / root, NOT `/docs`. **Verified (2026-08-26).**
+- [x] `renv::snapshot()` to bank the Week-8 additions (`leastcostpath`, `gdistance`,
+      `igraph`) into `renv.lock` before the site references any of it. **Verified —
+      all three in `renv.lock`.**
 
 *Narrative structure (match the tiger story site; one page/section per question)*
-- [ ] **Framing / landing.** The urban-edge distribution-and-coexistence framing
+- [x] **Framing / landing.** The urban-edge distribution-and-coexistence framing
       (NOT recovery — no census; proposal §1, README). State the parallel-tracks
-      design and the puma/bobcat data asymmetry up front.
-- [ ] **Q1 Landscape.** Protected-open-space distribution + fragmentation from a
+      design and the puma/bobcat data asymmetry up front. **Done — `index.qmd`.**
+- [x] **Q1 Landscape.** Protected-open-space distribution + fragmentation from a
       wide-ranging-carnivore view. Uses the CPAD∪CCED union + the core-patch layer.
-- [ ] **Q2 Bobcat.** Occupancy (ψ) surface + covariate story (terrain/land/human;
+      **Done — `landscape.qmd`; fee/easement/164-core map added.**
+- [x] **Q2 Bobcat.** Occupancy (ψ) surface + covariate story (terrain/land/human;
       gHM+housing kept), KDE, Gi* hot units. Every map states its detection-bias
-      caveat (success criterion).
-- [ ] **Q3 Puma connectivity (lead deliverable).** Resistance surface → SC Mtns ↔
+      caveat (success criterion). **Done — `bobcat.qmd`.**
+- [x] **Q3 Puma connectivity (lead deliverable).** Resistance surface → SC Mtns ↔
       Diablo corridor. **Lead with the two-tier SWATH, not the centre-line** (the
       LCP centre-line is the least-accurate connectivity form — D36 literature).
       Barrier crossings ranked by AADT (US-101 / Coyote Valley the top barrier,
       142k — D34). The Gabriel network + the traffic-pinch-vs-structural-weak-link
       distinction (D37): Coyote Valley = traffic priority, cross-bay links =
       structural fragility (with the artifact caveat — do not present cross-bay
-      links as protectable corridors).
-- [ ] **Q4 Road mortality.** CROS is PARKED (Decision 11, awaiting F. Shilling; no
+      links as protectable corridors). **Done — `puma.qmd`; swath-led, crossings +
+      network with cross-bay artifact caveat.**
+- [x] **Q4 Road mortality.** CROS is PARKED (Decision 11, awaiting F. Shilling; no
       scraping). Present the corridor × barrier-crossing result as the mortality-
       RISK proxy in the interim, and state the CROS overlay as pending/future.
-      Do NOT fabricate a mortality layer.
-- [ ] **Q5 Effort (cross-cutting, first-class).** The effort thread: bobcat ψ
+      Do NOT fabricate a mortality layer. **Done — `roads.qmd`; risk proxy only.**
+- [x] **Q5 Effort (cross-cutting, first-class).** The effort thread: bobcat ψ
       DIVERGES from effort-shaped KDE (model corrects effort); puma corridor
       CONVERGES with observed density (no effort term, lands on real signal). State
       both, and the shared caveat that descriptive layers are effort-shaped.
+      **Done — `q5.qmd`; convergence map + puma Gi* map (D39).**
 
 *Maps + charts (from existing layers — no new analysis)*
-- [ ] Leaflet/interactive maps for the published surfaces (all puma rasters ≥1 km,
+- [x] Leaflet/interactive maps for the published surfaces (all puma rasters ≥1 km,
       corridors as generalised geometry — sensitive-data-policy §3; re-confirm no
-      precise puma points reach any figure/popup/caption).
-- [ ] Static figures already exist (fig_01–23) — reuse; regenerate any that need
-      story-site styling.
-- [ ] Every published puma/bobcat map carries its **detection-bias caveat**
+      precise puma points reach any figure/popup/caption). **Done — §3 review passed.**
+- [x] Static figures already exist (fig_01–23) — reuse; regenerate any that need
+      story-site styling. **Done — interactive maps built; static figures reused.**
+- [x] Every published puma/bobcat map carries its **detection-bias caveat**
       (success criterion) and the connectivity maps carry the "hypothesis, not
-      telemetry-validated" ceiling (D36/D37).
+      telemetry-validated" ceiling (D36/D37). **Done — caveats on all maps.**
 
 *Honesty / limitations page (carry the ceilings forward — do not bury)*
-- [ ] Single limitations section stating: corridors are author-prior-weighted
+- [x] Single limitations section stating: corridors are author-prior-weighted
       hypotheses, not telemetry-validated (D36/D37); the ~1.5 km gHM-weight route
       play (D35); the WorldCover chaparral under-mapping (immaterial to
       connectivity, D35, but stated); the AADT spatial-fill upward bias for
       local/arterial roads (D25); the cross-bay network artifact (D37); the Q5
-      effort-shaping of all descriptive layers.
+      effort-shaping of all descriptive layers. **Done — `limitations.qmd`, six
+      ceilings, before Methods.**
 
 *Deploy*
-- [ ] `quarto render site` locally, commit `site/_freeze/`, push; the Action
+- [x] `quarto render site` locally, commit `site/_freeze/`, push; the Action
       deploys to `gh-pages`. Confirm the live site renders and no sensitive data
-      is exposed (final §3 review before the site goes public).
+      is exposed (final §3 review before the site goes public). **Done — deployed,
+      live site verified, §3 review passed.**
 
 *Explicitly NOT in Week 9*
 - CROS road-mortality integration (parked, Decision 11) — future phase.
@@ -751,10 +757,98 @@ match the tiger story-site structure. Next Decision number is 38 (only if needed
 - Any new analysis: Week 9 is content + deploy only.
 
 *Documentation*
-- [ ] Update `methodology.md` §9 with the site-build entry; `README.md` status →
+- [x] Update `methodology.md` §9 with the site-build entry; `README.md` status →
       "Week 9 complete / site live"; `project-plan.md` milestone row 9 → ✅.
+      **Done — methodology §9 site-build change-log line; README status updated;
+      milestone row flipped.**
 - [ ] End-of-week: generate the Week-9 handoff (or a project-complete summary if
       Phase 1 closes at the published site).
+
+---
+
+## Week 10 tasks — review, prose polish, imagery, and publication finalise
+
+*Goal: turn the first-pass site into the finished Phase-1 deliverable. No new
+analysis and no new Decisions unless a genuine choice arises. Three strands:
+(1) an author-led editorial pass for readability and flow; (2) adding licensed
+species and open-space imagery with full attribution; (3) a QC / accessibility /
+sensitive-data review before the site is called done. Next Decision number is 40
+(only if needed).*
+
+*Inputs on hand*
+- The nine-page site, live and deployed (Week 9): Story, Q1–Q5, Limitations,
+  Methods, Data & References.
+- `media/` at repo root for imagery; the Methods illustrations already establish
+  the in-`site/` image path pattern (`site/media/images/…`) and the per-file
+  attribution convention.
+- The Data & References page, with the §7 licence table — the place any new image
+  licence must be recorded.
+
+*Editorial review — prose simplification and flow (AUTHOR-ONLY, no AI)*
+- [ ] **Author reads the full site end to end**, section by section, for
+      readability and narrative flow. Simplify and reduce prose; cut repetition;
+      check each section reads fluidly and the story carries across pages.
+      **This task is done by the author (Kiran) without AI assistance** — editorial
+      voice and judgement are the author's own. AI is not used to rewrite, trim, or
+      suggest prose here.
+- [ ] Record any structural changes that emerge (section reorder, a merged/split
+      page) as edits, not as new analytical Decisions — the analysis is frozen.
+
+*Imagery — species and open-space photos (Wikimedia, licensed + attributed)*
+- [ ] Source puma (*Puma concolor*), bobcat (*Lynx rufus*), and Bay Area
+      open-space / landscape images from **Wikimedia Commons**. Prefer CC0 /
+      public-domain, then CC-BY / CC-BY-SA; **avoid CC-BY-NC/ND if any commercial
+      or derivative reuse is intended** — check each file's licence individually
+      (Commons licences are per-file, not site-wide).
+- [ ] For every image, capture the **full attribution set**: author/photographer,
+      title, source URL, licence + version, and any "changes made" note if the
+      image is cropped or resized. Licence honouring is a project success criterion
+      (proposal §7).
+- [ ] Place images under `site/media/images/` (in-project path pattern already
+      established for the Methods illustrations — a repo-root `media/` folder does
+      NOT deploy without moving it into `site/`). Reference as `media/images/<file>`.
+- [ ] Add the images to the relevant pages (e.g. species photos on Bobcat / Puma,
+      open-space photos on Landscape / Story) with a caption and inline credit line.
+      Keep them illustrative — clearly not data, so they are not read as results.
+- [ ] **Confirm no sensitive-location leakage from imagery.** A wildlife photo with
+      camera EXIF geotags, or a captioned location, can expose a site. Strip EXIF
+      and do not caption a precise wild-sighting location (sensitive-data-policy §3
+      spirit — applies to imagery, not just data layers).
+
+*Data & References update (follows the imagery task)*
+- [ ] Add an **image credits** block to the Data & References page: one line per
+      image (subject, author, source, licence). This is the publishable record of
+      image provenance, parallel to the dataset licence table.
+- [ ] Extend the §7-style licence coverage to note the Wikimedia image licences in
+      use (CC0 / CC-BY / CC-BY-SA as applicable).
+- [ ] Re-render Data & References and confirm the credits render and every link
+      resolves.
+
+*QC / accessibility / final review*
+- [ ] Full-site QC pass: every internal link works, every map renders (no broken
+      basemap or missing-layer errors), every caption number is data-computed (not
+      typed), and no `!expr`/render artifacts remain.
+- [ ] Accessibility: image `fig-alt` text on every figure; colour choices legible
+      (the AADT cool ramp and Gi* trusted/suspect styling do not rely on colour
+      alone); sufficient contrast.
+- [ ] Grep the AI-word prohibition list across all `.qmd` prose one final time
+      before sign-off.
+- [ ] **Final sensitive-data §3 review** on the fully-rendered site, now including
+      the new imagery: no precise puma points, no camera coordinates, no geotagged
+      photo, in any figure, caption, popup, or credit line.
+
+*Explicitly NOT in Week 10*
+- Any new spatial analysis or model — the analysis is frozen at Week 8 + Decision 39.
+- CROS road-mortality integration (parked, Decision 11) — future phase.
+- Felidae camera-trap data (deferred, Decision 7) — future phase.
+- AI-assisted prose rewriting of the narrative — the editorial pass is author-only.
+
+*Documentation*
+- [ ] Update the Data & References page + `docs/data-sources.md` (or a dedicated
+      image-credits note) with the image provenance; record any image licences.
+- [ ] `project-plan.md` milestone row 10 → ✅ at close; `README.md` status →
+      "Phase 1 complete" if the published, reviewed site closes Phase 1.
+- [ ] Generate the Phase-1-complete handoff / summary.
 
 ---
 

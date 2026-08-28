@@ -9,12 +9,12 @@ Phase 1 of a multi-phase project. Sister project to
 | | |
 |---|---|
 | **Author** | Kiran Balasubramanian |
-| **Status** | Week 8 complete — puma connectivity delivered. Core patches (Decision 32), primary least-cost corridor SC Mtns ↔ southern Diablo through the Coyote Valley / US-101 pinch + two-tier swath + AADT-tiered crossings (Decision 33), a route+postmile AADT correction that recovered US-101's real 142k volume and re-ran the resistance surface (Decision 34), all three pre-registered sensitivity checks STABLE with the chaparral/FVEG contingency closed (Decision 35), the Q5 corridor × KDE/Gi* cross-read (Decision 36), and a Gabriel core-connectivity network with weak-link ranking (Decision 37). Week 9 next: Quarto story-site build. |
+| **Status** | Week 9 complete — story site live. The full Quarto site is built and deployed to GitHub Pages: Story (framing), Q1 Landscape, Q2 Bobcat, Q3 Puma connectivity (swath-led), Q4 collision-risk proxy (CROS parked), Q5 Effort, Limitations, Methods, and Data & References. Puma outputs generalised to ≥1 km with no precise points published (sensitive-data §3 review passed). Decision 39 records the Q5 puma KDE/Gi* placement. Phase 1 analysis (Weeks 1–8) complete: bobcat occupancy + puma connectivity, with the Q5 effort thread tying both tracks. Next: review / QC pass; CROS integration and Felidae camera data are deferred to a future phase. |
 | **Focal species** | *Puma concolor* (puma / mountain lion), *Lynx rufus* (bobcat) |
 | **Study area** | Ten-county San Francisco Bay Area |
 | **Analysis CRS** | EPSG:3310 — NAD83 / California Albers |
-| **Stack** | R (sf, terra, spatstat, sfdep, unmarked), Quarto, Leaflet |
-| **Story site** | *Skeleton live at [k-bsub.github.io/bay-area-wildcats](https://k-bsub.github.io/bay-area-wildcats/); content in Week 9* |
+| **Stack** | R (sf, terra, spatstat, sfdep, unmarked, leastcostpath, igraph), Quarto, Leaflet |
+| **Story site** | **Live at [k-bsub.github.io/bay-area-wildcats](https://k-bsub.github.io/bay-area-wildcats/)** — nine pages, one per question plus Limitations, Methods, and Data & References |
 
 ---
 
