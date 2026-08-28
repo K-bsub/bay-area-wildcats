@@ -201,8 +201,13 @@ hi <- cr[cr$road_label %in% named_roads, ]
 
 leaflet(options = leafletOptions(minZoom = 7)) |>
   addTiles(
-    urlTemplate = "https://services.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
-    attribution = "Tiles &copy; Esri &mdash; Esri, HERE, Garmin, USGS, &copy; OpenStreetMap contributors"
+    urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+    attribution = "Tiles &copy; Esri"
+  ) |>
+  # road overlay: grey roads + labels on the neutral base, no relief/colour
+  addTiles(
+    urlTemplate = "https://services.arcgisonline.com/arcgis/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}",
+    attribution = "Roads &copy; Esri, HERE, Garmin, &copy; OpenStreetMap contributors"
   ) |>
   # core corridor band as background — the corridor the roads cross
   addPolygons(
