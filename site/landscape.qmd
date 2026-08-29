@@ -1,9 +1,8 @@
 ---
-title: "The Protected-Land Fabric"
+title: "The Protected-Land"
 subtitle: "Question 1 — Landscape"
 ---
 
-The first question is about the ground itself, before any animal moves across it.
 How much protected open space is there in the ten-county Bay Area, how is it held,
 and how does it break apart when you look at it the way a wide-ranging carnivore
 would — as a set of patches large enough to hold a home range, or not?
@@ -31,9 +30,9 @@ easements add **1,275.7 km²** of genuinely new protected ground — a roughly 2
 increase over the fee footprint alone — after removing 498.2 km² where easements
 overlapped land already protected in fee.
 
-That 27% is the point worth holding on to. Conservation easements are not a
+Conservation easements are not a
 rounding error on the map of Bay Area protected land. More than a quarter of the
-connectivity fabric — much of it working ranchland along the inner Coast Ranges —
+connectivity land — much of it working ranchland along the inner Coast Ranges —
 exists only because of easements. Leave them out and the protected-land picture
 looks substantially more fragmented than it is.
 
@@ -52,21 +51,21 @@ physical contiguity, not by ownership.
 
 Most of those patches are small. The patch-area distribution is a smooth size
 continuum, from thousands of tiny fragments up to a handful of very large blocks,
-with no natural break to cut on. A break would let the data choose the threshold;
+with no natural break to filter on. A break would let the data choose the threshold;
 there isn't one, so the threshold comes from the animal instead.
 
 A puma home range spans tens to hundreds of square kilometres. A protected patch
 smaller than about 5 km² cannot hold a meaningful fraction of even one such range,
 so it works as a stepping-stone at most, not as a place a resident animal lives.
-Setting that 5 km² floor — an ecological scale, not a number read off a curve —
+Setting that 5 km² floor 
 leaves **164 core patches** large enough to anchor a home range. The floor still
 retains 82.5% of all protected area, because the area that gets dropped sits in
 thousands of tiny fragments that together hold very little ground.
 
-The map below shows the whole fabric in three layers: the fee-owned CPAD land and
+The map below shows the whole dataset in three layers: the fee-owned CPAD land and
 the CCED easements underneath (each toggleable), and the 164 core patches drawn
 prominently on top. Hover any core patch for its name and area. Toggle the two
-tenure layers to see how much of the connectivity fabric — much of it inner-Coast-Range
+tenure layers to see how much of the connectivity land — much of it inner-Coast-Range
 ranchland — exists only because of easements.
 
 ```{r}
@@ -74,7 +73,7 @@ ranchland — exists only because of easements.
 #| echo: false
 #| message: false
 #| warning: false
-#| fig-cap: "The ten-county protected-land fabric in three layers. Fee-owned CPAD land (green) and CCED conservation easements (gold) form the protected base; toggle each with the control at top-right. The 164 core patches — protected blocks of at least 5 km², large enough to anchor a puma home range — are drawn in dark outline on top; hover any one for its name and area. The two named corridor endpoints (Santa Cruz Mountains, southern Diablo Range) are called out. Boundaries only; no occurrence data."
+#| fig-cap: "The ten-county protected-land dataset in three layers. Fee-owned CPAD land (green) and CCED conservation easements (gold) form the protected base; toggle each with the control at top-right. The 164 core patches — protected blocks of at least 5 km², large enough to anchor a puma home range — are drawn in dark outline on top; hover any one for its name and area. The two named corridor endpoints (Santa Cruz Mountains, southern Diablo Range) are called out."
 
 library(sf)
 library(leaflet)
@@ -175,7 +174,7 @@ southern Diablo Range, are the endpoints the puma connectivity section links.
 #| echo: false
 #| message: false
 #| warning: false
-#| fig-cap: "Patch count against the minimum-area floor. Each candidate floor is plotted with the number of patches that survive it; the amber point marks the chosen 5 km² floor, which keeps 164 patches and 82.5% of all protected area. The curve is a smooth continuum with no natural break, so the floor is set by the puma home-range scale rather than by a gap in the data. Source: Decision 32 floor scan (tbl_17)."
+#| fig-cap: "Patch count against the minimum-area floor. Each candidate floor is plotted with the number of patches that survive it; the amber point marks the chosen 5 km² floor, which keeps 164 patches and 82.5% of all protected area. The curve is a smooth continuum with no natural break, so the floor is set by the puma home-range scale rather than by a gap in the data."
 #| fig-alt: "A line chart on a log vertical axis showing the number of protected patches surviving each minimum-area floor from 0.01 to 10 square kilometres. The count falls smoothly from about 2,356 patches to 86 with no sharp break. The 5 square kilometre floor is marked with a point and label reading 164 patches, 82.5 percent area retained."
 
 library(ggplot2)
@@ -219,8 +218,8 @@ ggplot(floor_scan, aes(x = floor_km2, y = patches_kept)) +
   )
 ```
 
-This is the floor scan, not the raw size distribution: it shows how many patches
-survive each candidate threshold, and it is the evidence that the 5 km² cut is not
+This plot shows how many patches
+survive each candidate threshold, and the 5 km² cut is not
 severe. Most of what the floor removes is thousands of tiny fragments; the
 protected area they hold barely moves the total.
 
@@ -231,18 +230,10 @@ Mountains block at 177 km², the southern Diablo Range at 500 km², and a short 
 of others. The rest of the protected fabric is stepping-stones and fragments
 between them.
 
-## What this section does and does not claim
+## What this section does not describe?
 
 This is a description of the protected land, built from protected-area boundaries
-alone. It uses no occurrence records, so the detection-effort caveat that governs
-the occurrence maps later in this project does not apply here — there is nothing
-in these numbers that reflects where people looked for animals. The patches are
-where the protected ground is, not where the cats were seen.
-
-What it does not tell you is whether an animal can actually move between those 164
+alone. What it does not tell you is whether an animal can actually move between those 164
 cores. A patch being large is not the same as a patch being reachable. Two cores
 can sit a few kilometres apart on the map and be effectively cut off from each
-other by a freeway, a reservoir, or the developed bayshore. Turning this static
-fabric into a question about movement — which cores connect, and where the
-connections are weakest — is the work of the puma connectivity section (Question
-3).
+other by a freeway, a reservoir, or the developed bayshore.

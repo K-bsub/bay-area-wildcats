@@ -1,17 +1,16 @@
 ---
-title: "Where Bobcats Are, and Why"
+title: "Where Bobcats Are, and Why?"
 subtitle: "Question 2 — Bobcat"
 ---
 
-Bobcats are the easy species to study here, and that ease is itself the problem.
-Records are abundant, so the question is not whether there is enough data — it is
+Bobcat records are abundant, so the question is 
 how much of the apparent pattern is bobcats and how much is people with cameras
 and phones. The occupancy model is built to separate the two.
 
-## Occupancy, not just sightings
+## Occupancy
 
 A raw map of bobcat sightings shows where people looked as much as where bobcats
-are. An occupancy model pulls those apart. It treats each open-space unit as a
+are. An occupancy model separates those two. It treats each open-space unit as a
 site visited repeatedly, models the chance of *detecting* a bobcat given that it
 is present, and from that estimates the chance the unit is *occupied* at all. The
 detection part absorbs the effort; the occupancy part is what's left.
@@ -19,16 +18,14 @@ detection part absorbs the effort; the occupancy part is what's left.
 The fit is a single-species occupancy model over 845 open-space units, built in a
 fixed two-stage order: the detection sub-model first, then occupancy with the
 detection structure held fixed. The covariate sets and the selection rule were
-written down before any fitted number was looked at (Decision 31), so the result
+written down before any fitted number was looked at, so the result
 is a test of a pre-registered model, not a search for one that fit.
 
-## Detection is effort, plainly
+## Detection is effort
 
 The detection result is blunt. The single covariate is a per-visit record-count
-effort proxy, and it dominates: more recording effort, far higher detection, with
-a strength that leaves no room for doubt. Against a no-effort null the effort
-model is better by an AICc gap of 408 — not a subtle correction, the main signal
-in the detection process.
+effort proxy, and it dominates: more recording effort, far higher detection. 
+Against a no-effort null the effort model is better by an AICc gap of 408.
 
 This is the whole reason the occupancy model exists. A sightings map would read
 that effort as bobcat distribution. The model reads it as effort and sets it
@@ -37,10 +34,10 @@ looking.
 
 ## What explains occupancy
 
-With effort handled, three landscape signals shape where bobcats are. The pattern
+With effort handled, three landscape parameters shape where bobcats are. The pattern
 needs all three parts together — terrain, land cover, and human footprint. The
 model that keeps only one of them falls far behind: a human-footprint-only or a
-land-cover-only model sits more than 40 AICc units below the full model, while the
+land-cover-only model is more than 40 AICc units below the full model, while the
 full model and its near-twin carry 85% of the weight between them.
 
 ```{r}
@@ -48,7 +45,7 @@ full model and its near-twin carry 85% of the weight between them.
 #| echo: false
 #| message: false
 #| warning: false
-#| fig-cap: "Bobcat occupancy coefficients (logit scale, top model m_full), with 95% confidence intervals. Points right of the zero line raise the modelled chance a unit is occupied; points left lower it. Elevation is the strongest signal (positive); human modification (gHM) is the clearest negative. Tree cover leans positive but its interval touches zero. Terrain aspect, slope, grass, and housing density do not separate from zero. Source: Decision 31 occupancy fit (tbl_13)."
+#| fig-cap: "Bobcat occupancy coefficients (logit scale, top model m_full), with 95% confidence intervals. Points right of the zero line raise the modelled chance a unit is occupied; points left lower it. Elevation is the strongest parameter (positive); human modification (gHM) is the clearest negative. Tree cover leans positive but its interval touches zero. Terrain aspect, slope, grass, and housing density do not separate from zero."
 #| fig-alt: "A coefficient plot with nine occupancy terms on the vertical axis and effect size on the logit horizontal axis, a dashed line at zero. Mean elevation sits well to the right at about +1.4 with an interval clear of zero. Human modification sits to the left at about -0.56 with an interval clear of zero. Tree cover is positive at about +0.62 with an interval just touching zero. Grass, northerly and easterly aspect, slope, and housing density all sit near zero with intervals crossing it."
 
 library(ggplot2)
@@ -99,7 +96,7 @@ ggplot(co, aes(x = est, y = term, color = col)) +
   )
 ```
 
-**Elevation is the strongest signal, and it is positive.** Bobcat occupancy rises
+**Elevation is the strongest parameter, and it is positive.** Bobcat occupancy rises
 with mean unit elevation — the higher, less-developed units of the Coast Ranges
 and Diablo are the strongholds. **Human modification is the clearest negative.**
 As the gHM index rises, modelled occupancy falls: this is the coexistence limit
@@ -107,25 +104,23 @@ showing up directly in the numbers. **Tree cover leans positive** but its interv
 just touches zero, so it reads as a lean, not a firm effect. Grass cover, slope,
 terrain aspect, and housing density do not separate from zero in this fit.
 
-The housing result is worth one note. Housing density enters positive but
+Housing density enters positive but
 unresolved, while gHM enters clearly negative. The two are correlated, and the
-project deliberately lets gHM carry the human-pressure axis (Decision 23). Read
-together, the human signal in bobcat occupancy is real and negative — it just
-lives in the gHM term, not the housing one.
+project lets gHM carry the human-pressure axis. Overall, the human parameters in bobcat occupancy are real and negative.
 
 ### The occupancy surface
 
 The map below is the model-corrected result: predicted occupancy for each
 open-space unit, after detection effort has been modelled out. It is the layer to
-trust for distribution — not the raw sightings, and not the kernel density that
-follows.
+trust for distribution — not the raw sightings, and not the kernel density and hotspot that
+follow.
 
 ```{r}
 #| label: fig-bobc-psi
 #| echo: false
 #| message: false
 #| warning: false
-#| fig-cap: "Predicted bobcat occupancy (ψ) by open-space unit, from the model-averaged occupancy fit. Darker green is higher predicted occupancy. Grey units are not modelled — they lack covariate coverage, so no prediction exists; grey means no estimate, not low occupancy. The surface covers the 845 fitted units; the 284 grey units carry geometry only. Detection effort has been modelled out of this surface, which is what separates it from the raw record maps below. Source: model-averaged occu fit (m_full + m_fullgrad)."
+#| fig-cap: "Predicted bobcat occupancy (ψ) by open-space unit, from the model-averaged occupancy fit. Darker green is higher predicted occupancy. Grey units are not modelled — they lack covariate coverage, so no prediction exists. The surface covers the 845 fitted units; the 284 grey units carry geometry only. Detection effort has been modelled out of this surface, which is what separates it from the raw record maps below."
 
 library(sf)
 library(leaflet)
@@ -192,21 +187,20 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
 ```
 
 This surface is where the effort correction pays off. A raw sightings map would
-put the darkest signal wherever recording is densest — near trailheads, near
-cities. The occupancy model moves the signal to where the *landscape* supports
+put the darkest color wherever recording is densest — near trailheads, near
+cities. The occupancy model moves the results to where the *landscape* supports
 bobcats: up in elevation, away from human modification. Where the two disagree is
 the effort bias made visible, and it is the heart of Question 5.
 
-## Two more views, and why they need care
+## Kernel Density and Hot Spots
 
 The occupancy surface is the model-corrected view. Two descriptive layers sit
 alongside it, and both carry the effort problem the occupancy model was built to
-escape — so both are read with that caveat attached.
+mitigate.
 
 **Kernel density.** A smoothed surface of where bobcat records fall. The smoothing
-scale — the bandwidth — is set by a pre-registered rule, not by hand and not by
-the data-driven default, because the default collapses toward a tiny bandwidth
-that just maps the densest clusters of *effort* (Decision 28). Even with the rule,
+scale — the bandwidth — is set by a pre-registered rule, because the default bandwidth collapses toward a tiny bandwidth
+that just maps the densest clusters of *effort*. Even with the rule,
 a kernel-density surface of opportunistic records maps detection effort as much as
 bobcat density. It is shown as a descriptive layer, not as an abundance estimate.
 
@@ -215,7 +209,7 @@ bobcat density. It is shown as a descriptive layer, not as an abundance estimate
 #| echo: false
 #| message: false
 #| warning: false
-#| fig-cap: "Kernel-density surface of bobcat records (500 m, precise records only). Darker green is higher record density. The colour follows a square-root stretch, not a linear one: density is heavily right-skewed, so a linear scale would show only a few peak cells and wash out the rest — the stretch makes the pattern visible but visually lifts the low values, so read colour as relative pattern, not absolute density. Masked and out-of-study cells are transparent, not zero. This surface maps recording effort as much as bobcat density; the occupancy surface above is the layer to trust for distribution. Source: spatstat KDE, bandwidth by Decision 28."
+#| fig-cap: "Kernel-density surface of bobcat records (500 m, precise records only). Darker green is higher record density. The colour follows a square-root stretch, not a linear one: density is heavily right-skewed, so a linear scale would show only a few peak cells and wash out the rest — the stretch makes the pattern visible but visually lifts the low values, so read colour as relative pattern, not absolute density. Masked and out-of-study cells are transparent, not zero."
 
 library(terra)
 library(leaflet)
@@ -264,22 +258,18 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
 ```
 
 **Hot spots.** A Getis-Ord Gi\* analysis flags units with significantly high or low
-record counts relative to their neighbours. The honest problem, carried over from
-the tiger project: a raw-count hot spot is partly an observer-effort hot spot. So
+record counts relative to their neighbours. A raw-count hot spot is partly an observer-effort hot spot. So
 each hot unit is cross-read against the effort surface and labelled — TRUSTED
 where the cluster is not explained by effort, EFFORT-FLAGGED where it is. The map
 shows the label, not just the count.
 
-The result here is mostly an absence, and that absence is the finding. After
+The result here is mostly an absence. After
 false-discovery-rate correction, only **six units** are significant hot spots out
 of more than eleven hundred, against **224** significant cold spots. Bobcat
-records barely cluster into strong hotspots at all once the multiple-testing
+records barely cluster into strong hotspots at all once the 
 correction is applied. And of the six hot units, the effort cross-read trusts only
 **four** — the other two coincide with recording-effort hotspots and are flagged
-as suspect. So the honest hot-spot story is: weak positive clustering, two of the
-few hot units probably an artefact of where people looked, and a much clearer
-signal in the cold spots — the quiet units where bobcats are recorded less than
-their surroundings would predict.
+as suspect.
 
 ```{r}
 #| label: fig-bobc-gistar
@@ -376,17 +366,9 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
   )
 ```
 
-## The detection-bias caveat, stated once and carried
+## Summary
 
-Every descriptive map in this section — kernel density, hot spots, even the raw
-record counts behind them — reflects where people recorded bobcats, not only where
-bobcats are. That is not a footnote to bury; it is the point of Question 5, and it
-is why the occupancy surface, which models effort explicitly, is the layer to
-trust for distribution. The two other layers are shown because they are
-informative about pattern, with the effort caveat attached to each, not because
-they are unbiased.
-
-This is also the cleanest contrast in the whole project. The bobcat occupancy
+The bobcat occupancy
 model *corrects* for effort and, where it does, its picture diverges from the raw
 kernel density. The puma corridors in the next section do not depend on effort at
 all — they are built from landscape resistance, not from sightings — so they

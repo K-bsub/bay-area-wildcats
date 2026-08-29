@@ -5,61 +5,52 @@ author: "Kiran Balasubramanian"
 date: last-modified
 ---
 
-Two species share the same ground here, and they present opposite problems.
-Bobcats are common and easy to record. Pumas are rare, wide-ranging, and their
-precise locations are a risk to publish. One landscape, two data situations that
-point in different directions. This project keeps them on separate tracks and
-lets each tell its own story.
+Two wild cats share the same ecosystem in the San Francisco Bay Area, and they present opposite analysis challenges.
+Bobcats are common and occurrence data are plenty. Pumas are rare, wide-ranging, and their
+precise locations are a risk to publish. One landscape has two data situations that
+point in different directions. This project analyses them separately.
 
-## Not a recovery story
+## What is studied?
 
-The sister project to this one studied tiger recovery in India. That study had a
-national census: five repeated survey rounds that made "population change over
-time" the natural question to ask.
+[`Identifying Conservation Success Stories`](https://k-bsub.github.io/tiger-conservation-india/) studied
+tiger recovery in select reserves in India. That study had a national census: five repeated survey 
+rounds that made "population change over time" the question to ask.
 
 The Bay Area has no equivalent for either species. There is one recent statewide
-mountain lion abundance estimate and no statewide bobcat estimate at all. A
-recovery narrative is not available, because the census that would support it
-does not exist.
+mountain lion abundance estimate and no statewide bobcat estimate at all. 
 
-What the region does have is dense, well-kept open data on land protection, road
-mortality, and landscape structure. So the question changes. This project is
-about **distribution and coexistence at the urban–wildland edge** — where the
-animals are, how they move, and where their movement meets the roads — not about
-recovery over time.
+What the region does have is dense, well-kept open-source data on land protection, road
+mortality, and landscape structure. This project studies **distribution and coexistence 
+at the urban–wildland edge** — where the
+animals are, how they move, and where their movement meets the roads.
 
-## Ten counties, eight million people
+## Ten counties, roughly eight million people
 
 The study area is the ten-county San Francisco Bay Area: Alameda, Contra Costa,
 Marin, Napa, San Francisco, San Mateo, Santa Clara, Santa Cruz, Solano, and
 Sonoma. Roughly eight million people live inside this frame, next to a patchwork
 of parks, watershed lands, ranch easements, and open-space preserves.
 
-Pumas and bobcats persist here at the urban edge, not in wilderness. That edge is
-the subject. The relevant questions are about movement, permeability, and
-coexistence, not about a return to some earlier state.
+Pumas and bobcats persist here at the urban edge. The relevant questions are about movement, 
+permeability, and coexistence.
 
-## Two species, two tracks
+## Two species, two analysis
 
-The two species are analysed in parallel and never pooled. This is a fixed rule
-of the project (Decision 3), and it follows directly from their data. Pooling
-sparse, sensitive puma records with abundant, low-risk bobcat records would hide
-the very contrast that makes each track work.
+The two species are analysed in parallel and never aggregated.
 
 | | Puma | Bobcat |
 |---|---|---|
 | Occurrence records | Sparse | Abundant |
-| Location sensitivity | High — precise points held, coarsened on publish | Low |
+| Location sensitivity | High — coarsened on publish | Low |
 | Home range | Very large (100s of km²) | Small (10s of km²) |
 | Primary story | Isolation and connectivity | Occupancy and distribution |
 | Primary method | Least-cost paths and corridors | Occupancy models, KDE, Gi\* |
 
-The puma track holds 1,028 precise, publicly shared occurrence points inside the
+The puma data has 1,028 precise, publicly shared occurrence points inside the
 study frame. That number is small for an animal that ranges over hundreds of
 square kilometres, so the puma work is built around connectivity: where the core
 habitat patches are, and how an animal could move between them. The precise
-points are never published — every puma map is generalised first. How that is
-done is set out in the sensitive-data policy and shown on each puma figure.
+points are never published — every puma map is generalised first.
 
 The bobcat track is the opposite. Records are abundant, so the work is about
 distribution: which open-space units bobcats occupy, and which landscape
@@ -67,8 +58,7 @@ characteristics best explain that pattern.
 
 ## Five questions
 
-The analysis is organised around five pre-registered questions. Each belongs to
-one track, except the last, which cuts across both:
+The analysis is organised around five questions:
 
 1. **Landscape.** How is protected open space distributed across the ten counties,
    and how connected or fragmented is it from the view of a wide-ranging carnivore?
@@ -76,15 +66,14 @@ one track, except the last, which cuts across both:
    landscape characteristics best explain that pattern?
 3. **Puma.** Where are the likely movement corridors between core habitat patches,
    and where do those corridors cross major roads and high-traffic barriers?
-4. **Both.** Where do the modelled puma corridors cross major roads and
+4. **Both.** Where do the modeled puma corridors cross major roads and
    high-traffic barriers, and where is wildlife–vehicle collision risk therefore
    concentrated? Direct mortality records are pending; the road crossings serve
    as the interim risk proxy.
 5. **Cross-cutting.** How much of the apparent spatial pattern reflects true
    distribution, and how much reflects observer and detection effort?
 
-The fifth question is treated as a first-class result, not a footnote. Detection
+The fifth question is treated as a result. Detection
 effort shapes every descriptive layer in the project, and the two species answer
-it in opposite ways: the bobcat model corrects for effort, while the puma
-corridors do not depend on it. That contrast runs through the sections that
-follow.
+it in opposite ways: the bobcat occupancy model corrects for effort, while the puma
+corridors do not depend on it.

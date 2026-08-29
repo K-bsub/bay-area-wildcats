@@ -1,6 +1,6 @@
 ---
-title: "What was recorded, and what is there"
-subtitle: "Q5 — effort, and the two species read differently"
+title: "What was recorded, and what is there?"
+subtitle: "Q5 — effort, and the two species"
 ---
 
 ## The question behind the other four
@@ -9,86 +9,62 @@ Every map on this site is built from records that people made. People do not
 look everywhere equally. They look near roads, near trails, near cities, and in
 the months of survey drives and community bio-blitzes. So a map of *where the
 records are* is partly a map of *where the observers were*. This is the effort
-problem, and Q5 asks it directly: how much of the pattern is the animal, and how
+problem: how much of the pattern is the animal, and how
 much is the observer?
-
-This page does not add a new dataset. It reads the puma and the bobcat results
-against each other, because the two species answer the effort question in
-opposite ways — and the contrast is itself the finding.
-
-::: {.callout-note title="Read this after the Bobcat and Puma pages"}
-Q5 is a cross-read. It uses the bobcat occupancy result (the Bobcat page) and the
-puma corridor result (the Puma page). If you have not seen those, the short
-version is below each heading.
-:::
 
 ## Two species, two relationships
 
 A descriptive surface — a kernel-density map of records, or a hot-spot map —
-carries the effort signal directly, because it is built from the raw records. The
-two analytical tracks then do different things with that signal.
+carries the effort directly, because it is built from the raw records. The
+two analytical tracks then do different things with that.
 
 - **Bobcat — the model pulls away from effort.** The occupancy model has a
   separate detection sub-model. It estimates *effort* and *presence* as two
   things, then reports presence with the effort taken out. So the modelled result
   is expected to move away from the raw record density.
 - **Puma — the model never sees effort at all.** The corridor is built from the
-  landscape: land cover, human modification, slope, and traffic (see the Methods
-  page and Decision 26). There is no record-density term anywhere in it. So if
+  landscape: land cover, human modification, slope, and traffic. 
+  There is no record-density term anywhere in it. So if
   the corridor lands on the observed record density, that agreement was not put
   there by construction.
 
-The result is a divergence for one species and a convergence for the other, and
-both are honest for the same reason.
+The result is a divergence for one species and a convergence for the other.
 
-### Bobcat: modelled occupancy DIVERGES from the record density
+### Bobcat: modeled occupancy DIVERGES from the record density
 
 The bobcat occupancy surface and the raw kernel-density surface do not match. The
 correlation between the two is near zero (r = 0.075).
 
-That is the correct outcome, not a failure. The raw density is effort-shaped —
-high where people surveyed. The occupancy model corrects for that, because its
-detection sub-model absorbs the survey effort and reports the presence pattern
-underneath. The two surfaces disagree *because the model is doing its job.* A high
-agreement here would have been a warning sign that the model had simply re-drawn
+The raw density is effort-shaped — high where people surveyed.
+The occupancy model corrects for that, because its
+detection sub-model absorbs the survey effort and reports the presence.
+A high agreement here would have been a warning sign that the model had simply re-drawn
 the effort map.
 
-### Puma: modelled corridor CONVERGES with the record density
+### Puma: modeled corridor CONVERGES with the record density
 
-The puma corridor is the opposite case, and it also reverses what we expected
-before we ran it.
-
-The pre-analysis guess was **divergence** — that the corridor, and especially the
-Coyote Valley pinch, would thread through *low-record* gaps, pumas slipping
-through a developed squeeze unseen. The data says the opposite:
+The puma corridor is the opposite case:
 
 - The corridor runs through **above-median** record density along its whole
   length. The least-cost path sits at the **77th percentile** of the density
   surface (median across the route), and **none** of it falls below the median.
-- The **Coyote Valley pinch is at the 83rd percentile** — high record density,
-  not the predicted low.
+- The **Coyote Valley pinch is at the 83rd percentile** — high record density.
 - Of the record hot-spots the corridor crosses, **six of seven are effort-checked
-  as trusted** — real record concentration, not survey artifact.
+  as trusted**.
 
-Two methods that share no effort term — a structure-driven least-cost corridor and
-an effort-shaped record surface — agree on where the corridor is. Because the
-corridor model never saw the records, that agreement is evidence the puma pattern
-is real terrain-driven signal, not an effort shadow.
+## Kernel Density and Hot spots
 
-## The convergence, on the map
-
-The surface below is the puma record density (kernel density, published at the
-1 km grain the sensitive-data policy requires — see the note at the foot of this
-page). On top of it are the two-tier corridor swath and the core habitat patches.
-Read it for one thing: **the corridor band sits on the warmer parts of the
-surface, not the gaps.**
+The surface below is the puma record density (kernel density). On top of it are 
+the two-tier corridor swath and the core habitat patches.
+**The corridor band sits on the warmer parts of the
+surface.**
 
 ```{r}
 #| label: fig-puma-convergence
 #| echo: false
 #| message: false
 #| warning: false
-#| fig-cap: "Puma record density (kernel-density surface, 1 km) with the two-tier movement corridor and core habitat patches. The corridor band runs through above-median density along its length, including at the Coyote Valley pinch. Density is a smoothed record surface and is effort-shaped; it is read here only as a cross-check on the structure-built corridor, never as a distribution result on its own."
+#| fig-cap: "Puma record density (kernel-density surface, 1 km) with the two-tier movement corridor and core habitat patches. The density surface is smoothed with a wide (5 km) bandwidth. The corridor band runs through above-median density along its length, including at the Coyote Valley pinch. Density is a smoothed record surface and is effort-shaped."
 
 library(terra)
 library(sf)
@@ -177,17 +153,12 @@ leaflet(options = leafletOptions(minZoom = 8)) |>
   fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
 ```
 
-The density surface is smoothed with a wide (5 km) bandwidth, set from a puma
-home-range prior. That width is why the map shows broad warm zones, not sharp
-points — and it is one reason the percentile figures stay in the text and not on
-the legend: a smoothed surface cannot honestly show a single-cell pinch value.
-
-## The record hot-spots, and how many are just effort
+## The record hot-spots
 
 The density surface above is smooth. A hot-spot map is sharper: it marks the
 open-space units where puma records cluster **more than their neighbours**, tested
 for significance. But a record hot-spot has two possible causes — real puma
-presence, or a place people surveyed hard. The Q5 effort check separates them:
+presence, or a place people surveyed hard:
 
 - **Trusted** — the unit is a record hot-spot **and not** an effort hot-spot. Real
   concentration.
@@ -195,16 +166,15 @@ presence, or a place people surveyed hard. The Q5 effort check separates them:
   may just be where people looked.
 
 The map below draws trusted units as solid fill and suspect units as hollow,
-dashed outlines. Read the split, not just the count: for puma, **about half of all
-hot units are effort-suspect** — far more than for bobcat. That is the effort
-problem made visible on a single map.
+dashed outlines. For the puma analysis, **about half of all
+hot units are effort-suspect** — far more than for bobcat.
 
 ```{r}
 #| label: fig-puma-hotspots
 #| echo: false
 #| message: false
 #| warning: false
-#| fig-cap: "Getis-Ord Gi* hot-spot units for puma records, FDR-corrected. Solid red is a TRUSTED hotspot (record clustering not explained by effort); hollow dashed red is a hotspot that also coincides with a recording-effort hotspot, flagged effort-SUSPECT. About half of all puma hot units are effort-suspect — far more than bobcat — which is the effort problem made visible. Hot-spots are record-driven and effort-shaped; they are not a puma distribution. Source: sfdep Gi* with the Q5 effort cross-read."
+#| fig-cap: "Getis-Ord Gi* hot-spot units for puma records, FDR-corrected. Solid red is a TRUSTED hotspot; hollow dashed red is a hotspot that also coincides with a recording-effort hotspot, flagged effort-SUSPECT."
 
 # libraries already attached by fig-puma-convergence (terra, sf, leaflet, htmltools)
 
@@ -285,68 +255,13 @@ leaflet(options = leafletOptions(minZoom = 8)) |>
 ::: {.aside}
 Of the puma hot units, the effort cross-read trusts fewer than half; the rest
 coincide with recording-effort hotspots and are flagged suspect. Any hot unit
-resting on fewer than three precise records is drawn without a hover label, so a
-location cannot be narrowed from it (sensitive-data policy §3).
+resting on fewer than three precise records is drawn without a hover label.
 :::
-
-The hot-spot map and the corridor tell the same story from two directions. Where
-the corridor crosses record hot-spots, most of those units are **trusted** — real
-presence, not effort. That is the part of the convergence that is not circular. But
-across the whole region, the large share of **suspect** units is the reminder Q5
-exists to give: a red unit is not proof of pumas until the effort check clears it.
-
-## What this convergence is, and what it is not
-
-The agreement is real, but it must be read at its true strength — corroboration,
-not proof.
-
-- **It is corroboration.** Two methods with no shared effort term land in the same
-  places, and most of the record hot-spots on the corridor are effort-checked as
-  trusted. The puma pattern behaves like real terrain-driven signal.
-- **It is only weak-to-moderate, and partly structural.** The resistance surface
-  and the density surface share a land-cover and human-modification foundation. So
-  part of the agreement is two views of the *same* landscape gradient, not two
-  independent confirmations. A corridor built to follow good habitat, checked
-  against records that also concentrate in good habitat, is *expected* to agree —
-  the ecology literature says as much.
-- **It is not validation.** Strong, independent validation needs movement data —
-  GPS collars showing pumas actually using the route. This project has occurrence
-  records only. The corridor is a plausible, record-corroborated hypothesis, not a
-  confirmed path.
-
-Two things keep the convergence meaningful in spite of the shared foundation. The
-trusted hot-spots are record concentration that is **not** effort-driven — real
-presence on the corridor. And the corridor carries a **road-and-traffic term the
-density surface does not have** — so the two are not the same construct, and
-agreement across that difference is more than shared-terrain overlap.
-
-::: {.callout-important title="Why we lead with the band, not the line"}
-The corridor is shown as a two-tier **swath**, not a single line. Against
-simulated true movement, the precise least-cost centre-line is the least accurate
-connectivity form, while a swath overlaps true movement far better. The line is a
-tidy artifact of the algorithm; the band is the more honest product. This is why
-the pinch percentile (83rd) is the *cell* value near the route, not an on-line
-reading — at 1 km grain the centre-line passes about 1.6 km from the exact pinch
-cell.
-:::
-
-## The shared caveat, stated once
-
-Both species inherit the same ceiling, and it is the point of Q5: **descriptive
-record surfaces are effort-shaped.** A kernel-density map or a raw hot-spot map
-shows where records concentrate, and records concentrate where people looked. The
-two tracks handle this differently — the bobcat occupancy model removes the effort
-signal and so *diverges* from the raw surface; the puma corridor never contains an
-effort signal and so its *convergence* with the raw surface is informative rather
-than circular — but neither track escapes the fact that the underlying records
-were made by people, unevenly. Every descriptive map on this site should be read
-with that in mind.
 
 ::: {.callout-note title="Sensitive-data note (puma)"}
 Precise puma locations are withheld. iNaturalist does not obscure mountain lions
-in California, so this project holds precise records that could expose real
+in California, so this project does not share precise records that could expose real
 animals if published as points. The density surface on this page is published only
-at a 1 km grain, which cannot be reversed to a location, and it clears the
-project's publish gate at that grain. No puma points, den sites, or kill sites
+at a 1 km grain, which cannot be reversed to a location. No puma points, den sites, or kill sites
 appear anywhere on this site.
 :::

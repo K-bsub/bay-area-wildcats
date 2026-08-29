@@ -1,28 +1,19 @@
 ---
-title: "What this project cannot tell you"
-subtitle: "Limitations, stated plainly"
+title: "Limitations"
 ---
 
-Good analysis is clear about its own limits. This page collects the ceilings that
-apply to the maps on this site, in one place, so they are not buried in captions or
-lost between pages. None of them is a reason to distrust the work — each is a reason
-to read a specific result at its true strength, no more.
-
-The limitations fall into two kinds: what the **corridor** can and cannot claim, and
-what the **descriptive maps** (density, hot spots) can and cannot claim. A short note
+This page collects the limits that apply to the maps on this site.
+The limitations fall into two kinds: what the **corridor** can and cannot show, and
+what the **descriptive maps** (density, hot spots) can and cannot indicate. A short note
 on the data inputs follows.
 
-## The corridor is a hypothesis, not a tracked path
-
-The puma corridor is the single result most likely to be over-read, so it gets the
-plainest statement.
+## The corridor is a hypothesis
 
 - **No animal was tracked.** The corridor is built entirely from the landscape —
   land cover, human modification, slope, and traffic. This project has **no GPS-collar
   or telemetry data** of its own. So the corridor is a *modelled hypothesis* about
-  where movement is cheapest, not a record of where pumas actually went. Strong
-  validation would need collar data showing animals using the route; this project
-  cannot provide that, and does not claim it.
+  where movement is cheapest. Strong
+  validation would need collar data showing animals using the route.
 - **The route is weighted by author-set priors.** The resistance surface blends its
   inputs on weights chosen by the analyst (45% human modification, 40% land cover,
   15% slope), with directions and the traffic transform taken from published
@@ -30,109 +21,76 @@ plainest statement.
   are priors, not fitted values — this project has no local movement data to fit them
   against.
 
-### How much the route can move: about 1.5 km of play
+### How much the route can move: about 1.5 km
 
 The corridor's **location is stable**; its **exact centre-line is not.** When the
-gHM/land-cover weight was perturbed by ±10% (a pre-registered sensitivity test), the
+gHM/land-cover weight was perturbed by ±10%, the
 broad corridor barely changed — the worst-case overlap of the wide context band
 stayed very high (IoU 0.941). But the single least-cost line shifted, and under
-gHM-heavy weighting the path shortened from 37.2 km to 35.6 km, a route play of
-**about 1.5 km**. This is exactly why the corridor is published as a two-tier
-**swath**, not a line: the band is honest about the play, the line is not.
-
-::: {.callout-note title="Read the band, not the line"}
-A 1 km analysis grain is also coarser than the features it crosses. At the Coyote
-Valley pinch, the least-cost line passes about 1.6 km from the exact pinch cell —
-not an error, just the grain. The swath locates the corridor regionally; the
-road-crossing step, not the centre-line, locates the pinch.
-:::
+gHM-heavy weighting, the path shortened from 37.2 km to 35.6 km, 
+**about 1.5 km**.
 
 ### The core-connectivity network has a cross-bay artifact
 
 A second connectivity product — the network graph linking large habitat cores —
-carries a specific, named artifact that must not be over-read.
+carries a specific, named artifact.
 
 - The network is built with a **Gabriel graph**, which connects cores that are
   geometric neighbours. Across the central Bay, that forces edges **over the water**,
   which is an impassable barrier for a puma. So the longest cross-bay links in the
-  network are **not candidate corridors** — they are evidence that those clusters are
-  *disconnected*, which is the opposite of a route to protect.
-- What survives this caveat: the **ranking** of links by cost is valid within the
+  network are **not candidate corridors** — but that those clusters are
+  *disconnected*.
+- The **ranking** of links by cost is valid within the
   graph, the **two-subnetwork finding** (the central Bay splits a Peninsula /
   Santa Cruz Mountains subnetwork from an East Bay / Diablo one, joined efficiently
-  only at the south) is real and matches known Santa Cruz Mountains puma isolation,
-  and the contrast between cheap south-Bay links and costly cross-bay links holds.
-  What does **not** survive: reading any individual cross-bay link as a protectable
-  corridor. The site's network map shows the cost-ranked edges and flags the cross-bay
-  links with this caveat; it does not draw a labelled route across the bay.
-
-::: {.callout-note title="A correction on the record"}
-An earlier version of this network stated a specific node count and a specific
-core-to-core chain. Both were wrong — the stated cutoff disagreed with the code as
-run, and the chain was never actually traced. The error was found, documented, and
-corrected, with the original text preserved for audit. The ranking and the
-two-subnetwork finding were unaffected and still stand. The correction is recorded
-in the methodology log (Decisions 37–38).
-:::
+  only at the south) matches known Santa Cruz Mountains puma isolation.
 
 ## The descriptive maps are shaped by where people looked
 
 The density (KDE) and hot-spot (Gi\*) maps describe **records**, and records are made
 by people, unevenly. This is the effort problem, and it is the subject of its own
-page — but it belongs in any honest list of limits.
+page.
 
 - **Every descriptive surface is effort-shaped.** A warm density zone or a red hot
-  spot can mean "many animals" or "many observers." The two tracks handle this
+  spot can mean "many animals" or "many observers." The two analyses handle this
   differently — the bobcat occupancy model removes the effort signal, so it
-  *diverges* from the raw density; the puma corridor never contains an effort signal,
-  so its *convergence* with the raw density is informative rather than circular — but
-  no descriptive map escapes it.
+  *diverges* from the raw density; the puma corridor never contains an effort layer,
+  so its *convergence* with the raw density is informative.
 - **The puma hot-spot map is about half effort.** Of the puma record hot-spots, only
-  a minority survive the effort cross-check as trusted; the rest coincide with survey
-  effort and are flagged suspect on the map. A red unit is not proof of pumas until
-  that check clears it.
+  a minority survive the effort cross-check as trusted.
 - **The convergence is corroboration, not proof.** Where the corridor and the record
   density agree, part of that agreement is structural — both rest on the same
-  land-cover and human-modification gradient — so it is read as weak-to-moderate
-  corroboration, not validation.
+  land-cover and human-modification gradient.
 
-## Data-input limits worth stating
+## Data-input limits
 
-These are smaller, but each shapes a specific result and each is carried openly
-rather than smoothed over.
+These are smaller, but each shapes a specific result.
 
 - **Chaparral is under-mapped — but it does not move the corridor.** The land-cover
   source (ESA WorldCover) badly under-maps California chaparral, prime cat habitat.
   This *sounds* serious for a habitat model. A pre-registered sensitivity test bounded
   it: rebuilding the resistance surface with chaparral treated as good habitat changed
   the corridor essentially not at all (overlap IoU 1.000 / 0.998). So the under-mapping
-  is **immaterial to connectivity** — stated because it is real, not because it
-  changes the result.
+  is **immaterial to connectivity**.
 - **Traffic counts are biased upward off the highways.** Measured traffic covers state
   highways; local and arterial roads are filled in from the nearest measured segment
   or a class-based floor (about 19,851 segments spatially filled, and roughly 45% on a
   modelled floor). Because count stations cluster on busy roads, that fill runs
   high. The effect is compressed by the log-inverse traffic transform and bounded by a
   sensitivity check, but it is a real property of the data, tracked with a source flag
-  on every segment rather than hidden.
-- **The analysis grain is regional.** The puma surfaces are built at a 1 km grain,
-  which is coarse for sub-kilometre features like a single road pinch. The surfaces
-  are regional context; the crossing-point analysis, not the surface, resolves the
-  fine detail.
+  on every segment.
 
 ## Two whole questions left open
 
 - **Road mortality is incomplete.** The wildlife–vehicle collision question is
   currently answered as a risk-overlap proxy, because record-level roadkill data is
-  still pending. The collision-risk page says so directly and is marked incomplete.
+  still pending.
 - **No population trend is possible.** There is no repeated regional census of either
   species. A one-time statewide puma estimate exists as context; no statewide bobcat
-  estimate exists at all. Nothing on this site should be read as a population trend.
+  estimate exists at all.
 
 ---
 
 Every limitation above is recorded in full, with its sensitivity test and its
 figures, in
 [`docs/methodology.md`](https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/methodology.md).
-The point of gathering them here is the project's first principle: state the ceiling,
-do not bury it.

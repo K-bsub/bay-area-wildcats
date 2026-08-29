@@ -2,30 +2,27 @@
 title: "Data & references"
 ---
 
-Every map on this site is built from public, open data. This page describes what
+Every map on this site is built from public, open-source data. This page describes what
 those datasets are, where they come from, and how they are licensed, and then lists
-the literature the analysis and narrative rest on. The full machine-level provenance
-— version strings, file paths, record counts, access dates, and known issues — lives
-in [`docs/data-sources.md`](https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md);
-this page is the plain-language version.
+the literature the analysis and narrative rest on. The full version
+— version strings, file paths, record counts, access dates, and known issues — is
+in [`docs/data-sources.md`](https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md).
 
 Two principles govern the data on this project. First, **Phase 1 uses open data
 only** — no partner or restricted data is used or published. Second, **no precise
-puma location is ever published** (see the note at the foot of this page). Both are
-deliberate and central to the project, not incidental.
+puma location is ever published** (see the note at the foot of this page).
 
-## The data, by role
+## The data
 
 ### Where animals were recorded
 
 - **GBIF** (Global Biodiversity Information Facility) — the main occurrence source,
-  pulled as a citable, DOI-stamped download rather than a live query, so the exact
+  pulled as a citable, DOI-stamped download, so the exact
   record set is reproducible. Records carry a coordinate-uncertainty value that the
   analysis respects when snapping points to units.
-- **iNaturalist** — community wildlife observations. A point worth stating plainly:
+- **iNaturalist** — community wildlife observations.
   iNaturalist obscures many sensitive species by default, but **not** mountain lions
-  in California, which is exactly why the sensitive-data handling on this project has
-  to be strict rather than assumed.
+  in California, which is exactly why the sensitive-data handling on this project is strict.
 - **GBIF target-group background** — for the bobcat occupancy model, a second, much
   larger GBIF pull of *all* vertebrate records across the region stands in for
   "where did people look at all," which is what lets the model separate effort from
@@ -42,20 +39,20 @@ deliberate and central to the project, not incidental.
 - **TIGER/Line county boundaries** (US Census, via `tigris`) — the ten-county study
   frame.
 
-### What the landscape is made of
+### What the landscape is made of?
 
 - **ESA WorldCover 2021** — 10 m land cover (trees, shrub, built-up, cropland, and
-  so on), the base habitat layer. A known trade-off is recorded honestly: WorldCover
+  so on), the base habitat layer. A known trade-off: WorldCover
   under-maps California chaparral badly compared with older US products, which is why
-  the urban-intensity signal comes from human modification instead.
+  urban-intensity comes from human modification instead.
 - **Global Human Modification (gHM) v3, 2022** (Theobald et al. 2024) — a 0–1 index
   of how heavily each area is modified by people; the dominant term in the puma
   resistance surface.
 - **SILVIS housing density** — block-level housing as a second human-footprint
-  signal.
+  source.
 - **AWS Terrain Tiles** (via `elevatr`) — elevation, from which slope is derived.
   The tiles blend several public elevation sources at roughly 30 m effective
-  resolution here; the earlier "3DEP 10 m" wording was corrected as inaccurate.
+  resolution here.
 
 ### Roads and traffic
 
@@ -63,32 +60,29 @@ deliberate and central to the project, not incidental.
   by type. Because roads are a barrier only when busy, road presence alone is not
   enough.
 - **Caltrans AADT** — annual average daily traffic counts, which turn "a road is
-  here" into "how much traffic crosses here." A structural caveat is carried in the
-  data: traffic count stations cluster on busy roads, so any spatial fill of the
-  gaps has a built-in upward bias, handled with a source flag rather than pretended
-  away.
+  here" into "how much traffic crosses here." A structural caveat: traffic count stations cluster on busy roads, so any spatial fill of the
+  gaps has a built-in upward bias, handled with a source flag.
 
 ### Road mortality (pending)
 
 - **CROS** (California Roadkill Observation System) / **UC Davis Road Ecology
   Center** — the intended wildlife–vehicle collision source. Record-level access is
   still pending, so the collision-risk question is currently answered as a
-  risk-overlap proxy, not as a mortality point layer, and the page says so.
+  risk-overlap proxy, not as a mortality point layer.
 
-### Population context, not trend
+### Population context
 
 There is **no** repeated regional census of Bay Area pumas or bobcats — nothing like
 the national tiger census that anchors the sister project. A single statewide puma
 abundance estimate exists (the California Mountain Lion Project, roughly 3,200–4,500
-statewide) and is cited only as one-time context, never as a trend. **No statewide
-bobcat abundance estimate exists at all** — an asymmetry stated wherever puma status
-appears, so the bobcat track is not implied to have an equivalent.
+statewide) and is cited only as one-time context. **No statewide
+bobcat abundance estimate exists at all**.
 
 ## Licences
 
-Every dataset is used within its licence, with attribution where required. The
-summary below matches [`docs/data-sources.md`](https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md) §7,
-which holds the full terms.
+Every dataset is used within its licence, with attribution where required. 
+[`docs/data-sources.md`](https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md) §7,
+holds the full terms.
 
 | Dataset | Licence | Attribution | Redistribution |
 |---|---|---|---|
@@ -102,17 +96,16 @@ which holds the full terms.
 | SILVIS housing | USDA FS / SILVIS (acknowledgement requested) | Yes | Allowed |
 | OpenStreetMap | ODbL | Yes | Share-alike |
 | Caltrans AADT | California public data | Yes | Informational |
-| Felidae (deferred) | Written agreement | Yes | **No** |
 
 Dataset citations (the datasets themselves, with DOIs and access dates) are in
-`docs/data-sources.md`. The literature the analysis and narrative lean on is below.
+`docs/data-sources.md`. The literature the analysis and narrative reference is below.
 
 ## References
 
 The list is grouped by role. It is author–date; a `.bib` conversion is planned if
 the site moves to Quarto citation handling.
 
-### Population and status (context only, not a trend)
+### Population and status
 
 - Dellinger, J.A., Gustafson, K.D., Gammons, D.J., Ernest, H.B., & Torres, S.G.
   (2020). Minimum habitat thresholds required for conserving mountain lion genetic
@@ -262,7 +255,7 @@ finer resolution but reviewed under the same process. The full policy is in
 :::
 
 The complete data provenance, including every version, access date, DOI, and known
-issue, is in
+issues, is in
 [`docs/data-sources.md`](https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md);
 the full literature bibliography is in
 [`docs/references.md`](https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/references.md).

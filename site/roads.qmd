@@ -1,48 +1,41 @@
 ---
-title: "The Roads Between"
+title: "The Roads"
 subtitle: "Question 4 — Collision risk"
 ---
 
 The question this section was meant to answer is where pumas are killed by
 vehicles. That question cannot be answered here yet, because the data that would
 answer it are not in hand. So this section does two things instead: it states
-plainly what is missing, and it presents the best interim proxy the analysis can
-support — where the corridor and dangerous roads coincide — without dressing that
-proxy up as a mortality count.
+what is missing, and it presents the best interim proxy — where the corridor and 
+dangerous roads coincide.
 
-## What is missing, and why
+## What is missing?
 
 Direct roadkill records for the Bay Area are held in the California Roadkill
 Observation System (CROS), maintained by the UC Davis Road Ecology Center. A data
-request is with F. Shilling there; at the time of writing, no reply has been
-received (Decision 11). The project does not scrape or reconstruct those records —
-they are used with authorisation or not at all. Until they arrive, there is **no
-published mortality-point layer in this project**, and none is fabricated to fill
-the gap. When the CROS records are available, they will overlay the risk surface
-below as a validation layer — confirming or correcting where the proxy points.
-
-That is the honest state of Question 4: the mortality map is pending, not
-withheld.
+request has been made with data pending. The project does not scrape or reconstruct those records —
+they are used with authorisation. Until the data has been shared, there is **no
+published mortality-point layer in this project**. When the CROS records are available, 
+they will overlay the risk surface below as a validation layer — confirming or correcting where the proxy points.
 
 ## The interim proxy — where traffic meets the corridor
 
-What the analysis *can* say comes from combining two things it already knows: how
+What the analysis *can* say comes from combining two things: how
 busy each road is (traffic volume, from the crossing analysis in the connectivity
 section) and whether that road sits inside the **core** corridor, where a puma is
-most likely to actually move. Collision risk is highest where both are true — a
-busy road *and* the core corridor in the same place.
+most likely to actually move. Collision risk is highest where both are true.
 
-This is a sharper filter than traffic alone. The connectivity section ranked road
+The connectivity section ranked road
 crossings by traffic, and several busy roads appeared near the top. But most of
 those busy roads clip the corridor at its permeable edges, not through its core.
-When the core-corridor filter is applied, the risk picture narrows sharply.
+When the core-corridor filter is applied, the risk narrows sharply.
 
 ```{r}
 #| label: fig-puma-risk
 #| echo: false
 #| message: false
 #| warning: false
-#| fig-cap: "Collision-risk proxy: road crossings where traffic and the core corridor coincide. Crossings inside the core corridor are coloured by traffic volume (blue for quiet to magenta for busy); crossings outside the core are greyed — they are barriers, but not where a puma is most likely to cross. US-101 at Coyote Valley is the one crossing that is both high-traffic and inside the core corridor, which makes it the clear top collision risk. This is a proxy from road traffic and corridor overlap, not a mortality count; direct roadkill records (CROS) are pending. No puma locations are shown. Source: corridor × road crossings (Decisions 33–34)."
+#| fig-cap: "Collision-risk proxy: road crossings where traffic and the core corridor coincide. Crossings inside the core corridor are coloured by traffic volume (blue for quiet to magenta for busy); crossings outside the core are greyed — they are barriers, but not where a puma is most likely to cross. US-101 at Coyote Valley is the one crossing that is both high-traffic and inside the core corridor, which makes it the clear top collision risk."
 
 library(sf)
 library(leaflet)
@@ -121,8 +114,8 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
   fitBounds(-122.17587, 37.01977, -121.69144, 37.28626)
 ```
 
-The map makes the filter visible. Most of the busy roads the corridor crosses turn
-grey, because they clip the corridor outside its core. What stays coloured — busy
+The map makes the filter visible. Most of the busy roads the corridor crosses are
+grey, because they clip the corridor outside its core. What is coloured — busy
 *and* in the core — is dominated by one road: **US-101 at Coyote Valley.** It is
 the single crossing that is both high-traffic and inside the core corridor, and so
 it is the clear top collision-risk location, not merely the top barrier.
@@ -146,20 +139,8 @@ high-traffic and in-core — the combination that defines collision risk. Traffi
 values are directly measured; see the connectivity section for the full
 confidence-tiered ranking. {.striped}
 
-The reading is straightforward and narrow, which is the honest result: **one road
+The result: **one road
 carries most of the corridor's collision risk.** Santa Cruz Highway and Route 17
 are busy, but the corridor crosses them at its edges, not its core. Big Basin Way
 and Summit Road are in the core, but they are quiet mountain roads. US-101 is the
-only place where heavy traffic and the core corridor meet — which is exactly why
-it is both the top barrier and the top mitigation priority.
-
-## What would change this
-
-This proxy stands in for mortality data, and it should be replaced by mortality
-data when that becomes available. The CROS records, once authorised, would show
-where vehicle strikes have *actually* happened — which may confirm the US-101
-finding, or reveal risk on roads the proxy underweights. Two honest limits apply
-until then: the proxy assumes risk scales with traffic and corridor overlap, which
-is reasonable but untested here; and the corridor itself is a landscape-cost
-model, not observed movement, so both inputs to the risk picture are hypotheses.
-The proxy points to where to look first. It does not close the question.
+only place where heavy traffic and the core corridor meet.
