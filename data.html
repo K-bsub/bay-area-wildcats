@@ -147,19 +147,19 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#the-data-by-role" id="toc-the-data-by-role" class="nav-link active" data-scroll-target="#the-data-by-role">The data, by role</a>
+  <li><a href="#the-data" id="toc-the-data" class="nav-link active" data-scroll-target="#the-data">The data</a>
   <ul class="collapse">
   <li><a href="#where-animals-were-recorded" id="toc-where-animals-were-recorded" class="nav-link" data-scroll-target="#where-animals-were-recorded">Where animals were recorded</a></li>
   <li><a href="#where-habitat-is-protected" id="toc-where-habitat-is-protected" class="nav-link" data-scroll-target="#where-habitat-is-protected">Where habitat is protected</a></li>
-  <li><a href="#what-the-landscape-is-made-of" id="toc-what-the-landscape-is-made-of" class="nav-link" data-scroll-target="#what-the-landscape-is-made-of">What the landscape is made of</a></li>
+  <li><a href="#what-the-landscape-is-made-of" id="toc-what-the-landscape-is-made-of" class="nav-link" data-scroll-target="#what-the-landscape-is-made-of">What the landscape is made of?</a></li>
   <li><a href="#roads-and-traffic" id="toc-roads-and-traffic" class="nav-link" data-scroll-target="#roads-and-traffic">Roads and traffic</a></li>
   <li><a href="#road-mortality-pending" id="toc-road-mortality-pending" class="nav-link" data-scroll-target="#road-mortality-pending">Road mortality (pending)</a></li>
-  <li><a href="#population-context-not-trend" id="toc-population-context-not-trend" class="nav-link" data-scroll-target="#population-context-not-trend">Population context, not trend</a></li>
+  <li><a href="#population-context" id="toc-population-context" class="nav-link" data-scroll-target="#population-context">Population context</a></li>
   </ul></li>
   <li><a href="#licences" id="toc-licences" class="nav-link" data-scroll-target="#licences">Licences</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a>
   <ul class="collapse">
-  <li><a href="#population-and-status-context-only-not-a-trend" id="toc-population-and-status-context-only-not-a-trend" class="nav-link" data-scroll-target="#population-and-status-context-only-not-a-trend">Population and status (context only, not a trend)</a></li>
+  <li><a href="#population-and-status" id="toc-population-and-status" class="nav-link" data-scroll-target="#population-and-status">Population and status</a></li>
   <li><a href="#bay-area-felid-research" id="toc-bay-area-felid-research" class="nav-link" data-scroll-target="#bay-area-felid-research">Bay Area felid research</a></li>
   <li><a href="#road-ecology" id="toc-road-ecology" class="nav-link" data-scroll-target="#road-ecology">Road ecology</a></li>
   <li><a href="#methods-occupancy" id="toc-methods-occupancy" class="nav-link" data-scroll-target="#methods-occupancy">Methods — occupancy</a></li>
@@ -195,15 +195,15 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Every map on this site is built from public, open data. This page describes what those datasets are, where they come from, and how they are licensed, and then lists the literature the analysis and narrative rest on. The full machine-level provenance — version strings, file paths, record counts, access dates, and known issues — lives in <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md"><code>docs/data-sources.md</code></a>; this page is the plain-language version.</p>
-<p>Two principles govern the data on this project. First, <strong>Phase 1 uses open data only</strong> — no partner or restricted data is used or published. Second, <strong>no precise puma location is ever published</strong> (see the note at the foot of this page). Both are deliberate and central to the project, not incidental.</p>
-<section id="the-data-by-role" class="level2">
-<h2 class="anchored" data-anchor-id="the-data-by-role">The data, by role</h2>
+<p>Every map on this site is built from public, open-source data. This page describes what those datasets are, where they come from, and how they are licensed, and then lists the literature the analysis and narrative rest on. The full version — version strings, file paths, record counts, access dates, and known issues — is in <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md"><code>docs/data-sources.md</code></a>.</p>
+<p>Two principles govern the data on this project. First, <strong>Phase 1 uses open data only</strong> — no partner or restricted data is used or published. Second, <strong>no precise puma location is ever published</strong> (see the note at the foot of this page).</p>
+<section id="the-data" class="level2">
+<h2 class="anchored" data-anchor-id="the-data">The data</h2>
 <section id="where-animals-were-recorded" class="level3">
 <h3 class="anchored" data-anchor-id="where-animals-were-recorded">Where animals were recorded</h3>
 <ul>
-<li><strong>GBIF</strong> (Global Biodiversity Information Facility) — the main occurrence source, pulled as a citable, DOI-stamped download rather than a live query, so the exact record set is reproducible. Records carry a coordinate-uncertainty value that the analysis respects when snapping points to units.</li>
-<li><strong>iNaturalist</strong> — community wildlife observations. A point worth stating plainly: iNaturalist obscures many sensitive species by default, but <strong>not</strong> mountain lions in California, which is exactly why the sensitive-data handling on this project has to be strict rather than assumed.</li>
+<li><strong>GBIF</strong> (Global Biodiversity Information Facility) — the main occurrence source, pulled as a citable, DOI-stamped download, so the exact record set is reproducible. Records carry a coordinate-uncertainty value that the analysis respects when snapping points to units.</li>
+<li><strong>iNaturalist</strong> — community wildlife observations. iNaturalist obscures many sensitive species by default, but <strong>not</strong> mountain lions in California, which is exactly why the sensitive-data handling on this project is strict.</li>
 <li><strong>GBIF target-group background</strong> — for the bobcat occupancy model, a second, much larger GBIF pull of <em>all</em> vertebrate records across the region stands in for “where did people look at all,” which is what lets the model separate effort from presence.</li>
 </ul>
 </section>
@@ -216,35 +216,35 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 <section id="what-the-landscape-is-made-of" class="level3">
-<h3 class="anchored" data-anchor-id="what-the-landscape-is-made-of">What the landscape is made of</h3>
+<h3 class="anchored" data-anchor-id="what-the-landscape-is-made-of">What the landscape is made of?</h3>
 <ul>
-<li><strong>ESA WorldCover 2021</strong> — 10 m land cover (trees, shrub, built-up, cropland, and so on), the base habitat layer. A known trade-off is recorded honestly: WorldCover under-maps California chaparral badly compared with older US products, which is why the urban-intensity signal comes from human modification instead.</li>
+<li><strong>ESA WorldCover 2021</strong> — 10 m land cover (trees, shrub, built-up, cropland, and so on), the base habitat layer. A known trade-off: WorldCover under-maps California chaparral badly compared with older US products, which is why urban-intensity comes from human modification instead.</li>
 <li><strong>Global Human Modification (gHM) v3, 2022</strong> (Theobald et al.&nbsp;2024) — a 0–1 index of how heavily each area is modified by people; the dominant term in the puma resistance surface.</li>
-<li><strong>SILVIS housing density</strong> — block-level housing as a second human-footprint signal.</li>
-<li><strong>AWS Terrain Tiles</strong> (via <code>elevatr</code>) — elevation, from which slope is derived. The tiles blend several public elevation sources at roughly 30 m effective resolution here; the earlier “3DEP 10 m” wording was corrected as inaccurate.</li>
+<li><strong>SILVIS housing density</strong> — block-level housing as a second human-footprint source.</li>
+<li><strong>AWS Terrain Tiles</strong> (via <code>elevatr</code>) — elevation, from which slope is derived. The tiles blend several public elevation sources at roughly 30 m effective resolution here.</li>
 </ul>
 </section>
 <section id="roads-and-traffic" class="level3">
 <h3 class="anchored" data-anchor-id="roads-and-traffic">Roads and traffic</h3>
 <ul>
 <li><strong>OpenStreetMap roads</strong> (Geofabrik NorCal extract) — the road network, classified by type. Because roads are a barrier only when busy, road presence alone is not enough.</li>
-<li><strong>Caltrans AADT</strong> — annual average daily traffic counts, which turn “a road is here” into “how much traffic crosses here.” A structural caveat is carried in the data: traffic count stations cluster on busy roads, so any spatial fill of the gaps has a built-in upward bias, handled with a source flag rather than pretended away.</li>
+<li><strong>Caltrans AADT</strong> — annual average daily traffic counts, which turn “a road is here” into “how much traffic crosses here.” A structural caveat: traffic count stations cluster on busy roads, so any spatial fill of the gaps has a built-in upward bias, handled with a source flag.</li>
 </ul>
 </section>
 <section id="road-mortality-pending" class="level3">
 <h3 class="anchored" data-anchor-id="road-mortality-pending">Road mortality (pending)</h3>
 <ul>
-<li><strong>CROS</strong> (California Roadkill Observation System) / <strong>UC Davis Road Ecology Center</strong> — the intended wildlife–vehicle collision source. Record-level access is still pending, so the collision-risk question is currently answered as a risk-overlap proxy, not as a mortality point layer, and the page says so.</li>
+<li><strong>CROS</strong> (California Roadkill Observation System) / <strong>UC Davis Road Ecology Center</strong> — the intended wildlife–vehicle collision source. Record-level access is still pending, so the collision-risk question is currently answered as a risk-overlap proxy, not as a mortality point layer.</li>
 </ul>
 </section>
-<section id="population-context-not-trend" class="level3">
-<h3 class="anchored" data-anchor-id="population-context-not-trend">Population context, not trend</h3>
-<p>There is <strong>no</strong> repeated regional census of Bay Area pumas or bobcats — nothing like the national tiger census that anchors the sister project. A single statewide puma abundance estimate exists (the California Mountain Lion Project, roughly 3,200–4,500 statewide) and is cited only as one-time context, never as a trend. <strong>No statewide bobcat abundance estimate exists at all</strong> — an asymmetry stated wherever puma status appears, so the bobcat track is not implied to have an equivalent.</p>
+<section id="population-context" class="level3">
+<h3 class="anchored" data-anchor-id="population-context">Population context</h3>
+<p>There is <strong>no</strong> repeated regional census of Bay Area pumas or bobcats — nothing like the national tiger census that anchors the sister project. A single statewide puma abundance estimate exists (the California Mountain Lion Project, roughly 3,200–4,500 statewide) and is cited only as one-time context. <strong>No statewide bobcat abundance estimate exists at all</strong>.</p>
 </section>
 </section>
 <section id="licences" class="level2">
 <h2 class="anchored" data-anchor-id="licences">Licences</h2>
-<p>Every dataset is used within its licence, with attribution where required. The summary below matches <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md"><code>docs/data-sources.md</code></a> §7, which holds the full terms.</p>
+<p>Every dataset is used within its licence, with attribution where required. <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md"><code>docs/data-sources.md</code></a> §7, holds the full terms.</p>
 <table class="caption-top table">
 <colgroup>
 <col style="width: 25%">
@@ -321,21 +321,15 @@ ul.task-list li input[type="checkbox"] {
 <td>Yes</td>
 <td>Informational</td>
 </tr>
-<tr class="odd">
-<td>Felidae (deferred)</td>
-<td>Written agreement</td>
-<td>Yes</td>
-<td><strong>No</strong></td>
-</tr>
 </tbody>
 </table>
-<p>Dataset citations (the datasets themselves, with DOIs and access dates) are in <code>docs/data-sources.md</code>. The literature the analysis and narrative lean on is below.</p>
+<p>Dataset citations (the datasets themselves, with DOIs and access dates) are in <code>docs/data-sources.md</code>. The literature the analysis and narrative reference is below.</p>
 </section>
 <section id="references" class="level2">
 <h2 class="anchored" data-anchor-id="references">References</h2>
 <p>The list is grouped by role. It is author–date; a <code>.bib</code> conversion is planned if the site moves to Quarto citation handling.</p>
-<section id="population-and-status-context-only-not-a-trend" class="level3">
-<h3 class="anchored" data-anchor-id="population-and-status-context-only-not-a-trend">Population and status (context only, not a trend)</h3>
+<section id="population-and-status" class="level3">
+<h3 class="anchored" data-anchor-id="population-and-status">Population and status</h3>
 <ul>
 <li>Dellinger, J.A., Gustafson, K.D., Gammons, D.J., Ernest, H.B., &amp; Torres, S.G. (2020). Minimum habitat thresholds required for conserving mountain lion genetic diversity. <em>Ecology and Evolution</em>, 10(19), 10687–10696. — method paper behind the statewide abundance estimate.</li>
 <li>Dellinger, J.A., et al.&nbsp;(2019). Using mountain lion habitat selection in management. <em>The Journal of Wildlife Management</em>, 84(2). DOI: 10.1002/jwmg.21798.</li>
@@ -443,7 +437,7 @@ ul.task-list li input[type="checkbox"] {
 <p>iNaturalist does not obscure mountain lions in California, so this project holds precise puma records that could expose real animals if published as points. Published puma outputs are therefore always generalised — continuous surfaces at a 1 km grain, or summaries at the open-space-unit level — never point maps, camera locations, den sites, or kill sites. Bobcat data, lower-sensitivity, is published at finer resolution but reviewed under the same process. The full policy is in <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/sensitive-data-policy.md"><code>docs/sensitive-data-policy.md</code></a>.</p>
 </div>
 </div>
-<p>The complete data provenance, including every version, access date, DOI, and known issue, is in <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md"><code>docs/data-sources.md</code></a>; the full literature bibliography is in <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/references.md"><code>docs/references.md</code></a>.</p>
+<p>The complete data provenance, including every version, access date, DOI, and known issues, is in <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/data-sources.md"><code>docs/data-sources.md</code></a>; the full literature bibliography is in <a href="https://github.com/K-bsub/bay-area-wildcats/blob/main/docs/references.md"><code>docs/references.md</code></a>.</p>
 
 
 </section>
