@@ -277,7 +277,7 @@ legend_html <- htmltools::HTML(
    </div>"
 )
 
-leaflet(options = leafletOptions(minZoom = 8)) |>
+leaflet(options = leafletOptions(minZoom = 7, zoomSnap = 0.1)) |>
   addTiles(urlTemplate = paste0(
     "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/",
     "World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"),
@@ -301,8 +301,39 @@ leaflet(options = leafletOptions(minZoom = 8)) |>
     options = layersControlOptions(collapsed = FALSE),
     position = "topright") |>
   addControl(html = legend_html, position = "bottomleft") |>
-  # fitBounds MUST be last
-  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
+  # Responsive fit (ported from landscape.qmd): waits for the container to have a
+  # real height before fitting, so fitBounds never runs against a 0-height box.
+  # zoomSnap on the map lets the fit land fractionally and adapt to frame width.
+  # Debounced ResizeObserver re-fits on later resizes (phone reflow, orientation).
+  htmlwidgets::onRender("
+    function(el, x) {
+      var map = this;
+      var bounds = [[36.85065, -123.53354], [38.86399, -121.20830]];   // [[S,W],[N,E]] this map's extent
+      function doFit() {
+        map.invalidateSize();
+        var pad = window.innerWidth <= 760 ? [2, 2] : [4, 4];
+        map.fitBounds(bounds, { padding: pad });
+      }
+      var tries = 0;
+      function fitWhenReady() {
+        if (el.clientHeight > 50 && el.clientWidth > 50) {
+          doFit();
+        } else if (tries++ < 60) {
+          requestAnimationFrame(fitWhenReady);
+        }
+      }
+      fitWhenReady();
+      var rafId = null;
+      if (window.ResizeObserver) {
+        var ro = new ResizeObserver(function() {
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(doFit);
+        });
+        ro.observe(el);
+      }
+      window.addEventListener('orientationchange', doFit);
+    }
+  ")
 ```
 
 You can toggle the three layers with the control at top-right — turn the resistance

@@ -158,7 +158,7 @@ notmodel  <- psi[ is.na(psi$psi_pred), ]
 
 pal <- colorNumeric("Greens", domain = c(0, 1), na.color = "#cfccc4")
 
-leaflet(options = leafletOptions(minZoom = 7)) |>
+leaflet(options = leafletOptions(minZoom = 6, zoomSnap = 0.1)) |>
   addTiles(
     urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
     attribution = "Tiles &copy; Esri"
@@ -191,8 +191,39 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
      Effort is modelled out of this surface.</div>",
     position = "topright"
   ) |>
-  # fitBounds MUST be last, or the auto-fit overrides it
-  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
+  # Responsive fit (ported from landscape.qmd): waits for the container to have a
+  # real height before fitting, so fitBounds never runs against a 0-height box.
+  # zoomSnap on the map lets the fit land fractionally and adapt to frame width.
+  # Debounced ResizeObserver re-fits on later resizes (phone reflow, orientation).
+  htmlwidgets::onRender("
+    function(el, x) {
+      var map = this;
+      var bounds = [[36.85065, -123.53354], [38.86399, -121.20830]];   // [[S,W],[N,E]] this map's extent
+      function doFit() {
+        map.invalidateSize();
+        var pad = window.innerWidth <= 760 ? [2, 2] : [4, 4];
+        map.fitBounds(bounds, { padding: pad });
+      }
+      var tries = 0;
+      function fitWhenReady() {
+        if (el.clientHeight > 50 && el.clientWidth > 50) {
+          doFit();
+        } else if (tries++ < 60) {
+          requestAnimationFrame(fitWhenReady);
+        }
+      }
+      fitWhenReady();
+      var rafId = null;
+      if (window.ResizeObserver) {
+        var ro = new ResizeObserver(function() {
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(doFit);
+        });
+        ro.observe(el);
+      }
+      window.addEventListener('orientationchange', doFit);
+    }
+  ")
 ```
 
 This surface is where the effort correction pays off. A raw sightings map would
@@ -238,7 +269,7 @@ ramp <- colorNumeric(
   na.color = "transparent"
 )
 
-leaflet(options = leafletOptions(minZoom = 7)) |>
+leaflet(options = leafletOptions(minZoom = 6, zoomSnap = 0.1)) |>
   addTiles(
     urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
     attribution = "Tiles &copy; Esri"
@@ -263,8 +294,39 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
        </div>"
     )
   ) |>
-  # fitBounds MUST be last, or the auto-fit overrides it
-  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
+  # Responsive fit (ported from landscape.qmd): waits for the container to have a
+  # real height before fitting, so fitBounds never runs against a 0-height box.
+  # zoomSnap on the map lets the fit land fractionally and adapt to frame width.
+  # Debounced ResizeObserver re-fits on later resizes (phone reflow, orientation).
+  htmlwidgets::onRender("
+    function(el, x) {
+      var map = this;
+      var bounds = [[36.85065, -123.53354], [38.86399, -121.20830]];   // [[S,W],[N,E]] this map's extent
+      function doFit() {
+        map.invalidateSize();
+        var pad = window.innerWidth <= 760 ? [2, 2] : [4, 4];
+        map.fitBounds(bounds, { padding: pad });
+      }
+      var tries = 0;
+      function fitWhenReady() {
+        if (el.clientHeight > 50 && el.clientWidth > 50) {
+          doFit();
+        } else if (tries++ < 60) {
+          requestAnimationFrame(fitWhenReady);
+        }
+      }
+      fitWhenReady();
+      var rafId = null;
+      if (window.ResizeObserver) {
+        var ro = new ResizeObserver(function() {
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(doFit);
+        });
+        ro.observe(el);
+      }
+      window.addEventListener('orientationchange', doFit);
+    }
+  ")
 ```
 
 **Hot spots.** A Getis-Ord Gi\* analysis flags units with significantly high or low
@@ -313,7 +375,7 @@ lab_common <- function(d, verdict = NULL) {
   lapply(base, htmltools::HTML)
 }
 
-leaflet(options = leafletOptions(minZoom = 7)) |>
+leaflet(options = leafletOptions(minZoom = 6, zoomSnap = 0.1)) |>
   addTiles(
     urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
     attribution = "Tiles &copy; Esri"
@@ -373,8 +435,39 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
       col_hot, col_hot, col_hot, col_cold, col_ns
     ))
   ) |>
-  # fitBounds MUST be last, or the auto-fit overrides it
-  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
+  # Responsive fit (ported from landscape.qmd): waits for the container to have a
+  # real height before fitting, so fitBounds never runs against a 0-height box.
+  # zoomSnap on the map lets the fit land fractionally and adapt to frame width.
+  # Debounced ResizeObserver re-fits on later resizes (phone reflow, orientation).
+  htmlwidgets::onRender("
+    function(el, x) {
+      var map = this;
+      var bounds = [[36.85065, -123.53354], [38.86399, -121.20830]];   // [[S,W],[N,E]] this map's extent
+      function doFit() {
+        map.invalidateSize();
+        var pad = window.innerWidth <= 760 ? [2, 2] : [4, 4];
+        map.fitBounds(bounds, { padding: pad });
+      }
+      var tries = 0;
+      function fitWhenReady() {
+        if (el.clientHeight > 50 && el.clientWidth > 50) {
+          doFit();
+        } else if (tries++ < 60) {
+          requestAnimationFrame(fitWhenReady);
+        }
+      }
+      fitWhenReady();
+      var rafId = null;
+      if (window.ResizeObserver) {
+        var ro = new ResizeObserver(function() {
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(doFit);
+        });
+        ro.observe(el);
+      }
+      window.addEventListener('orientationchange', doFit);
+    }
+  ")
 ```
 
 ## Summary
