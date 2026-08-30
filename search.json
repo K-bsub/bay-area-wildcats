@@ -32,7 +32,7 @@
     "href": "puma.html",
     "title": "Movement",
     "section": "",
-    "text": "The puma question is the opposite of the bobcat one. There are too few puma records to model where the animals are, and the precise locations that do exist are sensitive enough that publishing them would do harm. So this section does not map where pumas were seen. It maps where the landscape would let one move."
+    "text": "The puma (Puma concolor), also called mountain lion, cougar, or panther, is the large cat of the Bay Area. An adult male can weigh 60 kilograms and needs a very large home range — often more than 100 square kilometres. Pumas are solitary and hunt mostly deer. They avoid people and rarely stay near development. That large space requirement is the whole problem this section studies: a puma must cross roads and developed ground to move between habitat blocks, and the Bay Area is cut through with both. Where the landscape still lets an animal pass is the connectivity question.\nThe puma question is the opposite of the bobcat one. There are too few puma records to model where the animals are, and the precise locations that do exist are sensitive enough that publishing them would do harm. So this section does not map where pumas were seen. It maps where the landscape would let one move."
   },
   {
     "objectID": "puma.html#built-from-resistance",
@@ -89,6 +89,13 @@
     "title": "Data & references",
     "section": "Licences",
     "text": "Licences\nEvery dataset is used within its licence, with attribution where required. docs/data-sources.md §7, holds the full terms.\n\n\n\n\n\n\n\n\n\nDataset\nLicence\nAttribution\nRedistribution\n\n\n\n\nCPAD / CCED\nOpen (CC-BY; “no restrictions on public use”)\nYes\nAllowed\n\n\nGBIF\nCC0 / CC-BY (varies per record)\nYes\nCheck per record\n\n\niNaturalist\nCC-BY / CC-BY-NC (varies per observer)\nYes\nCheck per record\n\n\nCROS\nConfirm terms (pending)\nYes\nConfirm\n\n\nAWS Terrain / TIGER\nPublic domain\nNo\nAllowed\n\n\nESA WorldCover\nCC-BY 4.0\nYes\nAllowed\n\n\ngHM v3 (Theobald 2024)\nCC-BY 4.0\nYes\nAllowed\n\n\nSILVIS housing\nUSDA FS / SILVIS (acknowledgement requested)\nYes\nAllowed\n\n\nOpenStreetMap\nODbL\nYes\nShare-alike\n\n\nCaltrans AADT\nCalifornia public data\nYes\nInformational\n\n\n\nDataset citations (the datasets themselves, with DOIs and access dates) are in docs/data-sources.md. The literature the analysis and narrative reference is below."
+  },
+  {
+    "objectID": "data.html#image-credits",
+    "href": "data.html#image-credits",
+    "title": "Data & references",
+    "section": "Image credits",
+    "text": "Image credits\nThe photographs on this site are illustrative. They are not study data and show no analysis result. Each is used within its Wikimedia Commons licence, with attribution. EXIF metadata was removed from every file before publication.\n\n\n\nImage\nPage\nAuthor\nSource\nLicence\n\n\n\n\nPuma (Puma concolor)\nStory, Puma\nCharles J. Sharp\nCommons · Commons\nCC BY-SA 4.0\n\n\nBobcat (Lynx rufus)\nBobcat\nDon DeBold\nCommons\nCC BY-SA 2.0\n\n\nBobcat (Lynx rufus)\nStory\nRennett Stowe\nCommons\nCC BY-SA 2.0\n\n\nSanta Cruz Mountains foothills\nLandscape\nAgne27\nCommons\nCC BY-SA 3.0\n\n\n\nNo image was cropped or altered. Under CC BY-SA, any future crop or edit must be noted here and keep the same licence."
   },
   {
     "objectID": "data.html#references",
@@ -168,11 +175,11 @@
     "text": "Data-input limits\nThese are smaller, but each shapes a specific result.\n\nChaparral is under-mapped — but it does not move the corridor. The land-cover source (ESA WorldCover) badly under-maps California chaparral, prime cat habitat. This sounds serious for a habitat model. A pre-registered sensitivity test bounded it: rebuilding the resistance surface with chaparral treated as good habitat changed the corridor essentially not at all (overlap IoU 1.000 / 0.998). So the under-mapping is immaterial to connectivity.\nTraffic counts are biased upward off the highways. Measured traffic covers state highways; local and arterial roads are filled in from the nearest measured segment or a class-based floor (about 19,851 segments spatially filled, and roughly 45% on a modelled floor). Because count stations cluster on busy roads, that fill runs high. The effect is compressed by the log-inverse traffic transform and bounded by a sensitivity check, but it is a real property of the data, tracked with a source flag on every segment."
   },
   {
-    "objectID": "limitations.html#two-whole-questions-left-open",
-    "href": "limitations.html#two-whole-questions-left-open",
+    "objectID": "limitations.html#two-questions-left-open",
+    "href": "limitations.html#two-questions-left-open",
     "title": "Limitations",
-    "section": "Two whole questions left open",
-    "text": "Two whole questions left open\n\nRoad mortality is incomplete. The wildlife–vehicle collision question is currently answered as a risk-overlap proxy, because record-level roadkill data is still pending.\nNo population trend is possible. There is no repeated regional census of either species. A one-time statewide puma estimate exists as context; no statewide bobcat estimate exists at all.\n\n\nEvery limitation above is recorded in full, with its sensitivity test and its figures, in docs/methodology.md."
+    "section": "Two questions left open",
+    "text": "Two questions left open\n\nRoad mortality is incomplete. The wildlife–vehicle collision question is currently answered as a risk-overlap proxy, because record-level roadkill data is still pending.\nNo population trend is possible. There is no repeated regional census of either species. A one-time statewide puma estimate exists as context; no statewide bobcat estimate exists at all.\n\n\nEvery limitation above is recorded in full, with its sensitivity test and its figures, in docs/methodology.md."
   },
   {
     "objectID": "methods.html",
@@ -221,7 +228,7 @@
     "href": "index.html",
     "title": "Wild Cats at the Urban Edge",
     "section": "",
-    "text": "Two wild cats share the same ecosystem in the San Francisco Bay Area, and they present opposite analysis challenges. Bobcats are common and occurrence data are plenty. Pumas are rare, wide-ranging, and their precise locations are a risk to publish. One landscape has two data situations that point in different directions. This project analyses them separately."
+    "text": "Pumas and bobcats have lived in California for thousands of years. Both were hunted heavily after European settlement. California paid a bounty on pumas from 1907 to 1963, and more than 12,000 animals were killed under it. Bobcats were trapped for their fur. The state changed course in the 1960s and 1970s: the puma bounty ended in 1963, sport hunting of pumas stopped in 1972, and a 1990 ballot measure made the puma a specially protected species. Bobcat trapping for fur continued longer; California banned commercial bobcat trapping in 2015 and banned bobcat hunting in 2020. Today neither species is recovering from near-extinction. The conservation question in the Bay Area is different — not how to bring them back, but how they keep moving and coexisting at the edge of a large city.\nThe two wild cats share the same ecosystem in the San Francisco Bay Area, and they present opposite analysis challenges. Bobcats are common and occurrence data are plenty. Pumas are rare, wide-ranging, and their precise locations are a risk to publish. One landscape has two data situations that point in different directions. This project analyses them separately."
   },
   {
     "objectID": "index.html#what-is-studied",
@@ -256,7 +263,7 @@
     "href": "bobcat.html",
     "title": "Where Bobcats Are, and Why?",
     "section": "",
-    "text": "Bobcat records are abundant, so the question is how much of the apparent pattern is bobcats and how much is people with cameras and phones. The occupancy model is built to separate the two."
+    "text": "The bobcat (Lynx rufus) is a mid-sized wild cat, about twice the weight of a large house cat, with a short “bobbed” tail, tufted ears, and a spotted coat. It is the most common wild cat in North America and ranges across most of the continent. Bobcats are adaptable: they live in forest, chaparral, farmland, and the green edges of cities, and they hunt mostly rabbits and rodents. In the Bay Area they move through parks, watershed land, and suburban open space, which is why their records are plenty and their occupancy is the question to ask: How much of the apparent pattern is bobcats and how much is people with cameras and phones? The occupancy model is built to separate the two."
   },
   {
     "objectID": "bobcat.html#occupancy",
