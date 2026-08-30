@@ -144,7 +144,7 @@ legend_html <- htmltools::HTML(sprintf(
   col_fee, col_fee, col_ease, col_ease, col_core
 ))
 
-leaflet(options = leafletOptions(minZoom = 7)) |>
+leaflet(options = leafletOptions(minZoom = 6, zoomSnap = 0.1)) |>
   addTiles(urlTemplate = paste0(
     "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/",
     "World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"),
