@@ -61,6 +61,7 @@ surface.**
 
 ```{r}
 #| label: fig-puma-convergence
+#| fig-alt: "Map of puma record density as a smoothed surface with the two-tier corridor band and core habitat patches overlaid, density higher along the corridor."
 #| echo: false
 #| message: false
 #| warning: false
@@ -202,6 +203,7 @@ hot units are effort-suspect** — far more than for bobcat.
 
 ```{r}
 #| label: fig-puma-hotspots
+#| fig-alt: "Map of puma record hot-spot units, solid red for trusted hotspots and hollow dashed red for effort-suspect hotspots."
 #| echo: false
 #| message: false
 #| warning: false

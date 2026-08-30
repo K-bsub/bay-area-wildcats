@@ -214,6 +214,7 @@ cheapest-route cost-corridor over it, and the two-tier swath outline on top.
 
 ```{r}
 #| label: fig-cost-corridor
+#| fig-alt: "Three-layer methods map: a resistance surface base, a cost-corridor surface, and the two-tier swath outline of the lowest-cost route between two habitat cores."
 #| echo: false
 #| message: false
 #| warning: false

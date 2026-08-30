@@ -125,6 +125,7 @@ follow.
 
 ```{r}
 #| label: fig-bobc-psi
+#| fig-alt: "Choropleth map of Bay Area open-space units shaded from pale to dark green by predicted bobcat occupancy, with unmodelled units in flat grey."
 #| echo: false
 #| message: false
 #| warning: false
@@ -246,6 +247,7 @@ bobcat density. It is shown as a descriptive layer, not as an abundance estimate
 
 ```{r}
 #| label: fig-bobc-kde
+#| fig-alt: "Density map of bobcat records across the Bay Area, darker green where records concentrate, fading to transparent away from recorded areas."
 #| echo: false
 #| message: false
 #| warning: false
@@ -345,6 +347,7 @@ as suspect.
 
 ```{r}
 #| label: fig-bobc-gistar
+#| fig-alt: "Map of open-space units with a small number of red hot-spot units and many purple cold-spot units for bobcat records; most units are faint grey and not significant."
 #| echo: false
 #| message: false
 #| warning: false

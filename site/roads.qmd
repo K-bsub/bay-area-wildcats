@@ -32,6 +32,7 @@ When the core-corridor filter is applied, the risk narrows sharply.
 
 ```{r}
 #| label: fig-puma-risk
+#| fig-alt: "Zoomed south-Bay map of road crossings, those inside the core corridor coloured blue to magenta by traffic and those outside greyed, with US-101 at Coyote Valley standing out as high-traffic inside the corridor."
 #| echo: false
 #| message: false
 #| warning: false

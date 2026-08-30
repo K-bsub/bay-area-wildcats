@@ -72,6 +72,7 @@ ranchland — exists only because of easements.
 
 ```{r}
 #| label: fig-protected-fabric
+#| fig-alt: "Map of the ten-county Bay Area showing protected land as green fee-owned parcels and gold conservation easements, with 164 larger core patches outlined in dark on top."
 #| echo: false
 #| message: false
 #| warning: false

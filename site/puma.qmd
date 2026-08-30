@@ -55,6 +55,7 @@ below.
 
 ```{r}
 #| label: fig-puma-swath
+#| fig-alt: "Map of the south and east Bay showing a two-tier puma corridor swath, a dark narrow core band inside a lighter wider context band, linking two bold-outlined habitat blocks over faint green patches."
 #| echo: false
 #| message: false
 #| warning: false
@@ -200,6 +201,7 @@ masquerading as the top barrier.
 
 ```{r}
 #| label: fig-puma-crossings
+#| fig-alt: "Zoomed south-Bay map of the puma corridor crossing roads, road lines coloured blue to magenta by traffic volume and thickened with volume, four named roads outlined and labelled."
 #| echo: false
 #| message: false
 #| warning: false
@@ -368,6 +370,7 @@ protecting.
 
 ```{r}
 #| label: fig-puma-network
+#| fig-alt: "Bay Area map of core habitat blocks joined by schematic straight links coloured green for cheap strong connections and red for costly weak ones, with red cross-bay weak-link swaths."
 #| echo: false
 #| message: false
 #| warning: false
