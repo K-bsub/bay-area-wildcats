@@ -89,6 +89,28 @@
   .lead-cats figure img {
     height: 240px;
   }
+
+  /* Leaflet legends/controls: shrink on phones so they don't cover the map.    */
+  /* The legends are addControl HTML boxes; scaling the control container hits  */
+  /* every one without editing each map's inline legend HTML.                   */
+  .leaflet-control-container .leaflet-control {
+    font-size: 10px !important;
+    max-width: 44vw;          /* never wider than ~half the screen */
+    line-height: 1.35;
+  }
+  .leaflet-control-container .leaflet-control div {
+    font-size: 10px !important;
+  }
+  /* The layer toggle (top-right checkboxes) also shrinks. */
+  .leaflet-control-layers {
+    font-size: 10px !important;
+    padding: 4px 6px !important;
+  }
+  /* Legend colour swatches scale down a touch to match the smaller text. */
+  .leaflet-control-container .leaflet-control span[style*="display:inline-block"],
+  .leaflet-control-container .leaflet-control span[style*="display: inline-block"] {
+    transform: scale(0.85);
+  }
 }
 
 /* Story page -- equal-height lead photos (puma + bobcat) */

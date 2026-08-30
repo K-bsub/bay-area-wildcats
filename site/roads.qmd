@@ -121,7 +121,7 @@ leaflet(options = leafletOptions(minZoom = 6, zoomSnap = 0.1)) |>
       var bounds = [[37.01977, -122.17587], [37.28626, -121.69144]];   // [[S,W],[N,E]] this map's extent
       function doFit() {
         map.invalidateSize();
-        var pad = window.innerWidth <= 760 ? [2, 2] : [4, 4];
+        var pad = window.innerWidth <= 760 ? [30, 30] : [55, 55];
         map.fitBounds(bounds, { padding: pad });
       }
       var tries = 0;
