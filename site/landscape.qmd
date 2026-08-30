@@ -113,13 +113,14 @@ col_fee  <- "#2e7d5b"  # green — fee land
 col_ease <- "#c8922b"  # gold  — easement
 col_core <- "#3b2f2f"  # dark ink — core patch outline
 
-# --- Data bounds for a tiger-style responsive fit -------------------------
+# --- Data bounds for a responsive fit -------------------------------------
 # Fit to the actual data extent (the protected union), not a hardcoded bbox.
-# Widen outward ~0.45 deg (tiger convention, ~50 km) for surrounding context
-# so edge patches and labels are never clipped. These numbers are injected
-# into the onRender JS below, which does the debounced, responsive fitBounds.
+# Widen outward a small margin (~0.05 deg, ~5 km) for breathing room only, so
+# the data fills the frame rather than sitting small inside wide empty context.
+# These numbers are injected into the onRender JS below, which fits once the
+# container has real height and re-fits (debounced) on resize.
 bb <- sf::st_bbox(sf::st_transform(union_sf, 4326))
-m  <- 0.45
+m  <- 0.05
 fit_s <- unname(bb["ymin"]) - m
 fit_w <- unname(bb["xmin"]) - m
 fit_n <- unname(bb["ymax"]) + m
@@ -143,7 +144,7 @@ legend_html <- htmltools::HTML(sprintf(
   col_fee, col_fee, col_ease, col_ease, col_core
 ))
 
-leaflet(options = leafletOptions(minZoom = 6)) |>
+leaflet(options = leafletOptions(minZoom = 7)) |>
   addTiles(urlTemplate = paste0(
     "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/",
     "World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"),
@@ -188,7 +189,7 @@ leaflet(options = leafletOptions(minZoom = 6)) |>
       var bounds = [[%f, %f], [%f, %f]];   // [[S,W],[N,E]] widened data bounds
       function doFit() {
         map.invalidateSize();
-        var pad = window.innerWidth <= 760 ? [20, 20] : [70, 70];
+        var pad = window.innerWidth <= 760 ? [12, 12] : [30, 30];
         map.fitBounds(bounds, { padding: pad });
       }
       // Wait until the container actually has size, THEN fit.
