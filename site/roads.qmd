@@ -32,6 +32,7 @@ When the core-corridor filter is applied, the risk narrows sharply.
 
 ```{r}
 #| label: fig-puma-risk
+#| column: page
 #| echo: false
 #| message: false
 #| warning: false

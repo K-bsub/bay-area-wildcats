@@ -214,6 +214,7 @@ cheapest-route cost-corridor over it, and the two-tier swath outline on top.
 
 ```{r}
 #| label: fig-cost-corridor
+#| column: page
 #| echo: false
 #| message: false
 #| warning: false

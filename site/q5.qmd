@@ -61,6 +61,7 @@ surface.**
 
 ```{r}
 #| label: fig-puma-convergence
+#| column: page
 #| echo: false
 #| message: false
 #| warning: false
@@ -171,6 +172,7 @@ hot units are effort-suspect** — far more than for bobcat.
 
 ```{r}
 #| label: fig-puma-hotspots
+#| column: page
 #| echo: false
 #| message: false
 #| warning: false

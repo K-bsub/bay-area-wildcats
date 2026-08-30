@@ -125,6 +125,7 @@ follow.
 
 ```{r}
 #| label: fig-bobc-psi
+#| column: page
 #| echo: false
 #| message: false
 #| warning: false
@@ -166,7 +167,6 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
   addTiles(
     urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
   ) |>
-  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399) |>
   # not-modelled units first, underneath, in flat grey
   addPolygons(
     data = notmodel,
@@ -191,7 +191,9 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
      Grey = not modelled (no covariate coverage), <b>not</b> low occupancy.
      Effort is modelled out of this surface.</div>",
     position = "topright"
-  )
+  ) |>
+  # fitBounds MUST be last, or the auto-fit overrides it
+  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
 ```
 
 This surface is where the effort correction pays off. A raw sightings map would
@@ -214,6 +216,7 @@ bobcat density. It is shown as a descriptive layer, not as an abundance estimate
 
 ```{r}
 #| label: fig-bobc-kde
+#| column: page
 #| echo: false
 #| message: false
 #| warning: false
@@ -245,7 +248,6 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
   addTiles(
     urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
   ) |>
-  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399) |>
   addRasterImage(ks, colors = ramp, opacity = 0.75, project = TRUE) |>
   addControl(
     position = "bottomleft",
@@ -262,7 +264,9 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
            Square-root stretch. Reflects recording effort as much as density.</div>
        </div>"
     )
-  )
+  ) |>
+  # fitBounds MUST be last, or the auto-fit overrides it
+  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
 ```
 
 **Hot spots.** A Getis-Ord Gi\* analysis flags units with significantly high or low
@@ -281,6 +285,7 @@ as suspect.
 
 ```{r}
 #| label: fig-bobc-gistar
+#| column: page
 #| echo: false
 #| message: false
 #| warning: false
@@ -319,7 +324,6 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
   addTiles(
     urlTemplate = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}"
   ) |>
-  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399) |>
   # not significant — faint but visible context
   addPolygons(
     data = ns_units,
@@ -371,7 +375,9 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
        </div>",
       col_hot, col_hot, col_hot, col_cold, col_ns
     ))
-  )
+  ) |>
+  # fitBounds MUST be last, or the auto-fit overrides it
+  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
 ```
 
 ## Summary

@@ -55,6 +55,7 @@ below.
 
 ```{r}
 #| label: fig-puma-swath
+#| column: page
 #| echo: false
 #| message: false
 #| warning: false
@@ -168,6 +169,7 @@ masquerading as the top barrier.
 
 ```{r}
 #| label: fig-puma-crossings
+#| column: page
 #| echo: false
 #| message: false
 #| warning: false
@@ -304,6 +306,7 @@ protecting.
 
 ```{r}
 #| label: fig-puma-network
+#| column: page
 #| echo: false
 #| message: false
 #| warning: false
