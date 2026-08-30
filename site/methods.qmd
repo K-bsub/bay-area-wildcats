@@ -2,40 +2,6 @@
 title: "Methods"
 ---
 
-```{r}
-#| label: setup-fitbounds
-#| include: false
-# Responsive bounds helper (Option 2: defined once per page, no cross-file source).
-# Re-fits the SAME bounds whenever the map container resizes -- phone reflow,
-# orientation change, single-column layout. On a tall/narrow phone frame a wide
-# bbox would otherwise zoom far out, so we cap the zoom (max_zoom) and pad the
-# fit. max_zoom is per-call: study-wide maps use a low cap, the tighter south-Bay
-# maps pass a higher one. padding keeps the extent off the frame edge.
-fit_bounds_responsive <- function(map, lng1, lat1, lng2, lat2,
-                                  max_zoom = 9, pad = 12) {
-  map |>
-    leaflet::fitBounds(lng1, lat1, lng2, lat2,
-                       options = list(maxZoom = max_zoom,
-                                      padding = c(pad, pad))) |>
-    htmlwidgets::onRender(sprintf("
-      function(el, x) {
-        var map = this;
-        var b = [[%f, %f], [%f, %f]];
-        var opts = {maxZoom: %d, padding: [%d, %d]};
-        var refit = function() { map.invalidateSize(); map.fitBounds(b, opts); };
-        if (window.ResizeObserver) {
-          var ro = new ResizeObserver(function() { refit(); });
-          ro.observe(el);
-        } else {
-          window.addEventListener('resize', refit);
-        }
-        window.addEventListener('orientationchange', refit);
-        setTimeout(refit, 200);
-      }
-    ", lat1, lng1, lat2, lng2, max_zoom, pad, pad))
-}
-```
-
 This page explains the four main methods behind the maps on this site. 
 The full processing log,
 every parameter value, and the numbered decisions are in
@@ -336,7 +302,7 @@ leaflet(options = leafletOptions(minZoom = 8)) |>
     position = "topright") |>
   addControl(html = legend_html, position = "bottomleft") |>
   # fitBounds MUST be last
-  fit_bounds_responsive(-123.53354, 36.85065, -121.20830, 38.86399)
+  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
 ```
 
 You can toggle the three layers with the control at top-right — turn the resistance
