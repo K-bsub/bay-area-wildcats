@@ -3,9 +3,17 @@ title: "Where Bobcats Are, and Why?"
 subtitle: "Question 2 — Bobcat"
 ---
 
-Bobcat records are abundant, so the question is 
-how much of the apparent pattern is bobcats and how much is people with cameras
-and phones. The occupancy model is built to separate the two.
+The bobcat (*Lynx rufus*) is a mid-sized wild cat, about twice the weight of a
+large house cat, with a short "bobbed" tail, tufted ears, and a spotted coat. It
+is the most common wild cat in North America and ranges across most of the
+continent. Bobcats are adaptable: they live in forest, chaparral, farmland, and
+the green edges of cities, and they hunt mostly rabbits and rodents. In the Bay
+Area they move through parks, watershed land, and suburban open space, which is
+why their records are plenty and their occupancy is the question to ask:
+How much of the apparent pattern is bobcats and how much is people with cameras
+and phones? The occupancy model is built to separate the two.
+
+![A bobcat (*Lynx rufus*) in Bay Area open space. Photo: Don DeBold, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Calero_Creek_Trail_Bobcat.jpg), [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0). Illustrative only — not a study record.](media/images/lynx_rufus1.jpg){fig-alt="A bobcat standing in dry grass, side view" width="70%"}
 
 ## Occupancy
 

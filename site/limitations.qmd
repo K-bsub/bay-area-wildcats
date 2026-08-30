@@ -80,7 +80,7 @@ These are smaller, but each shapes a specific result.
   sensitivity check, but it is a real property of the data, tracked with a source flag
   on every segment.
 
-## Two whole questions left open
+## Two questions left open
 
 - **Road mortality is incomplete.** The wildlife–vehicle collision question is
   currently answered as a risk-overlap proxy, because record-level roadkill data is

@@ -5,7 +5,24 @@ author: "Kiran Balasubramanian"
 date: last-modified
 ---
 
-Two wild cats share the same ecosystem in the San Francisco Bay Area, and they present opposite analysis challenges.
+Pumas and bobcats have lived in California for thousands of years. Both were
+hunted heavily after European settlement. California paid a bounty on pumas from
+1907 to 1963, and more than 12,000 animals were killed under it. Bobcats were
+trapped for their fur. The state changed course in the 1960s and 1970s: the puma
+bounty ended in 1963, sport hunting of pumas stopped in 1972, and a 1990 ballot
+measure made the puma a specially protected species. Bobcat trapping for fur continued longer; 
+California banned commercial bobcat trapping in 2015 and banned bobcat hunting in 2020. Today
+neither species is recovering from near-extinction. The conservation question in
+the Bay Area is different — not how to bring them back, but how they keep moving
+and coexisting at the edge of a large city.
+
+::: {layout-ncol=2}
+![A puma (*Puma concolor*). Photo: Charles J. Sharp, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Puma_(Puma_concolor_concolor)_female_Leona_Amarga_6.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0).](media/images/puma_concolor2.jpg){fig-alt="A puma standing on rocky ground"}
+
+![A bobcat (*Lynx rufus*). Photo: Rennett Stowe, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Wild_Bobcat_(3021593202).jpg), [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0).](media/images/lynx_rufus2.jpg){fig-alt="A bobcat sitting in grass"}
+:::
+
+The two wild cats share the same ecosystem in the San Francisco Bay Area, and they present opposite analysis challenges.
 Bobcats are common and occurrence data are plenty. Pumas are rare, wide-ranging, and their
 precise locations are a risk to publish. One landscape has two data situations that
 point in different directions. This project analyses them separately.

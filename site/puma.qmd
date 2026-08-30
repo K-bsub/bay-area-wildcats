@@ -3,6 +3,17 @@ title: "Movement"
 subtitle: "Question 3 — Puma connectivity"
 ---
 
+The puma (*Puma concolor*), also called mountain lion, cougar, or panther, is
+the large cat of the Bay Area. An adult male can weigh 60 kilograms and needs a
+very large home range — often more than 100 square kilometres. Pumas are solitary
+and hunt mostly deer. They avoid people and rarely stay near development. That
+large space requirement is the whole problem this section studies: a puma must
+cross roads and developed ground to move between habitat blocks, and the Bay Area
+is cut through with both. Where the landscape still lets an animal pass is the
+connectivity question.
+
+![A puma (*Puma concolor*). Photo: Charles J. Sharp, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Puma_(Puma_concolor_concolor)_female_Leona_Amarga_3.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0). Illustrative only — not a study record.](media/images/puma_concolor1.jpg){fig-alt="A puma standing on rocky ground, side view" width="70%"}
+
 The puma question is the opposite of the bobcat one. There are too few puma
 records to model where the animals are, and the precise locations that do exist
 are sensitive enough that publishing them would do harm. So this section does not

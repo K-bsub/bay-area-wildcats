@@ -100,6 +100,22 @@ holds the full terms.
 Dataset citations (the datasets themselves, with DOIs and access dates) are in
 `docs/data-sources.md`. The literature the analysis and narrative reference is below.
 
+## Image credits
+
+The photographs on this site are illustrative. They are not study data and show
+no analysis result. Each is used within its Wikimedia Commons licence, with
+attribution. EXIF metadata was removed from every file before publication.
+
+| Image | Page | Author | Source | Licence |
+|---|---|---|---|---|
+| Puma (*Puma concolor*) | Story, Puma | Charles J. Sharp | [Commons](https://commons.wikimedia.org/wiki/File:Puma_(Puma_concolor_concolor)_female_Leona_Amarga_3.jpg) · [Commons](https://commons.wikimedia.org/wiki/File:Puma_(Puma_concolor_concolor)_female_Leona_Amarga_6.jpg) | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0) |
+| Bobcat (*Lynx rufus*) | Bobcat | Don DeBold | [Commons](https://commons.wikimedia.org/wiki/File:Calero_Creek_Trail_Bobcat.jpg) | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) |
+| Bobcat (*Lynx rufus*) | Story | Rennett Stowe | [Commons](https://commons.wikimedia.org/wiki/File:Wild_Bobcat_(3021593202).jpg) | [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0) |
+| Santa Cruz Mountains foothills | Landscape | Agne27 | [Commons](https://commons.wikimedia.org/wiki/File:Fog_in_the_foothills_of_the_Santa_Cruz_Mountain_AVA_near_Ridge.jpg) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
+
+No image was cropped or altered. Under CC BY-SA, any future crop or edit must be
+noted here and keep the same licence.
+
 ## References
 
 The list is grouped by role. It is author–date; a `.bib` conversion is planned if
