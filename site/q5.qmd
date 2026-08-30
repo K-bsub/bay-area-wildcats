@@ -3,6 +3,34 @@ title: "What was recorded, and what is there?"
 subtitle: "Effort, and the two species"
 ---
 
+```{r}
+#| label: setup-fitbounds
+#| include: false
+# Responsive bounds helper (Option 2: defined once per page, no cross-file source).
+# Re-fits the SAME bounds whenever the map container resizes -- phone reflow,
+# orientation change, single-column layout -- so the study extent stays fixed on
+# every screen. Wraps fitBounds + a ResizeObserver via htmlwidgets::onRender.
+fit_bounds_responsive <- function(map, lng1, lat1, lng2, lat2) {
+  map |>
+    leaflet::fitBounds(lng1, lat1, lng2, lat2) |>
+    htmlwidgets::onRender(sprintf("
+      function(el, x) {
+        var map = this;
+        var b = [[%f, %f], [%f, %f]];
+        var refit = function() { map.invalidateSize(); map.fitBounds(b); };
+        if (window.ResizeObserver) {
+          var ro = new ResizeObserver(function() { refit(); });
+          ro.observe(el);
+        } else {
+          window.addEventListener('resize', refit);
+        }
+        window.addEventListener('orientationchange', refit);
+        setTimeout(refit, 200);
+      }
+    ", lat1, lng1, lat2, lng2))
+}
+```
+
 ## The question behind the other four
 
 Every map on this site is built from records that people made. People do not
@@ -61,7 +89,6 @@ surface.**
 
 ```{r}
 #| label: fig-puma-convergence
-#| column: page
 #| echo: false
 #| message: false
 #| warning: false
@@ -151,7 +178,7 @@ leaflet(options = leafletOptions(minZoom = 8)) |>
               weight = 2.2, opacity = 0.9) |>
   addControl(html = HTML(legend_html), position = "bottomleft") |>
   # fitBounds MUST be last, or the auto-fit overrides it
-  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
+  fit_bounds_responsive(-123.53354, 36.85065, -121.20830, 38.86399)
 ```
 
 ## The record hot-spots
@@ -172,7 +199,6 @@ hot units are effort-suspect** — far more than for bobcat.
 
 ```{r}
 #| label: fig-puma-hotspots
-#| column: page
 #| echo: false
 #| message: false
 #| warning: false
@@ -251,7 +277,7 @@ leaflet(options = leafletOptions(minZoom = 8)) |>
                 "TRUSTED hotspot (not explained by effort)")) |>
   addControl(html = legend_html2, position = "bottomleft") |>
   # fitBounds MUST be last
-  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
+  fit_bounds_responsive(-123.53354, 36.85065, -121.20830, 38.86399)
 ```
 
 ::: {.aside}

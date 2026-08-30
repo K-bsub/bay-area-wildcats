@@ -3,6 +3,34 @@ title: "Movement"
 subtitle: "Question 3 — Puma connectivity"
 ---
 
+```{r}
+#| label: setup-fitbounds
+#| include: false
+# Responsive bounds helper (Option 2: defined once per page, no cross-file source).
+# Re-fits the SAME bounds whenever the map container resizes -- phone reflow,
+# orientation change, single-column layout -- so the study extent stays fixed on
+# every screen. Wraps fitBounds + a ResizeObserver via htmlwidgets::onRender.
+fit_bounds_responsive <- function(map, lng1, lat1, lng2, lat2) {
+  map |>
+    leaflet::fitBounds(lng1, lat1, lng2, lat2) |>
+    htmlwidgets::onRender(sprintf("
+      function(el, x) {
+        var map = this;
+        var b = [[%f, %f], [%f, %f]];
+        var refit = function() { map.invalidateSize(); map.fitBounds(b); };
+        if (window.ResizeObserver) {
+          var ro = new ResizeObserver(function() { refit(); });
+          ro.observe(el);
+        } else {
+          window.addEventListener('resize', refit);
+        }
+        window.addEventListener('orientationchange', refit);
+        setTimeout(refit, 200);
+      }
+    ", lat1, lng1, lat2, lng2))
+}
+```
+
 The puma (*Puma concolor*), also called mountain lion, cougar, or panther, is
 the large cat of the Bay Area. An adult male can weigh 60 kilograms and needs a
 very large home range — often more than 100 square kilometres. Pumas are solitary
@@ -55,7 +83,6 @@ below.
 
 ```{r}
 #| label: fig-puma-swath
-#| column: page
 #| echo: false
 #| message: false
 #| warning: false
@@ -144,7 +171,7 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
       col_core, col_context
     ))
   ) |>
-  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
+  fit_bounds_responsive(-123.53354, 36.85065, -121.20830, 38.86399)
 ```
 
 ## Where does the corridor meet the roads?
@@ -169,7 +196,6 @@ masquerading as the top barrier.
 
 ```{r}
 #| label: fig-puma-crossings
-#| column: page
 #| echo: false
 #| message: false
 #| warning: false
@@ -265,7 +291,7 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
        </div>"
     )
   ) |>
-  fitBounds(-122.17587, 37.01977, -121.69144, 37.28626)
+  fit_bounds_responsive(-122.17587, 37.01977, -121.69144, 37.28626)
 ```
 
 ## The network
@@ -306,7 +332,6 @@ protecting.
 
 ```{r}
 #| label: fig-puma-network
-#| column: page
 #| echo: false
 #| message: false
 #| warning: false
@@ -387,7 +412,7 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
        </div>"
     )
   ) |>
-  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
+  fit_bounds_responsive(-123.53354, 36.85065, -121.20830, 38.86399)
 ```
 
 ## Limitations

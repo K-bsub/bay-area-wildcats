@@ -3,6 +3,34 @@ title: "The Protected-Land"
 subtitle: "Question 1 — Landscape"
 ---
 
+```{r}
+#| label: setup-fitbounds
+#| include: false
+# Responsive bounds helper (Option 2: defined once per page, no cross-file source).
+# Re-fits the SAME bounds whenever the map container resizes -- phone reflow,
+# orientation change, single-column layout -- so the study extent stays fixed on
+# every screen. Wraps fitBounds + a ResizeObserver via htmlwidgets::onRender.
+fit_bounds_responsive <- function(map, lng1, lat1, lng2, lat2) {
+  map |>
+    leaflet::fitBounds(lng1, lat1, lng2, lat2) |>
+    htmlwidgets::onRender(sprintf("
+      function(el, x) {
+        var map = this;
+        var b = [[%f, %f], [%f, %f]];
+        var refit = function() { map.invalidateSize(); map.fitBounds(b); };
+        if (window.ResizeObserver) {
+          var ro = new ResizeObserver(function() { refit(); });
+          ro.observe(el);
+        } else {
+          window.addEventListener('resize', refit);
+        }
+        window.addEventListener('orientationchange', refit);
+        setTimeout(refit, 200);
+      }
+    ", lat1, lng1, lat2, lng2))
+}
+```
+
 How much protected open space is there in the ten-county Bay Area, how is it held,
 and how does it break apart when you look at it the way a wide-ranging carnivore
 would — as a set of patches large enough to hold a home range, or not?
@@ -72,7 +100,6 @@ ranchland — exists only because of easements.
 
 ```{r}
 #| label: fig-protected-fabric
-#| column: page
 #| echo: false
 #| message: false
 #| warning: false
@@ -164,7 +191,7 @@ leaflet(options = leafletOptions(minZoom = 8)) |>
     position = "topright") |>
   addControl(html = legend_html, position = "bottomleft") |>
   # fitBounds MUST be last
-  fitBounds(-123.53354, 36.85065, -121.20830, 38.86399)
+  fit_bounds_responsive(-123.53354, 36.85065, -121.20830, 38.86399)
 ```
 
 Turn the easement layer off and the map opens up with gaps along the inner Coast

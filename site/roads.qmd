@@ -3,6 +3,34 @@ title: "The Roads"
 subtitle: "Question 4 — Collision risk"
 ---
 
+```{r}
+#| label: setup-fitbounds
+#| include: false
+# Responsive bounds helper (Option 2: defined once per page, no cross-file source).
+# Re-fits the SAME bounds whenever the map container resizes -- phone reflow,
+# orientation change, single-column layout -- so the study extent stays fixed on
+# every screen. Wraps fitBounds + a ResizeObserver via htmlwidgets::onRender.
+fit_bounds_responsive <- function(map, lng1, lat1, lng2, lat2) {
+  map |>
+    leaflet::fitBounds(lng1, lat1, lng2, lat2) |>
+    htmlwidgets::onRender(sprintf("
+      function(el, x) {
+        var map = this;
+        var b = [[%f, %f], [%f, %f]];
+        var refit = function() { map.invalidateSize(); map.fitBounds(b); };
+        if (window.ResizeObserver) {
+          var ro = new ResizeObserver(function() { refit(); });
+          ro.observe(el);
+        } else {
+          window.addEventListener('resize', refit);
+        }
+        window.addEventListener('orientationchange', refit);
+        setTimeout(refit, 200);
+      }
+    ", lat1, lng1, lat2, lng2))
+}
+```
+
 The question this section was meant to answer is where pumas are killed by
 vehicles. That question cannot be answered here yet, because the data that would
 answer it are not in hand. So this section does two things instead: it states
@@ -32,7 +60,6 @@ When the core-corridor filter is applied, the risk narrows sharply.
 
 ```{r}
 #| label: fig-puma-risk
-#| column: page
 #| echo: false
 #| message: false
 #| warning: false
@@ -112,7 +139,7 @@ leaflet(options = leafletOptions(minZoom = 7)) |>
        </div>"
     )
   ) |>
-  fitBounds(-122.17587, 37.01977, -121.69144, 37.28626)
+  fit_bounds_responsive(-122.17587, 37.01977, -121.69144, 37.28626)
 ```
 
 The map makes the filter visible. Most of the busy roads the corridor crosses are
