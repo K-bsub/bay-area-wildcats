@@ -16,7 +16,7 @@ neither species is recovering from near-extinction. The conservation question in
 the Bay Area is different — not how to bring them back, but how they keep moving
 and coexisting at the edge of a large city.
 
-::: {layout-ncol=2}
+::: {.lead-cats layout-ncol=2}
 ![A puma (*Puma concolor*). Photo: Charles J. Sharp, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Puma_(Puma_concolor_concolor)_female_Leona_Amarga_6.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0).](media/images/puma_concolor2.jpg){fig-alt="A puma standing on rocky ground"}
 
 ![A bobcat (*Lynx rufus*). Photo: Rennett Stowe, [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Wild_Bobcat_(3021593202).jpg), [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0).](media/images/lynx_rufus2.jpg){fig-alt="A bobcat sitting in grass"}
