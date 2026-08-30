@@ -143,7 +143,7 @@ legend_html <- htmltools::HTML(sprintf(
   col_fee, col_fee, col_ease, col_ease, col_core
 ))
 
-leaflet(options = leafletOptions(minZoom = 6)) |>
+leaflet(options = leafletOptions(minZoom = 8)) |>
   addTiles(urlTemplate = paste0(
     "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/",
     "World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"),
@@ -175,30 +175,42 @@ leaflet(options = leafletOptions(minZoom = 6)) |>
     options = layersControlOptions(collapsed = FALSE),
     position = "topright") |>
   addControl(html = legend_html, position = "bottomleft") |>
-  # Tiger-style responsive fit: fit to the widened DATA bounds, with a
-  # requestAnimationFrame-debounced ResizeObserver so the extent stays correct
-  # when the container reflows (phone single-column, orientation change, iframe
-  # settle). Ported from the tiger story map's fitReserves() pattern.
+  # Responsive fit that WAITS for the container to have a real height before
+  # fitting. In Quarto, htmlwidgets sizes the widget AFTER onRender fires, so a
+  # naive fitBounds runs against a 0-height box and lands at min zoom on every
+  # device. We poll with requestAnimationFrame until the element has real
+  # dimensions, fit once, then keep a debounced observer for later resizes
+  # (phone reflow, orientation, iframe settle). Ported/hardened from the tiger
+  # story map's fitReserves() pattern.
   htmlwidgets::onRender(sprintf("
     function(el, x) {
       var map = this;
       var bounds = [[%f, %f], [%f, %f]];   // [[S,W],[N,E]] widened data bounds
-      function fitNow() {
+      function doFit() {
         map.invalidateSize();
         var pad = window.innerWidth <= 760 ? [90, 55] : [70, 70];
         map.fitBounds(bounds, { padding: pad });
       }
+      // Wait until the container actually has size, THEN fit.
+      var tries = 0;
+      function fitWhenReady() {
+        if (el.clientHeight > 50 && el.clientWidth > 50) {
+          doFit();
+        } else if (tries++ < 60) {
+          requestAnimationFrame(fitWhenReady);
+        }
+      }
+      fitWhenReady();
+      // Debounced re-fit on later container resizes.
       var rafId = null;
       if (window.ResizeObserver) {
         var ro = new ResizeObserver(function() {
           if (rafId) cancelAnimationFrame(rafId);
-          rafId = requestAnimationFrame(fitNow);
+          rafId = requestAnimationFrame(doFit);
         });
         ro.observe(el);
       }
-      window.addEventListener('resize', fitNow);
-      window.addEventListener('orientationchange', fitNow);
-      fitNow();
+      window.addEventListener('orientationchange', doFit);
     }
   ", fit_s, fit_w, fit_n, fit_e))
 ```
