@@ -189,7 +189,7 @@ leaflet(options = leafletOptions(minZoom = 6, zoomSnap = 0.1)) |>
       var bounds = [[%f, %f], [%f, %f]];   // [[S,W],[N,E]] widened data bounds
       function doFit() {
         map.invalidateSize();
-        var pad = window.innerWidth <= 760 ? [12, 12] : [30, 30];
+        var pad = window.innerWidth <= 760 ? [6, 6] : [10, 10];
         map.fitBounds(bounds, { padding: pad });
       }
       // Wait until the container actually has size, THEN fit.
