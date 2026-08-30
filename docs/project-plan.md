@@ -4,7 +4,7 @@
 **Author:** Kiran Balasubramanian
 **Start date:** July 23, 2026
 **Target:** 10 weeks
-**Last updated:** August 9, 2026
+**Last updated:** August 30, 2026
 
 ---
 
@@ -42,7 +42,7 @@
 | **7** | Occupancy modelling | Bobcat occupancy fitted and validated; puma feasibility assessed | ✅ Complete |
 | **8** | Connectivity analysis | Least-cost paths + core-patch linkages; three pre-registered sensitivity checks | ✅ Complete — core patches (D32), primary LCP + swath + AADT-tiered crossings (D33), AADT route-PM correction + full re-run (D34), 3 sensitivity checks STABLE / FVEG contingency closed (D35), Q5 KDE-Gi* cross-read (D36), Gabriel connectivity network + weak links (D37). All documented; sensitive-data gated. |
 | **9** | Story site build | Quarto site, maps, charts, narrative | ✅ Complete — full Quarto story site built + deployed (GitHub Pages): Story, Q1 Landscape (+ CPAD∪CCED∪core-patch map), Q2 Bobcat, Q3 Puma connectivity (swath-led), Q4 collision-risk proxy (CROS parked), Q5 Effort (divergence/convergence), Limitations, Methods, Data & References. Puma data generalised ≥1 km, no points (§3 review passed). Decision 39 (Q5 KDE/Gi* placement). Two basemap fixes (CARTO→ESRI, roads visible, cool AADT ramp). |
-| **10** | Review and publication | Author review/QC pass, prose simplification, add species/open-space imagery, docs finalised | ⚪ Not started |
+| **10** | Review and publication | Author review/QC pass, prose simplification, add species/open-space imagery, docs finalised | ✅ Complete — author-led editorial pass (prose simplified, no AI); species + open-space imagery added (5 Wikimedia CC BY-SA files, EXIF-stripped, full attribution) on Story/Landscape/Bobcat/Puma; Data & References image-credits block + `data-sources.md` §8; full-site QC (links, maps, caption numbers verified against source tables), accessibility (fig-alt on every figure, colour-not-alone confirmed), final sensitive-data §3 review passed; responsive-map fix for phone/tablet. No new analytical Decisions — Decision count stays at 39. |
 
 **Status legend:** 🟢 In progress · 🟡 At risk · 🔴 Blocked · ✅ Complete · ⚪ Not started
 
@@ -1353,3 +1353,87 @@ is broken — use the WorldCover AWS COGs already in the script.
 - **Next:** Week 8 — puma least-cost corridors from `resist_puma_baseline_3310.tif`
   (Decision 26 sensitivity checks: road-confidence, chaparral, ±10% weight).
   CROS still parked (Decision 11, awaiting F. Shilling).
+
+### Week 8 closeout — August 24, 2026
+- **Progress:** ✅ **Week 8 complete** — puma least-cost corridors, core-patch
+  linkages, and the pre-registered sensitivity checks. Decisions 32–38 closed.
+  Retro-recorded at Phase-1 close (the closeout was not written in-week; the
+  timeline row and methodology decision log are the in-week record).
+- **Corridors.** Core patches (Decision 32); primary LCP + two-tier swath +
+  AADT-tiered crossings (Decision 33); AADT route-PM mis-assignment corrected and
+  full re-run (Decision 34) before results were read. Endpoints: Santa Cruz
+  Mountains (`patch_id 1727`) ↔ southern Diablo Range (`patch_id 3972`); LCP
+  37.2 km; ~1.5 km route play under ±10% gHM weight (Decision 35); Coyote Valley
+  pinch at the 83rd percentile of puma record density (Decision 36).
+- **Sensitivity.** Three pre-registered checks (road-confidence, chaparral/FVEG,
+  ±10% weight) all STABLE; FVEG contingency closed (Decision 35).
+- **Network.** Gabriel connectivity network + weak links (Decision 37); a
+  node-cutoff / chain finding disagreed with runtime output and was corrected as
+  Decision 38 (original preserved for the audit trail). US-101 at Coyote Valley
+  (142,000 AADT) is the top barrier.
+- **Sensitive-data.** Every puma export gated through `assert_publishable()`; all
+  published surfaces ≥1 km; no precise points.
+- **Blockers:** none. CROS still parked (Decision 11).
+
+### Week 9 closeout — August 24, 2026
+- **Progress:** ✅ **Week 9 complete** — full Quarto story site built and deployed
+  to GitHub Pages. Retro-recorded at Phase-1 close.
+- **Site.** Nine pages: Story, Q1 Landscape, Q2 Bobcat, Q3 Puma, Q4 Collision
+  risk, Q5 Effort, Limitations, Methods, Data & References. Puma data generalised
+  ≥1 km, no points (§3 review passed). Decision 39 records the Q5 puma KDE/Gi*
+  placement (convergence check, not a standalone result).
+- **Basemap/render fixes.** CARTO → ESRI (CARTO now needs an API key); ESRI World
+  Transportation road overlay on the two AADT maps; cool blue→magenta AADT ramp.
+  `leaflet-side-by-side` replaced with a self-contained vanilla-JS swipe.
+- **Deployment.** Site renders locally; `site/_freeze/` committed as the
+  deployment; publish Action needs only Quarto. Images must live under
+  `site/media/images/`.
+- **Blockers:** none.
+
+### Week 10 closeout — August 30, 2026 — PHASE 1 COMPLETE
+- **Progress:** ✅ **Week 10 complete — Phase 1 closed.** The reviewed, illustrated,
+  accessibility-checked story site is the finished Phase-1 deliverable. No new
+  analysis; no new Decisions (count stays at **39**).
+- **Editorial (author-only).** Kiran read the full site end to end and simplified
+  prose, cut repetition, and checked flow. No AI prose involvement. One factual
+  correction made by the author: the California bobcat **commercial-trapping** ban
+  is **2015** (Bobcat Protection Act 2013); 2020 was the **hunting** ban.
+- **Imagery.** Five Wikimedia Commons photographs added — puma (Charles J. Sharp,
+  CC BY-SA 4.0, ×2), bobcat (Rennett Stowe CC BY-SA 2.0; Don DeBold CC BY-SA 2.0),
+  Santa Cruz Mountains foothills (Agne27, CC BY-SA 3.0) — placed on
+  Story/Landscape/Bobcat/Puma. EXIF stripped on every file; no precise
+  wild-location caption (the Bay-Area bobcat's trail name survives only inside the
+  required attribution URL, not in caption text). Full attribution in
+  `media/image-credits.md`; site credits block on Data & References;
+  `data-sources.md` §8 records provenance and licences.
+- **Introductory prose.** Brief puma/bobcat conservation-history paragraph on the
+  Story page; short species introductions on Bobcat and Puma.
+- **QC.** Full-site pass: internal/nav links resolve; basemaps ESRI-only (no
+  CARTO); no render artifacts; `fitBounds` last in every chain. Every typed
+  caption number verified against source tables/gpkg (bobcat Gi* 6/4/2/224;
+  164 core patches / 82.5%; 290 crossings; US-101 142,000 AADT; swath 409/1,021
+  km² geometry-confirmed). One table discrepancy surfaced and resolved as two
+  different populations (record-based Gi* vs occupancy-fitted subset), not an
+  error.
+- **Accessibility.** `fig-alt` added to all figures (11 maps + photos + charts);
+  colour-not-alone confirmed (Gi* solid vs dashed/hollow; AADT line pattern +
+  thickness alongside the ramp). Rendered-page WCAG contrast check left as a
+  you-side item on the live site.
+- **Responsive maps.** All 11 Leaflet maps hardened for phone/tablet: fit waits
+  for real container height, `zoomSnap = 0.1` for fractional frame-adaptive fit,
+  debounced `ResizeObserver`, responsive padding. The two south-Bay maps (puma
+  crossings, roads collision) keep their tighter extent. Legends shrink on phones
+  via a `styles.css` breakpoint. Page layout widened (`page-layout: full`) with
+  readable text and page-width figures.
+- **Sensitive-data §3 (final).** PASS. No puma point layers; no camera/den/kill
+  coordinates; excluded `kde_puma_obscured_caveat_1km_3310.tif` not referenced;
+  puma photos out-of-region/captive; EXIF-stripped imagery; every location
+  reference is either safeguard language or a citation.
+- **Parked / deferred (carried to a future phase, not Phase-1 gaps):** CROS
+  road-mortality data (Decision 11, awaiting F. Shilling — Q4 stays a risk proxy);
+  Felidae camera data (Decision 7, no agreement, nothing held).
+- **Blockers:** none.
+- **Phase 1 deliverables — all met:** reproducible R pipeline (pinned `renv`);
+  both species treated with data-appropriate methods; every published map states
+  its detection-bias caveat; no sensitive location published; all sources cited
+  with licences honoured (proposal §7 success criteria).

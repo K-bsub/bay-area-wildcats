@@ -1,7 +1,7 @@
 # Data Sources
 
 **Project:** Wild Cats at the Urban Edge
-**Last updated:** July 27, 2026
+**Last updated:** August 30, 2026
 
 > Skeleton. Each entry is completed at download time with: access date, exact
 > version, file path, record count, CRS, licence and known issues — matching the
@@ -589,3 +589,29 @@ not from the `Park` label.
 | OpenStreetMap | ODbL | Yes | Share-alike |
 | Caltrans AADT | CA public data | Yes | Informational |
 | Felidae | Agreement | Yes | **No** |
+
+---
+
+## 8. Site imagery (illustrative photographs)
+
+The story site carries a small set of illustrative photographs (species and
+open-space landscape) sourced from Wikimedia Commons. They are **not study data**
+and show no analysis result. Each is used within its per-file Commons licence,
+with attribution. EXIF metadata was removed from every file before publication,
+and no photograph is captioned with a precise wild-sighting location
+(sensitive-data-policy §3, applied to imagery). The full capture record —
+filename, title, author, source URL, licence + version, and any changes-made note
+— is kept in `media/image-credits.md`; the site-facing credits block is on the
+Data & References page.
+
+| Image (subject) | Author | Source | Licence |
+|---|---|---|---|
+| Puma (*Puma concolor*), two files | Charles J. Sharp | Wikimedia Commons | CC BY-SA 4.0 |
+| Bobcat (*Lynx rufus*), Story page | Rennett Stowe | Wikimedia Commons | CC BY-SA 2.0 |
+| Bobcat (*Lynx rufus*), Bobcat page | Don DeBold | Wikimedia Commons | CC BY-SA 2.0 |
+| Santa Cruz Mountains foothills | Agne27 | Wikimedia Commons | CC BY-SA 3.0 |
+
+All five are CC BY-SA (share-alike): attribution is required, and any future crop
+or edit must be noted and keep the same licence. No image was cropped or altered
+at source (the Story pair is display-cropped by CSS only; the files are
+unchanged).

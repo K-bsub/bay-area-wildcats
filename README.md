@@ -9,7 +9,7 @@ Phase 1 of a multi-phase project. Sister project to
 | | |
 |---|---|
 | **Author** | Kiran Balasubramanian |
-| **Status** | Week 9 complete — story site live. The full Quarto site is built and deployed to GitHub Pages: Story (framing), Q1 Landscape, Q2 Bobcat, Q3 Puma connectivity (swath-led), Q4 collision-risk proxy (CROS parked), Q5 Effort, Limitations, Methods, and Data & References. Puma outputs generalised to ≥1 km with no precise points published (sensitive-data §3 review passed). Decision 39 records the Q5 puma KDE/Gi* placement. Phase 1 analysis (Weeks 1–8) complete: bobcat occupancy + puma connectivity, with the Q5 effort thread tying both tracks. Next: review / QC pass; CROS integration and Felidae camera data are deferred to a future phase. |
+| **Status** | **Phase 1 complete — reviewed story site live.** The full Quarto site is built, reviewed, illustrated, and deployed to GitHub Pages: Story (framing), Q1 Landscape, Q2 Bobcat, Q3 Puma connectivity (swath-led), Q4 collision-risk proxy (CROS parked), Q5 Effort, Limitations, Methods, and Data & References. Week-10 close: author-led editorial pass, licensed Wikimedia imagery (5 CC BY-SA files, EXIF-stripped, full attribution), full-site QC, accessibility (fig-alt on every figure, colour-not-alone), responsive-map fix for phone/tablet, and a final sensitive-data §3 review — all passed. Puma outputs generalised to ≥1 km with no precise points published. Phase 1 analysis (Weeks 1–8) complete: bobcat occupancy + puma connectivity, with the Q5 effort thread tying both tracks. Decision log closed at 39. CROS integration and Felidae camera data are deferred to a future phase. |
 | **Focal species** | *Puma concolor* (puma / mountain lion), *Lynx rufus* (bobcat) |
 | **Study area** | Ten-county San Francisco Bay Area |
 | **Analysis CRS** | EPSG:3310 — NAD83 / California Albers |
@@ -57,7 +57,8 @@ bay-area-wildcats/
 │   └── restricted/     Partner / sensitive data                [NEVER committed]
 ├── outputs/            Figures, tables, rasters, fitted models
 ├── site/               Quarto story site (published to GitHub Pages)
-└── media/photos/       Imagery with attribution records
+│   └── media/images/   Site imagery (in-project so it deploys)
+└── media/              Imagery attribution records (image-credits.md)
 ```
 
 Data is **not** stored in this repository. Every dataset is publicly
