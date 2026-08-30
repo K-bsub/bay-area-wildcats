@@ -12,6 +12,10 @@ Two principles govern the data on this project. First, **Phase 1 uses open data
 only** — no partner or restricted data is used or published. Second, **no precise
 puma location is ever published** (see the note at the foot of this page).
 
+All associated files — code, analysis scripts, documentation, and data-acquisition
+steps — are in the project repository at
+[github.com/K-bsub/bay-area-wildcats](https://github.com/K-bsub/bay-area-wildcats).
+
 ## The data
 
 ### Where animals were recorded
