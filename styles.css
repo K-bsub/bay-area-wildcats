@@ -2,52 +2,102 @@
 /* Placeholder; real theming added in Week 9. Kept non-empty so the */
 /* css reference in _quarto.yml resolves during render. */
 
+/* -------------------------------------------------------------------------- */
+/* Page layout: readable text pulled left, wide maps, responsive on all sizes  */
+/* -------------------------------------------------------------------------- */
+/* Works WITH Quarto's page-layout: full grid rather than against it.          */
+/* Text width is set in ch (character-based) so prose stays readable on any    */
+/* screen. Maps use % width and viewport-based height, so nothing is a fixed   */
+/* pixel size. A breakpoint collapses everything to one column on tablet/phone.*/
+
+/* DESKTOP / large screens (>= 992px: Quarto shows the right-hand TOC here) */
+@media (min-width: 992px) {
+
+  /* Text column: readable line length, aligned to the LEFT of the page track  */
+  /* (not centred), leaving the left gutter filled.                            */
+  .quarto-title-block,
+  main.content > p,
+  main.content > ul,
+  main.content > ol,
+  main.content > blockquote,
+  main.content > h1,
+  main.content > h2,
+  main.content > h3,
+  main.content > h4,
+  main.content > .cell > .cell-output-display > .quarto-figure-center figcaption,
+  main.content > figure figcaption {
+    max-width: 75ch;      /* ~72-78 chars: the readable range, screen-agnostic */
+    margin-left: 0;       /* align left, fill the reclaimed gutter             */
+    margin-right: auto;
+  }
+
+  /* Page-width figures (the 11 maps + Story photo pair): fill the page track  */
+  /* toward the TOC, with a small gap. No fixed px -- % of the track.          */
+  main.content .column-page {
+    width: 100%;
+    max-width: 1000px;    /* upper cap only; shrinks freely on smaller windows */
+    margin-left: 0;
+    margin-right: auto;
+  }
+
+  /* Leaflet maps: viewport-relative height so they scale with the screen.     */
+  main.content .column-page .leaflet,
+  main.content .column-page .leaflet-container {
+    width: 100% !important;
+    height: 60vh !important;   /* 60% of window height, not a fixed pixel box  */
+    min-height: 420px;
+    max-height: 640px;
+  }
+
+  /* Story lead photos at page width: a touch taller to match the wider frame. */
+  .lead-cats.column-page figure img {
+    height: 30vh;
+    min-height: 300px;
+    max-height: 440px;
+  }
+}
+
+/* TABLET / PHONE (< 992px): Quarto stacks the TOC above; go single column.    */
+@media (max-width: 991px) {
+
+  /* Text spans the container, with comfortable side padding.                  */
+  main.content > p,
+  main.content > ul,
+  main.content > ol,
+  main.content > blockquote {
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* Maps and page figures fill the full width of the screen.                  */
+  main.content .column-page {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  main.content .column-page .leaflet,
+  main.content .column-page .leaflet-container {
+    width: 100% !important;
+    height: 55vh !important;
+    min-height: 320px;
+  }
+
+  /* Story photos: stack is handled by Quarto; keep them readable height.       */
+  .lead-cats figure img {
+    height: 240px;
+  }
+}
+
 /* Story page -- equal-height lead photos (puma + bobcat) */
 .lead-cats figure {
   margin: 0;
 }
 .lead-cats figure img {
   width: 100%;
-  height: 320px;        /* both images forced to this height */
+  height: 320px;        /* both images forced to this height (base/default) */
   object-fit: cover;    /* crop to fill, no distortion, no letterbox */
   object-position: center;
-}
-
-/* -------------------------------------------------------------------------- */
-/* Page layout: readable text column pulled toward the left edge, wide figures */
-/* -------------------------------------------------------------------------- */
-/* With page-layout: full, Quarto gives the body the whole width and keeps the */
-/* TOC on the right. We cap prose line-length for readability, remove the big  */
-/* left gutter so content starts near the left edge, and let .column-page      */
-/* figures (maps + the Story photo pair) spill wider than the text.            */
-
-/* Readable prose: body text and its own captions stay ~800px wide. */
-main.content .column-body,
-main.content > p,
-main.content > ul,
-main.content > ol,
-main.content > blockquote,
-main.content > h1,
-main.content > h2,
-main.content > h3,
-main.content > h4 {
-  max-width: 800px;
-  margin-left: 0;       /* pull the text block to the left, not centred */
-}
-
-/* Maps and page-width figures extend past the text toward the TOC. */
-main.content .column-page {
-  max-width: 1150px;    /* fills the reclaimed left space up to the TOC */
-  margin-left: 0;
-}
-
-/* Leaflet maps: fill their (now wider) container and give a bit more height. */
-main.content .column-page .leaflet {
-  width: 100% !important;
-  height: 560px !important;
-}
-
-/* Story lead photos, when set to column-page, get more height to match. */
-.lead-cats.column-page figure img {
-  height: 420px;
 }
