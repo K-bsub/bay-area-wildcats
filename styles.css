@@ -12,3 +12,42 @@
   object-fit: cover;    /* crop to fill, no distortion, no letterbox */
   object-position: center;
 }
+
+/* -------------------------------------------------------------------------- */
+/* Page layout: readable text column pulled toward the left edge, wide figures */
+/* -------------------------------------------------------------------------- */
+/* With page-layout: full, Quarto gives the body the whole width and keeps the */
+/* TOC on the right. We cap prose line-length for readability, remove the big  */
+/* left gutter so content starts near the left edge, and let .column-page      */
+/* figures (maps + the Story photo pair) spill wider than the text.            */
+
+/* Readable prose: body text and its own captions stay ~800px wide. */
+main.content .column-body,
+main.content > p,
+main.content > ul,
+main.content > ol,
+main.content > blockquote,
+main.content > h1,
+main.content > h2,
+main.content > h3,
+main.content > h4 {
+  max-width: 800px;
+  margin-left: 0;       /* pull the text block to the left, not centred */
+}
+
+/* Maps and page-width figures extend past the text toward the TOC. */
+main.content .column-page {
+  max-width: 1150px;    /* fills the reclaimed left space up to the TOC */
+  margin-left: 0;
+}
+
+/* Leaflet maps: fill their (now wider) container and give a bit more height. */
+main.content .column-page .leaflet {
+  width: 100% !important;
+  height: 560px !important;
+}
+
+/* Story lead photos, when set to column-page, get more height to match. */
+.lead-cats.column-page figure img {
+  height: 420px;
+}
